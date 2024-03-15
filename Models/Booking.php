@@ -11,10 +11,12 @@ class Booking{
     private $petCode;
     private $initDate;
     private $endDate;
-    private $initHour;
-    private $endHour;
     private $status;
     private $totalPrice;
+    private $totalDays;
+    private $visitPerDay;
+    private $timestamp;
+
 
 
     /**
@@ -177,25 +179,7 @@ class Booking{
         return $this;
     }
 
-    /**
-     * Get the value of initHour
-     */ 
-    public function getinitHour()
-    {
-        return $this->initHour;
-    }
 
-    /**
-     * Set the value of initHour
-     *
-     * @return  self
-     */ 
-    public function setinitHour($initHour)
-    {
-        $this->initHour = $initHour;
-
-        return $this;
-    }
 
     /**
      * Get the value of status
@@ -217,22 +201,63 @@ class Booking{
         return $this;
     }
 
+
     /**
-     * Get the value of endHour
+     * Get the value of totalDays
      */ 
-    public function getEndHour()
+    public function getTotalDays()
     {
-        return $this->endHour;
+        return $this->totalDays;
     }
 
     /**
-     * Set the value of endHour
+     * Set the value of totalDays
      *
      * @return  self
      */ 
-    public function setEndHour($endHour)
+    public function setTotalDays($totalDays)
     {
-        $this->endHour = $endHour;
+        $this->totalDays = $totalDays;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of visitPerDay
+     */ 
+    public function getVisitPerDay()
+    {
+        return $this->visitPerDay;
+    }
+
+    /**
+     * Set the value of visitPerDay
+     *
+     * @return  self
+     */ 
+    public function setVisitPerDay($visitPerDay)
+    {
+        $this->visitPerDay = $visitPerDay;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of timestamp
+     */ 
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * Set the value of timestamp
+     *
+     * @return  self
+     */ 
+    public function setTimestamp($timestamp)
+    {
+        $this->timestamp = $timestamp;
 
         return $this;
     }
