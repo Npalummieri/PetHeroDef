@@ -29,6 +29,21 @@ class Dates{
         }
         return $result;
     }
+
+    public static function calculateDays($initDate,$endDate)
+    {
+        $initDateTime = DateTime::createFromFormat('Y-m-d', $initDate);
+        $endDateTime = DateTime::createFromFormat('Y-m-d', $endDate);
+
+        if (!$initDateTime || !$endDateTime) {
+            $result = null;
+        }else{
+            $interval = $initDateTime->diff($endDateTime);
+            $result = $interval->days + 1; // Agregar 1 para incluir el último día
+        }
+
+        return $result;
+    }
 }
 
 ?>
