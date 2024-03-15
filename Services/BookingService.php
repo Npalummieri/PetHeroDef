@@ -9,6 +9,7 @@ use DAO\KeeperDAO as KeeperDAO;
 use \DateTime as DateTime;
 use Models\Booking as Booking;
 use Services\CouponService as CouponService;
+use Utils\Dates as Dates;
 
 
 class BookingService{
@@ -32,28 +33,14 @@ class BookingService{
         return $uuid;
     }
 
-    public function checkOverBookingByDates($ownerCode,$initDate,$endDate,$initHour,$endHour,$petCode,$keeperCode,$typePet,$typeSize)
+
+
+    public function srv_validateBooking($ownerCode,$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay)
     {
-
-        //¿¿¿¿¿¿¿Por que seteo todo en un obj y dps paso los mismos datos pero por getters,si ya me llegan por parametro... ?????
-        $booking = new Booking();
-        $booking->setOwnerCode($ownerCode);
-        $booking->setKeeperCode($keeperCode);
-        $booking->setPetCode($petCode);
-        $booking->setInitDate($initDate);
-        $booking->setEndDate($endDate);
-        $booking->setInitHour($initHour);
-        $booking->setEndHour($endHour);
-
-        return $this->bookingDAO->checkOverBooking($booking->getKeeperCode(),$booking->getInitDate(),$booking->getEndDate(),$booking->getInitHour(),$booking->getEndHour(),$booking->getPetCode());
-    }
-
-    public function srv_validateBooking($ownerCode,$initHour,$endHour,$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize)
-    {
-        //Falta hacer la real validacion
+        $resp = null;
         try{
             //Se revalida el tipo de mascota y se chequea el overbooking! Si puede pasar que haya un falso overbooking de varias reservas 'iguales' pero en pending
-            if($this->keeperDAO->revalidateKeeperPet($keeperCode,$petCode) > 0 && $this->bookingDAO->checkOverBooking($keeperCode,$initDate,$endDate,$initHour,$endHour,$petCode) > 0 && $this->bookingDAO->checkDoubleBooking($ownerCode,$keeperCode,$petCode,$initDate,$endDate,$initHour,$endHour) == 0)
+            if($this->keeperDAO->revalidateKeeperPet($keeperCode,$petCode) > 0  && $this->bookingDAO->checkDoubleBooking($ownerCode,$keeperCode,$petCode,$initDate,$endDate) == 0)
             {
 
                 $booking = new Booking();
@@ -61,18 +48,46 @@ class BookingService{
                 $booking->setOwnerCode($ownerCode);
                 $booking->setKeeperCode($keeperCode);
                 $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
-                $booking->setTotalPrice($this->srv_calculateBookingPrice($initHour,$endHour,$keeper->getPrice()));
+
+                //¿Validar existencia de PET? Incluso en la vista ya esta 'asegurado'
                 $booking->setPetCode($petCode);
-                $booking->setInitDate($initDate);
-                $booking->setEndDate($endDate);
-                $booking->setInitHour($initHour);
-                $booking->setEndHour($endHour);
-                $resp = $this->bookingDAO->Add($booking);
+
+                if(Dates::validateAndCompareDates($initDate,$endDate) == 1 || Dates::validateAndCompareDates($initDate,$endDate) == 0 )
+                {
+                    $booking->setInitDate($initDate);
+                    $booking->setEndDate($endDate);
+                }else{
+                    throw new Exception("Not valid dates");
+                }
+                
+                
+                
+                $totalDays = Dates::calculateDays($initDate,$endDate);
+                if($totalDays != null)
+                {
+                    $booking->setTotalDays($totalDays);
+                }else{
+                    throw new Exception("Something is wrong with dates");
+                }
+                
+
+                if($keeper->getVisitPerDay() != $visitPerDay)
+                {
+                    throw new Exception("Visit per day has no coincidence");
+                }else{
+                    $booking->setVisitPerDay($visitPerDay);
+                    $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(),$totalDays,$visitPerDay));
+                    echo "SOY BOOKING SERVICE";
+                    var_dump($booking);
+                    $resp = $this->bookingDAO->Add($booking);
+                }   
+
                 
             }else
             {
                 $resp = false;
             }
+            return $resp;
             
         }catch(Exception $ex)
         {
@@ -82,18 +97,11 @@ class BookingService{
     }
 
     //
-    public function srv_calculateBookingPrice($initHour, $endHour, $priceHour)
+    private function srv_calculateBookingPrice($price,$totalDays,$visitPerDay)
     {
-        $initHourDT = DateTime::createFromFormat('H:i', $initHour);
-        $endHourDT = DateTime::createFromFormat('H:i', $endHour);
+        //Se asume que todas las variables tan saneadas del srv_validateBooking
 
-        // Dif entre horarios,se genera un DateInterval por ->diff
-        $difference = $initHourDT->diff($endHourDT);
-
-        // Convierte la diferencia a minutos
-        $totalMinutes = ($difference->h * 60) + $difference->i;
-
-       return $totalMinutes/60;
+        return $price * ($totalDays * $visitPerDay);
     }
 
     public function srv_getAllMyBookings($userCode)
