@@ -182,10 +182,6 @@ class KeeperService{
         return $error;
     }
     
-
-
-    
-
     public function srv_getKeeperByCode($keeperCode)
     {
         try{
