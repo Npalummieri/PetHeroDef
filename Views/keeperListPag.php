@@ -3,7 +3,7 @@ require_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php"); 
 ?>
 
-<div class="container mt-5">
+<div class="container mt-5" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>">
   <h2 class="text-center">Keepers</h2>
   <div class="row justify-content-center">
     <?php foreach ($allKeepers as $keeper) { ?>
@@ -29,6 +29,7 @@ require_once(VIEWS_PATH . "formKeepersList.php");
             <div class="mt-3">
               <a class="btn btn-danger" href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $keeper->getKeeperCode() ?>">Make booking</a>
               <a class="btn btn-success btn-availability" data-codekeeper="<?php echo $keeper->getKeeperCode() ?>">See availability</a>
+              <div class="additional-info" style="visibility: hidden;"></div> <!-- Aquí se mostrará la disponibilidad -->
             </div>
           </div>
         </div>
@@ -46,6 +47,8 @@ require_once(VIEWS_PATH . "formKeepersList.php");
 </div>
 
 <script src="<?php echo JS_PATH . "formScripts.js" ?>"></script>
-
+<script>
+KeepersInteract.getKeeperAvail();
+</script>
 
 <?php require_once("footer.php"); ?>

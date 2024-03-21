@@ -3,6 +3,7 @@ include("header.php");
 include("nav.php");
 ?>
 <div class="container mt-5">
+
     <form action="<?php echo FRONT_ROOT . 'Booking/showBookCreate' ?>" method="POST">
         <div class="row border rounded p-4">
             <!-- Columna para la foto de perfil -->

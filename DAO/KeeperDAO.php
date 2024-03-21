@@ -62,6 +62,27 @@ class KeeperDAO extends IDAO
         }
     }
 
+    public function updateStatus($code)
+    {
+        try{
+
+            $query = "UPDATE ".$this->tableName." 
+            SET status = :status  
+            WHERE keeperCode = :code ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["code"] = $code;
+            $parameters["status"] = "active";
+
+            return $this->connection->ExecuteNonQuery($query,$parameters);
+
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
+    }
+
 
     //El getAll deberia discriminar el status del keeper (O sea si esta activo o no)
     public function GetAll()
@@ -235,6 +256,7 @@ class KeeperDAO extends IDAO
                     $keeper->setVisitPerDay($value["visitPerDay"]);
                 }
             }
+            //var_dump($keeper);
             return $keeper;
         } catch (Exception $ex) {
             throw $ex;
@@ -577,5 +599,25 @@ class KeeperDAO extends IDAO
         {
             throw $ex;
         }
+    }
+
+    public function updateVisitDay($keeperCode,$visit){
+        try{
+            $query = "UPDATE ".$this->tableName." 
+            SET visitPerDay = :visit 
+            WHERE keeperCode = :keeperCode";
+
+            $parameters["keeperCode"] = $keeperCode;
+            $parameters["visit"] = $visit;
+            $this->connection = Connection::GetInstance();
+
+            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+
+            return $result;
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
+
     }
 }

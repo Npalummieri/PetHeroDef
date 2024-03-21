@@ -40,11 +40,17 @@ class CouponController{
         require_once(VIEWS_PATH."manageCoupon.php");
     }
 
+    public function showCouponFromBook($bookCode)
+    {
+        $couponCode = $this->couponService->srv_getCoupCodeByBook($bookCode);
+
+        $this->myCouponView($couponCode);
+    }
+
     public function manageCoupon($mngCoup,$couponCode)
     {
         if($mngCoup == "paidup")
         {
-            $couponCode;
             $this->payCouponView($couponCode);
         }else
         {
@@ -82,6 +88,13 @@ class CouponController{
     
     public function declineCoupon($couponCode)
     {
+        if(Session::IsLogged())
+        {
+            if(Session::GetTypeLogged() == "Models\Owner")
+            {
+                $this->couponService->srv_declineCoupon($couponCode);
+            }
+        }
         
     }
 }

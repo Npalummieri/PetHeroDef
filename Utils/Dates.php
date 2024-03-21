@@ -7,6 +7,14 @@ use \DateTime as DateTime;
 
 class Dates{
 
+    public static function validateDate($date)
+    {
+        $valid = null;
+        $dateDT = DateTime::createFromFormat('Y-m-d',$date);
+
+        return $dateDT;
+    }
+
     //Valido 0 o 1 en el mejor de los casos
     public static function validateAndCompareDates($initDate, $endDate) {
         // Convertir las fechas a objetos DateTime

@@ -42,15 +42,6 @@ include("nav.php");
                                             <h6 class="text-muted f-w-400 p-2 border border-dark rounded"><?php echo $coupon["endDate"]; ?></h6>
                                         </div>
                                     </div>
-                                    <div class="row mb-4 ">
-                                        <div class="col-sm-6">
-                                            <p class="m-b-10 f-w-600 bg-dark text-white p-2  rounded">Initial Hour</p>
-                                            <h6 class="text-muted f-w-400 p-2 border border-dark rounded"><?php echo $coupon["initHour"]; ?></h6>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="m-b-10 f-w-600 bg-dark text-white p-2  rounded">End Hour</p>
-                                            <h6 class="text-muted f-w-400 p-2 border border-dark rounded"><?php echo $coupon["endHour"]; ?></h6>
-                                        </div>
                                     </div>
                                     <div class="row mb-4 ">
                                         <div class="col-sm-6">

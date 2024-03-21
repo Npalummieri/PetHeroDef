@@ -80,7 +80,7 @@ class CouponDAO{
             //A partir del couponCode obtengo el bookCode entonces a partir del bookCode obtengo los otros 3 code para el where
             //En teoria con todo esto puedo obtener un resultSet que tenga toda la información particular de una reserva
             //La cuestion es si hago todo trabajando con DAOS + queries directamente o lo laburo en service trayendo esa info de a uno
-            $query = "SELECT c.couponCode,c.bookCode,b.initDate,b.endDate,b.initHour,b.endHour,b.totalPrice,p.name as namePet,p.typePet,p.breed,p.size,o.email as emailOwner,o.name as ownerName,o.lastname as olastname,k.name as kname,k.lastname as klastname,k.email as emailKeeper,k.pfp as pfpk,c.status as statusCoup
+            $query = "SELECT c.couponCode,c.bookCode,b.initDate,b.endDate,b.totalPrice,p.name as namePet,p.typePet,p.breed,p.size,o.email as emailOwner,o.name as ownerName,o.lastname as olastname,k.name as kname,k.lastname as klastname,k.email as emailKeeper,k.pfp as pfpk,c.status as statusCoup
             FROM coupon as c
             JOIN booking as b
             ON b.bookCode = c.bookCode
@@ -108,8 +108,6 @@ class CouponDAO{
                 $couponArrayInfo["bookCode"] = $value["bookCode"];
                 $couponArrayInfo["initDate"] = $value["initDate"];
                 $couponArrayInfo["endDate"] = $value["endDate"];
-                $couponArrayInfo["initHour"] = $value["initHour"];
-                $couponArrayInfo["endHour"] = $value["endHour"];
                 $couponArrayInfo["totalPrice"] = $value["totalPrice"];
                 $couponArrayInfo["namePet"] = $value["namePet"];
                 $couponArrayInfo["typePet"] = $value["typePet"];
@@ -196,6 +194,79 @@ class CouponDAO{
         {
             throw $ex;
             echo $ex->getMessage();
+        }
+    }
+
+    public function declineCoupon($couponCode)
+    {
+        try{
+            $query = "UPDATE coupon 
+            SET status = :status 
+            WHERE couponCode = :couponCode;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["couponCode"] = $couponCode;
+
+            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+
+            echo "Result query updatecoupon :";
+            var_dump($result);
+            if($result == 1)
+            {
+                $queryForJoin = "SELECT bookCode FROM ".$this->tableName." 
+                WHERE couponCode = :couponCode;";
+
+                
+                $resultqJoin = $this->connection->Execute($queryForJoin,$parameters);
+
+                echo "resultQjoin : ";
+                var_dump($resultqJoin);
+                $parameter["bookCode"] = $resultqJoin[0]["bookCode"];
+
+                $queryBooking = "UPDATE booking AS b
+                JOIN coupon AS c 
+                ON b.bookCode = c.bookCode
+                SET b.status = :status;
+                WHERE b.bookCode = :bookCode ;";
+
+                echo "resultUpdate de la query update del booking ";
+                $resultUpdate = $this->connection->ExecuteNonQuery($queryBooking,$parameter);
+                var_dump($resultUpdate);
+            }
+
+            return $resultUpdate;
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
+    }
+
+    public function getCoupCodeByBook($bookCode)
+    {
+        try{
+
+            $query = "SELECT couponCode FROM ".$this->tableName." 
+            WHERE bookCode = :bookCode;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameter["bookCode"] = $bookCode;
+
+            $resultSet = $this->connection->Execute($query,$parameter);
+
+            if(empty($resultSet))
+            {
+                $resp = null;
+            }else{
+                $resp = $resultSet[0][0];
+            }
+
+            return $resp;
+
+        }catch(Exception $ex)
+        {
+            throw $ex;
         }
     }
 

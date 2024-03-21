@@ -29,7 +29,7 @@ class KeeperController{
         $this->reviewService = new ReviewService();
     }
     //19012024 Deberia mandarlo a keeperController
-    public function registerKeeper($email,$username,$password,$name,$lastname,$dni,$pfp,$typePet,$typeCare,$initDate,$endDate,$price)
+    public function registerKeeper($email,$username,$password,$name,$lastname,$dni,$pfp,$typePet,$typeCare,$initDate,$endDate,$price,$visitPerDay)
     {
         try{
 
@@ -51,7 +51,7 @@ class KeeperController{
                 echo "<br>";
                 
                 //Llega el keeperValidado
-                $user = $this->keeperService->validateKeeperFields($userInfo,$typePet,$typeCare,$price);
+                $user = $this->keeperService->validateKeeperFields($userInfo,$typePet,$typeCare,$initDate,$endDate,$price,$visitPerDay);
                 echo "USER KEEPER despues de validateKeeperFields ";
                 var_dump($userInfo["user"]);
                 echo "<br>";
@@ -89,7 +89,7 @@ class KeeperController{
     }
 
 
-    public function showProfileKeeper($keeperCode)
+    public function showProfileKeeper($keeperCode = "")
     {
 
         $logged = null;
@@ -101,6 +101,7 @@ class KeeperController{
                     if(Session::GetTypeLogged() == "Models\Keeper")
                     {
                         $loggedKeeper = Session::GetLoggedUser();
+                        $keeperCode = $loggedKeeper->getKeeperCode();
                     }else if (Session::GetTypeLogged() == "Models\Owner")
                     {
                         $loggedOwner = Session::GetLoggedUser();
@@ -128,7 +129,7 @@ class KeeperController{
     }
 
     //¿Deberia poder cambiar typePet,typeCare?
-    public function updateKeeper($email = " ",$pfp = " ",$bio =" ",$price = " ")
+    public function updateKeeper($email = " ",$pfp = " ",$bio =" ",$price = " ",$visitPerDay = " ")
     {
         var_dump($_POST);
         if(Session::IsLogged())
@@ -138,7 +139,7 @@ class KeeperController{
 
                 $keeperLogged = Session::GetLoggedUser();
                 $pfpInfo = $_FILES;
-                $result = $this->keeperService->srv_updateKeeper($keeperLogged,$email,$pfpInfo,$bio,$price);
+                $result = $this->keeperService->srv_updateKeeper($keeperLogged,$email,$pfpInfo,$bio,$price,$visitPerDay);
                 echo "SOY RESULT";
                 var_dump($result);
                 if($result == 1)
@@ -175,6 +176,24 @@ class KeeperController{
                 $this->keeperService->srv_updateAvailability($keeperCode,$initDate,$endDate);
             }
         }
+    }
+
+    public function getVisitPerDay($keeperCode)
+    {
+        $keeper = $this->keeperService->srv_getKeeperByCode($keeperCode);
+
+        $visitPerDay = $keeper->getVisitPerDay();
+        $encodedVisit = json_encode($visitPerDay);
+        echo ($encodedVisit);
+    }
+
+    public function getAvailability($keeperCode)
+    {
+        $datesInterval = $this->keeperService->srv_getDates($keeperCode);
+
+        $datesEncoded = json_encode($datesInterval);
+
+        echo $datesEncoded;
     }
 
 

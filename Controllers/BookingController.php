@@ -27,42 +27,28 @@ class BookingController{
         $this->keeperService = new KeeperService();
     }
 
-    public function addBooking($initHour,$endHour,$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize)
+    public function addBooking($initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay)
     {
         var_dump($_POST);
         if (Session::IsLogged() && Session::GetTypeLogged() == 'Models\Owner') {
             $userLogged = $_SESSION["loggedUser"];
 
-            $resp = $this->bookingService->srv_validateBooking($userLogged->getOwnerCode(),$initHour,$endHour,$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize);
+            $resp = $this->bookingService->srv_validateBooking($userLogged->getOwnerCode(),$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay);
         } else {
             Session::DeleteSession();
             header("location: ../index.php");
         }
 
         if($resp != null && $resp != false){
+
             $this->showMyBookings($resp);
         }else{
             $resp = "ERROR AT CREATING BOOK.CHECK THE DATA";
-            $this->showBookCreate($keeperCode,$typePet,$typeSize);
+            $this->showBookCreate($keeperCode,$resp);
         }
         
     }
-
-    public function checkBooking($initDate,$endDate,$initHour,$endHour,$petCode,$keeperCode,$typePet,$typeSize)
-    {
-        //deberia verificar que este alguien logged
-        $userLogged = $_SESSION["loggedUser"];
-        //Tengo que determinar que hacer con Status y el calculo en base al precio del Keeper * horas para el total
-        // echo "Soy booking";
-        // var_dump($booking);
-        $result = $this->bookingService->checkOverBookingByDates($userLogged,$initDate,$endDate,$initHour,$endHour,$petCode,$keeperCode,$typePet,$typeSize);
-        
-        echo $result;
-        //require_once(VIEWS_PATH."pruebasViews.php");
-    }
-
-
-    public function showBookCreate($keeperCode)
+    public function showBookCreate($keeperCode,$message=" ")
     {
 
         if (Session::IsLogged()) {
@@ -157,8 +143,8 @@ class BookingController{
             header("location: ../index.php");
         } else {
             if (Session::GetTypeLogged() == "Models\Keeper") {
-                $user = Session::GetLoggedUser();
-                $keeperCode = $user->getKeeperCode();
+                $loggedUser = Session::GetLoggedUser();
+                $keeperCode = $loggedUser->getKeeperCode();
                 $myBookings = $this->bookingService->srv_GetMyBookings($initDate, $endDate, $status, $keeperCode);
                 require_once(VIEWS_PATH . "myBookings.php");
             }
@@ -175,6 +161,8 @@ class BookingController{
                 $conf = $this->bookingService->srv_confirmBooking($codeBook);
             }
         }
+        echo "SOY CONF del controller,llego dele service";
+        var_dump($conf);
         $myBookings = $this->bookingService->srv_getAllMyBookings($loggedUser->getKeeperCode());
         require_once(VIEWS_PATH . "myBookings.php");
     }
@@ -210,6 +198,15 @@ class BookingController{
     public function cancelBooking($bookCode)
     {
         $this->bookingService->srv_cancelBooking($bookCode);
+    }
+
+    public function getIntervalBooking($bookCode)
+    {
+        $intervalReturned = $this->bookingService->srv_getIntervalBooking($bookCode);
+
+        $encodedInterval = json_encode($intervalReturned);
+
+        echo $encodedInterval;
     }
 
 }

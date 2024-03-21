@@ -1,9 +1,14 @@
 <?php include_once("header.php");
 include_once("nav.php"); ?>
+
 <div class="row justify-content-center">
   <div class="col-md-6">
     <div class="card mt-5">
       <div class="card-body">
+        
+        <?php if($message != null && !empty($message) && $message != " "){ ?>
+        <p class="alert alert-danger" ><?php  echo $message; ?></p>  
+        <?php } ?>
         <h1 class="card-title text-center">MAKE YOUR BOOKING</h1>
         <form action="<?php echo FRONT_ROOT . "Booking/addBooking" ?>" method="POST" id="BookForm">
           <div class="form-group row m-2">
@@ -13,14 +18,6 @@ include_once("nav.php"); ?>
           <div class="form-group row m-2">
             <label for="EndDate">END DATE</label>
             <input type="date" name="endDate" id="EndDate" class="form-control" required>
-          </div>
-          <div class="form-group row m-2">
-            <label for="InitHour">INITIAL HOUR</label>
-            <input type="time" name="initHour" id="InitHour" class="form-control" step="1800" required>
-          </div>
-          <div class="form-group row m-2">
-            <label for="EndHour">END HOUR</label>
-            <input type="time" name="endHour" id="EndHour" class="form-control" step="1800" required>
           </div>
           <div>
             <p id="AvailMsge" class="text-lg text-uppercase"><strong></strong></p>
@@ -35,13 +32,24 @@ include_once("nav.php"); ?>
             </select>
             <p class="text-dark">Note: If you don't see any pets displayed to select, most probably you don't have the type of Pet that Keeper attends</p>
           </div>
-          <input type="hidden" name="keeperCode" value="<?php echo $keeperToCheck ?>">
+          <div class="form-group row m-2">
+            <label for="visitPerDaySelect" class="">Visit per day :</label>
+          <select id="visitPerDaySelect" class="form-control" name="visitPerDay">
+            <!-- Las opciones del select se generarán dinámicamente aquí -->
+          </select>
+          </div>
+          <input type="hidden" id="keeperCode" name="keeperCode" value="<?php echo $keeperToCheck ?>">
           <input type="hidden" name="typePet" value="<?php echo $typePet ?> ">
           <input type="hidden" name="typeSize" value="<?php echo $typeSize ?> ">
+
+        
+
           <div class="form-group row m-2">
-            <button type="button" id="ButtonCheck" class="btn btn-primary">Check Booking</button>
+            <button type="submit" id="ButtonCheck" class="btn btn-primary">Confirm</button>
           </div>
-          
+
+
+
           <div id="buttonToForm"></div>
         </form>
       </div>
@@ -50,12 +58,13 @@ include_once("nav.php"); ?>
 </div>
 <script src="<?php echo JS_PATH . "formScripts.js" ?>"></script>
 <script>
-  $(document).ready(function() {
+
     // Llamar a la función init del objeto MiFormularioModule
     //FormAjaxModule.selectYours(); Para otro dia
     //FormAjaxModule.getPetsByOwnerType();
-    FormAjaxModule.checkDatesHours();
+    //FormAjaxModule.checkDatesHours();
     FormAjaxModule.getSpecificPets();
-  });
+    FormAjaxModule.generateVisitPerDaySelect();
+
 </script>
 <?php include_once("footer.php") ?>

@@ -123,73 +123,111 @@ const FormAjaxModule = {
         });
 
     },
+    generateVisitPerDaySelect: function () {
+        // Realizar la llamada AJAX para obtener el atributo visitPerDay del Keeper
+        var keeperCode = $("#keeperCode").val();
+        var urlMod = "../Keeper/GetVisitPerDay"
+        console.log("keeperCode" + keeperCode);
+                var url = window.location.href;
 
-
-
-
-    checkDatesHours: function () {
-        $(document).ready(function () {
-            // Agrega un manejador de eventos al formulario para controlar su envío
-            //$('#BookForm').on('submit', function(e) {
-            //e.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
-
-            // Define una función para verificar si todos los campos requeridos están llenos
-            function checkAllFieldsComplete() {
-                var allFieldsComplete = true;
-
-                // Verifica cada campo requerido
-                $('#BookForm [required]').each(function () {
-                    if ($(this).val() === '') {
-                        allFieldsComplete = false;
-                        return false; // Detiene el bucle si falta un campo
-                    }
-                });
-                console.log("ALLFILDS" + allFieldsComplete);
-                console.log("SERIALIZED" + $('#BookForm').serialize());
-                return allFieldsComplete;
-            }
-
-            document.getElementById("ButtonCheck").addEventListener("click", function () {
-                // Verifica si todos los campos requeridos están llenos
-                if (checkAllFieldsComplete()) {
-                    // Ejecuta la solicitud AJAX aquí
-                    $.ajax({
-                        url: '../Booking/checkBooking',
-                        method: 'POST',
-                        data: $('#BookForm').serialize(), // Envía todos los datos del formulario
-                        success: function (response) {
-                            var availMsge = $('#AvailMsge');
-                            console.log("SOY RESPONSE" + response);
-                            if (response == 1) {
-                                availMsge.text("Confirmed, the Keeper is available");
-                                var containerButForm = document.getElementById("buttonToForm");
-
-                                // Eliminar el botón existente, si lo hay
-                                var existingButton = containerButForm.querySelector('button');
-                                if (existingButton) {
-                                    existingButton.parentNode.removeChild(existingButton);
-                                }
-
-                                var buttonForm = document.createElement("button"); // Crear un nuevo botón
-                                // Establecer el atributo "type" como "submit"
-                                buttonForm.innerHTML = "Confirm Book"; // Texto dentro del botón
-                                buttonForm.type = "submit"; // Tipo de botón
-                                containerButForm.appendChild(buttonForm); // Agregar el nuevo botón al contenedor
-                            } else {
-                                availMsge.text("Keeper not available at this date");
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error en la solicitud AJAX:");
-                            console.error("Estado: " + status);
-                            console.error("Error: " + error);
-                        }
-                    });
+                // Obtener el código del cuidador de la URL
+                var parts = url.split('/');
+                var partCount = parts.length;
+                if(partCount === 9){
+                    urlMod = "../../Keeper/GetVisitPerDay"
                 }
-            });
+        $.ajax({
+            url: urlMod, // Especifica la URL de tu endpoint para obtener visitPerDay
+            method: 'POST',
+            dataType: "json",
+            data: {
+                keeperCode: keeperCode
+            }, // Envía el código del Keeper como parámetro
+            success: function (response) {
+                // Verifica si la respuesta contiene el atributo visitPerDay
+                var visitPerDay = response; // Obtiene el valor de visitPerDay del Keeper
+
+
+                // Agrega las opciones según el valor de visitPerDay
+                if (visitPerDay == 1) {
+                    $('#visitPerDaySelect').append('<option value="1">1</option>');
+                } else if (visitPerDay == 2) {
+                    $('#visitPerDaySelect').append('<option value="1">1</option>');
+                    $('#visitPerDaySelect').append('<option value="2">2</option>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error en la solicitud AJAX:', error);
+            }
         });
-        //});
     },
+
+
+
+
+    // checkDatesHours: function () {
+    //     $(document).ready(function () {
+    //         // Agrega un manejador de eventos al formulario para controlar su envío
+    //         //$('#BookForm').on('submit', function(e) {
+    //         //e.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
+
+    //         // Define una función para verificar si todos los campos requeridos están llenos
+    //         function checkAllFieldsComplete() {
+    //             var allFieldsComplete = true;
+
+    //             // Verifica cada campo requerido
+    //             $('#BookForm [required]').each(function () {
+    //                 if ($(this).val() === '') {
+    //                     allFieldsComplete = false;
+    //                     return false; // Detiene el bucle si falta un campo
+    //                 }
+    //             });
+    //             console.log("ALLFILDS" + allFieldsComplete);
+    //             console.log("SERIALIZED" + $('#BookForm').serialize());
+    //             return allFieldsComplete;
+    //         }
+
+    //         document.getElementById("ButtonCheck").addEventListener("click", function () {
+    //             // Verifica si todos los campos requeridos están llenos
+    //             if (checkAllFieldsComplete()) {
+    //                 // Ejecuta la solicitud AJAX aquí
+    //                 $.ajax({
+    //                     url: '../Booking/checkBooking',
+    //                     method: 'POST',
+    //                     data: $('#BookForm').serialize(), // Envía todos los datos del formulario
+    //                     success: function (response) {
+    //                         var availMsge = $('#AvailMsge');
+    //                         console.log("SOY RESPONSE" + response);
+    //                         if (response == 1) {
+    //                             availMsge.text("Confirmed, the Keeper is available");
+    //                             var containerButForm = document.getElementById("buttonToForm");
+
+    //                             // Eliminar el botón existente, si lo hay
+    //                             var existingButton = containerButForm.querySelector('button');
+    //                             if (existingButton) {
+    //                                 existingButton.parentNode.removeChild(existingButton);
+    //                             }
+
+    //                             var buttonForm = document.createElement("button"); // Crear un nuevo botón
+    //                             // Establecer el atributo "type" como "submit"
+    //                             buttonForm.innerHTML = "Confirm Book"; // Texto dentro del botón
+    //                             buttonForm.type = "submit"; // Tipo de botón
+    //                             containerButForm.appendChild(buttonForm); // Agregar el nuevo botón al contenedor
+    //                         } else {
+    //                             availMsge.text("Keeper not available at this date");
+    //                         }
+    //                     },
+    //                     error: function (xhr, status, error) {
+    //                         console.error("Error en la solicitud AJAX:");
+    //                         console.error("Estado: " + status);
+    //                         console.error("Error: " + error);
+    //                     }
+    //                 });
+    //             }
+    //         });
+    //     });
+    //     //});
+    // },
 
     selectYours: function () {
         var typePetCode = document.getElementById('PetCode');
@@ -214,6 +252,17 @@ const FormAjaxModule = {
             var typePet = document.getElementById("DivType");
             var typeSize = document.getElementById("DivSize");
 
+            var urlMod = "../Booking/getPetsByOwnFiltered"
+            console.log("keeperCode" + keeperCode);
+                var url = window.location.href;
+
+                // Obtener el código del cuidador de la URL
+                var parts = url.split('/');
+                var partCount = parts.length;
+                if(partCount === 9){
+                    urlMod = "../../Booking/getPetsByOwnFiltered"
+                }
+
             //Una es la variable interna y otra el data-*
 
             var dataTypePet = typePet.dataset.typepet;
@@ -222,7 +271,7 @@ const FormAjaxModule = {
             console.log(dataTypeSize);
             // Realiza una solicitud AJAX al servidor para obtener las mascotas del tipo seleccionado
             $.ajax({
-                url: '../../Booking/getPetsByOwnFiltered', // Reemplaza con la URL de tu servidor  
+                url: urlMod, // Reemplaza con la URL de tu servidor  
                 dataType: 'json',
                 type: 'POST',
                 data: {
@@ -251,6 +300,38 @@ const FormAjaxModule = {
                 }
             });
 
+        });
+    },
+    calendarBooking: function() {
+        $(document).ready(function() {
+            var bookCode = $("#btnprof").data('codebook');
+            // Realizar la llamada AJAX para obtener el rango de fechas
+            //console.log("BookCode : "+bookCode);
+            $.ajax({
+                url: '../../Booking/GetIntervalBooking', // URL de tu script PHP que obtiene el rango de fechas
+                method: 'POST',
+                data: { bookCode: bookCode },
+                dataType: 'json',
+                success: function(response) {
+                    console.log("SUCCESS: ", response);
+                    var datesInRange = response; // Suponiendo que el servidor devuelve un arreglo de fechas en el rango
+    
+                    // Renderizar el calendario con las fechas en el rango
+                    var calendarEl = document.getElementById('calendar');
+                    var calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        events: datesInRange.map(date => ({
+                            start: date,
+                            backgroundColor: 'green'
+                        }))
+                    });
+    
+                    calendar.render();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al obtener el rango de fechas:', error);
+                }
+            });
         });
     }
 };
@@ -298,16 +379,22 @@ const chatModule = {
                     $.each(response, function (index, user) {
                         // Crear el elemento de imagen del avatar
                         if (userLogged === 'keeper') {
+
+                            var userContainer = $('<div>', {
+                                class: 'd-flex align-items-center mb-3'
+                            });
+
                             var avatarImg = $('<img>', {
                                 src: user.opfp, // Placeholder para la URL del avatar
                                 alt: 'avatar',
                                 class: 'rounded-circle d-flex align-self-center me-3 shadow-1-strong',
-                                width: '60'
+                                width: '60',
+                                height: '80'
                             });
 
                             // Crear el contenedor de la información del usuario
                             var userInfo = $('<div>', {
-                                class: 'pt-1'
+                                class: 'pt-1 text-truncate'
                             });
 
                             var fullName = user.oname + ' ' + user.olastname
@@ -325,7 +412,8 @@ const chatModule = {
                                 src: user.kpfp, // Placeholder para la URL del avatar
                                 alt: 'avatar',
                                 class: 'rounded-circle d-flex align-self-center me-3 shadow-1-strong',
-                                width: '60'
+                                width: '60',
+                                height: '80'
                             });
 
                             // Crear el contenedor de la información del usuario
@@ -345,7 +433,7 @@ const chatModule = {
                             });
                             userInfo.append(username, message);
 
-
+                            
 
 
                         }
@@ -353,10 +441,10 @@ const chatModule = {
 
                         // Crear el contenedor de la marca de tiempo
                         var timestampInfo = $('<div> ', {
-                            class: 'pt-1'
+                            class: 'pt-1 text-truncate'
                         });
                         var timestamp = $('<p>', {
-                            class: 'infotimestamp small text-muted m-auto text-truncate ',
+                            class: 'infotimestamp small text-muted m-auto  ',
                             text: user.msgTimeStamp // Placeholder para la marca de tiempo
                         });
 
@@ -447,10 +535,10 @@ const chatModule = {
                                     var messageHtml = '<li class="d-flex mb-4 ' + messageAlignmentClass + '">' +
                                         '<div class="card ' + messageDirectionClass + '">' +
                                         '<div class="card-header">' +
-                                        '<p class="large-text text-dark"><i class="far fa-clock"></i>' + msgeInfo.msgText + '</p>' +
+                                        '<p class="large-text text-dark">' + msgeInfo.msgText + '</p>' +
                                         '</div>' +
                                         '<div class="card-body">' +
-                                        '<p class="small text-muted mb-0">' + msgeInfo.timestamp + '</p>' +
+                                        '<p class="small text-muted mb-0"><i class="far fa-clock"></i>' + msgeInfo.timestamp + '</p>' +
                                         '</div>' +
                                         '</div>' +
                                         '</li>';
@@ -593,10 +681,24 @@ const chatModule = {
 const KeepersInteract = {
     calendarKeeper: function() {
         $(document).ready(function() {
+            var urlToSend = '../Keeper/GetIntervalDates';
+            // var baseUrl = $('#contMain').data('baseurl');
+            // var baseUrl = baseUrl + 'Keeper/getAvailability';urlToSend
             var keeperCode = $("#btnprof").data('codekeeper');
+            if(keeperCode === undefined)
+            {
+                var url = window.location.href;
+
+                // Obtener el código del cuidador de la URL
+                var parts = url.split('/');
+                var keeperCode = parts[parts.length - 1];
+                urlToSend = '../../Keeper/GetIntervalDates';
+            }
+
+            console.log(keeperCode);
             // Realizar la llamada AJAX para obtener el rango de fechas
             $.ajax({
-                url: '../Keeper/GetIntervalDates', // URL de tu script PHP que obtiene el rango de fechas
+                url: urlToSend, // URL de tu script PHP que obtiene el rango de fechas
                 method: 'POST',
                 data: { keeperCode: keeperCode },
                 dataType: 'json',
@@ -675,70 +777,72 @@ const KeepersInteract = {
     },
     
 
-    // getKeeperAvail: function () {
-    //     $(document).ready(function () {
-    //         $('.btn-availability').click(function (e) {
-    //             e.preventDefault();
-    //             //Como no paraba de arrojar errores segun el controlador que llamaba a la vista,tuve que forzar el enrutamiento para tener acceso al Keeper/getAvailability independientemente de donde este parado (la url)
-    //             var baseUrl = $('#contMain').data('baseurl');
-    //             var btn = $(this);
-    //             var card = btn.closest('.card');
-    //             var additionalInfo = card.find('.additional-info');
-    //             var codeKeeper = btn.data('codekeeper'); // Obtener el código del guardián desde el atributo data
+    getKeeperAvail: function () {
+        $(document).ready(function () {
+            $('.btn-availability').click(function (e) {
+                e.preventDefault();
+                //Como no paraba de arrojar errores segun el controlador que llamaba a la vista,tuve que forzar el enrutamiento para tener acceso al Keeper/getAvailability independientemente de donde este parado (la url)
+                var baseUrl = $('#contMain').data('baseurl');
+                var btn = $(this);
+                var card = btn.closest('.card');
+                var additionalInfo = card.find('.additional-info');
+                var codeKeeper = btn.data('codekeeper'); // Obtener el código del guardián desde el atributo data
+                console.log("CODEKEP"+ codeKeeper);
+                //     // Definir la URL base
+                var baseUrl = baseUrl + 'Keeper/getAvailability';
 
-    //             //     // Definir la URL base
-    //             var baseUrl = baseUrl + 'Keeper/getAvailability';
+                // Verificar si estamos en una vista diferente que requiere ajuste en la URL
+                //Si no aparece Home asumimos que esta en el index mas inicial de todos
+                // if (window.location.pathname.indexOf('Home') !== -1) {
+                //     baseUrl = '../' + baseUrl; // Ajustar la URL según la vista
+                // }
+               
+                console.log("URL" + baseUrl);
+                $.ajax({
+                    
+                    url: baseUrl, // Ruta controller
+                    method: 'POST',
+                    data: {
+                        "keeperCode" : codeKeeper
+                    }, // Pasar el código del guardián como parámetro
+                    dataType: 'JSON',
+                    
+                    success: function (response) {
+                        console.log(response);
+                        var html = '<div class="container my-3 border border-dark w-50">';
+                        html += '<ul class="list-unstyled text-center">';
+                        html += '<div class="border border-primary bg-light mx-auto">';
+                        html += '<li class="list-group-item list-group-item-info border border-dark">';
+                        html += '<h5 class="max-width-100 text-truncate">' + "AVAILABILITY :" + '</h5></li>';
+                        html += '<p><strong>START :</strong> ' + response.initDate + '</p>';
+                        html += '<p><strong>END :</strong> ' + response.endDate + '</p>';
+                        html += '</div>';
+                        html += '</ul>';
+                        html += '</div>';
 
-    //             // // Verificar si estamos en una vista diferente que requiere ajuste en la URL
-    //             // //Si no aparece Home asumimos que esta en el index mas inicial de todos
-    //             // if (window.location.pathname.indexOf('Home') !== -1) {
-    //             //     baseUrl = '../' + baseUrl; // Ajustar la URL según la vista
-    //             // }
-    //             console.log("URL" + baseUrl);
-    //             $.ajax({
-    //                 url: baseUrl, // Ruta controller
-    //                 method: 'POST',
-    //                 data: {
-    //                     "codeKeeper": codeKeeper
-    //                 }, // Pasar el código del guardián como parámetro
-    //                 dataType: 'JSON',
+                        //console.log(html);
+                        additionalInfo.html(html);
+                        additionalInfo.css('visibility', 'visible');
+                        // Mostrar la tarjeta adicional
+                        additionalInfo.show();
+                        additionalInfo.append('<button type="button" class="d-inline btn close-btn bg-danger text-white">X</button>');
+                        // Manejar el evento de cierre de la nueva carta
+                        additionalInfo.find('.close-btn').click(function () {
+                            // Mostrar la carta original
 
-    //                 success: function (response) {
-
-    //                     var html = '<div class="container my-3 border border-dark w-50">';
-    //                     html += '<ul class="list-unstyled text-center">';
-    //                     for (var i = 0; i < response.length; i++) {
-    //                         html += '<div class="border border-primary bg-light mx-auto">';
-    //                         html += '<li class="list-group-item list-group-item-info border border-dark">';
-    //                         html += '<h5 class="max-width-100">' + response[i].day.toUpperCase() + '</h5></li>';
-    //                         html += '<p>' + response[i].initHour + ' - ' + response[i].endHour + '</p></div>';
-    //                     }
-    //                     html += '</ul>';
-    //                     html += '</div>';
-
-    //                     //console.log(html);
-    //                     additionalInfo.html(html);
-    //                     additionalInfo.css('visibility', 'visible');
-    //                     // Mostrar la tarjeta adicional
-    //                     additionalInfo.show();
-    //                     additionalInfo.append('<button type="button" class="d-inline btn close-btn bg-danger text-white">X</button>');
-    //                     // Manejar el evento de cierre de la nueva carta
-    //                     additionalInfo.find('.close-btn').click(function () {
-    //                         // Mostrar la carta original
-
-    //                         // Ocultar la nueva carta
-    //                         additionalInfo.hide();
-    //                     });
-    //                 },
-    //                 error: function (xhr, status, error) {
-    //                     console.error('Error al cargar el contenido:', error);
-    //                     console.log("SOY EL XHR :" + xhr);
-    //                     console.log("SOY EL STATUS :" + status);
-    //                 }
-    //             });
-    //         });
-    //     });
-    // },
+                        // Ocultar la nueva carta
+                            additionalInfo.hide();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error al cargar el contenido:', error);
+                        console.log("SOY EL XHR :" + JSON.stringify(xhr));
+                        console.log("SOY EL STATUS :" + status);
+                    }
+                });
+            });
+        });
+    },
 
     // displayEditHours: function () {
     //     $(document).ready(function () {

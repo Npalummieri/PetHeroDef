@@ -11,7 +11,8 @@ use Models\Keeper as Keeper;
 use Models\User as User;
 use Utils\Dates as Dates;
 
-class KeeperService{
+class KeeperService
+{
 
     private $keeperDAO;
 
@@ -21,78 +22,82 @@ class KeeperService{
     {
         $this->keeperDAO = new KeeperDAO();
 
-        $this->userService = new UserService(null,$this->keeperDAO);
+        $this->userService = new UserService(null, $this->keeperDAO);
     }
 
 
-    public function generateCode() {
+    public function generateCode()
+    {
         // Genera un UUID único
         $uuid = uniqid('KEP', true); // Utiliza 'KEP' como prefijo
-    
+
         // Devuelve el ownerCode generado
         return $uuid;
     }
-    
 
-    public function validateKeeperFields($userInfo,$typePet,$typeCare,$price)//valida los campos y retorna ya no el user sino un Keeper
+
+    public function validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay) //valida los campos y retorna ya no el user sino un Keeper
     {
         // echo "USER validatekeeperfield :";
         //var_dump($user);
-        if(isset($typeCare))
-        {
-            if($typeCare != "big")
-            {
-                if($typeCare != "medium")
-                {
-                    if($typeCare != "small")
-                    {
+        if (isset($typeCare)) {
+            if ($typeCare != "big") {
+                if ($typeCare != "medium") {
+                    if ($typeCare != "small") {
                         throw new Exception("Not size allowed");
                     }
                 }
             }
-            
-        }else
-        {
+        } else {
             throw new Exception("Null typeCare");
         }
 
-        if(isset($typePet))
-        {
-            if($typePet != "dog" && $typePet != "cat")
-            {
+        if (isset($typePet)) {
+            if ($typePet != "dog" && $typePet != "cat") {
                 throw new Exception("And that pet is a?");
             }
         }
 
-        if(isset($price))
-        {
-            if($price < 1)
-            {
+        if (isset($price)) {
+            if ($price < 1) {
                 throw new Exception("Nothing for free");
             }
         }
-        
+
+        if (!($visitPerDay == 1 || $visitPerDay == 2)) {
+            throw new Exception("Not valid amount of day to visit");
+        }
+
+
+        if (!(Dates::validateDate($initDate) && Dates::validateDate($endDate))) {
+            throw new Exception("Something wrong with the dates");
+        } else {
+            $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
+        }
+
         $keeper = new Keeper();
 
-        if($userInfo["user"] instanceof User)
-        {
-           echo "VALOR TYPEPET PRE FROMSUER";
-           var_dump($typePet);
-            $keeper = $keeper->fromUserToKeeper($userInfo["user"],$typePet,$typeCare,$price);
-            //Me parece que acá no es lo ideal (agregar al keeper a la BD sino hacerlo al momento que tambien indique sus horarios)
-            $keeper->setKeeperCode($this->generateCode());
-            $keeperCode = $this->keeperDAO->Add($keeper);
-            if($keeperCode != null && $keeperCode != " ")
-            {
-                move_uploaded_file($userInfo["pfp"],$userInfo["pathToSave"]);
-                $this->keeperDAO->updatePfp($keeperCode,$userInfo["pathToDB"]);
+        if ($userInfo["user"] instanceof User) {
+            echo "VALOR TYPEPET PRE FROMSUER";
+            var_dump($typePet);
+            if ($validateDates >= 0) {
+                $keeper = $keeper->fromUserToKeeper($userInfo["user"], $typePet, $typeCare,$initDate,$endDate,$price, $visitPerDay);
+                $keeper->setKeeperCode($this->generateCode());
+                $keeperCode = $this->keeperDAO->Add($keeper);
+            }
+
+            if ($keeperCode != null && $keeperCode != " ") {
+                move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
+                $this->keeperDAO->updatePfp($keeperCode, $userInfo["pathToDB"]);
             }
         }
-        
+
+
+
         return $keeper;
     }
 
-    public function srv_updateKeeper($keeperLogged,$email,$pfpInfo,$bio,$price)
+    public function srv_updateKeeper($keeperLogged, $email, $pfpInfo, $bio, $price, $visitPerDay)
     {
         try {
             $error = 1;
@@ -143,7 +148,7 @@ class KeeperService{
                         move_uploaded_file($pfp, $pathToSave);
                         if (unlink(IMG_PATH . $pfpToDelete)) {
                             $error = "El archivo se borró correctamente.";
-                         } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
+                        } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
                         //     $error = "No se pudo borrar el archivo.";
                         // }
                     }
@@ -175,30 +180,32 @@ class KeeperService{
                     $error  = "Something's wrong with price";
                 }
             }
-            
+
+            if ($visitPerDay == 1 || $visitPerDay == 2) {
+                $this->keeperDAO->updateVisitDay($keeperLogged->getKeeperCode(),$visitPerDay);
+            } else {
+                $error = "Not valid amount of day to visit";
+            }
         } catch (Exception $ex) {
             echo $ex->getMessage();
         }
         return $error;
     }
-    
+
     public function srv_getKeeperByCode($keeperCode)
     {
-        try{
+        try {
             $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             echo $ex->getMessage();
         }
 
         return $keeper;
-
     }
 
     public function srv_getIntervalDates($keeperCode)
     {
-        if(strpos($keeperCode,"KEP") !== false)
-        {
+        if (strpos($keeperCode, "KEP") !== false) {
             $dates = $this->keeperDAO->getDatesByCode($keeperCode);
         }
 
@@ -209,10 +216,10 @@ class KeeperService{
         // Convertir las fechas a objetos DateTime
         $initDateDT = new DateTime($dates["initDate"]);
         $endDateDT = new DateTime($dates["endDate"]);
-    
+
         // Agregar un día al rango de fechas para incluir la fecha final
         $endDateDT->modify('+1 day');
-    
+
         // Iterar sobre el intervalo de fechas y agregarlas al array
         $intervalObj = new DateInterval('P1D'); // Intervalo de 1 día
         $datePeriodObj = new DatePeriod($initDateDT, $intervalObj, $endDateDT);
@@ -223,23 +230,24 @@ class KeeperService{
         return $intervalDates;
     }
 
-    public function srv_updateAvailability($keeperCode,$initDate,$endDate)
+    public function srv_updateAvailability($keeperCode, $initDate, $endDate)
     {
-        try{
-            $result = Dates::validateAndCompareDates($initDate,$endDate);
-            if($result == 1 || $result == 0)
-            {
-                $this->keeperDAO->updateAvailability($keeperCode,$initDate,$endDate);
-            }else{
+        try {
+            $result = Dates::validateAndCompareDates($initDate, $endDate);
+            if ($result == 1 || $result == 0) {
+                $this->keeperDAO->updateAvailability($keeperCode, $initDate, $endDate);
+            } else {
                 $error = "Not valid dates";
             }
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             echo $ex->getMessage();
         }
     }
 
-    
-   
-}
+    public function srv_getDates($keeperCode)
+    {
+        $dates = $this->keeperDAO->getDatesByCode($keeperCode);
 
-?>
+        return $dates;
+    }
+}

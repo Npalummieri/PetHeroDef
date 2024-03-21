@@ -32,6 +32,8 @@ class UserService {
         return $user;
     }
 
+    
+
     public function searchEmailLogin($email) {
         $user = $this->ownerDAO->searchByEmail($email);
 
@@ -63,6 +65,26 @@ class UserService {
         return $rsp;
     }
 
+    public function updateStatusUser($codeUserLogged)
+    {
+
+        try{
+            if(strpos($codeUserLogged,"OWN"))
+        {
+            $resp = $this->ownerDAO->updateStatus($codeUserLogged);
+        }else if (strpos($codeUserLogged,"KEP")){
+            $resp = $this->keeperDAO->updateStatus($codeUserLogged);
+        }else{
+            $resp = "Error with the logging";
+        }
+        
+        }catch(Exception $ex)
+        {
+            $resp = $ex->getMessage();
+        }
+        return $resp;
+    }
+
     ///Checkeo de datos del registro 
     public function validateRegisterUser($typeUser, $email, $username, $password, $name, $lastname, $dni, $pfpInfo)
     {
@@ -76,13 +98,20 @@ class UserService {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $msgeError = "Not an Email";
             } else {
-                $email = trim($email);
-                $user->setEmail($email);
+                $user = $this->searchEmailLogin($email);
+                if($user == null)
+                {
+                    $email = trim($email);
+                    $user->setEmail($email);
+                }else{
+                    $msgeError = "email already exists!";
+                }
+                
             }
 
             // ||||||||||||||||||||||||||||||||||||||||||||||||Filter username
             $regexUsername = "/^(?=.*[A-Za-z])(?!.*[\s!@])(?:\D*\d){0,4}[A-Za-z\d]{6,20}$/";
-            if ($this->ownerDAO->checkUsername($username) == 0) //No repetido
+            if ($this->searchUsernameLogin($username) != null) //No repetido
             {
 
                 if (preg_match($regexUsername, $username)) {
@@ -172,10 +201,18 @@ class UserService {
                     //hasheo el archivo
                     $hashedNameFile = hash_file('sha1', $pfp);
                     if ($typeUser == "owner") {
+                        if(!file_exists(PFP_OWNERS))
+                            {
+                                mkdir(PFP_OWNERS,0777,true);
+                            }
                         $pathToSave =  PFP_OWNERS . $hashedNameFile . '.' . $extension[1];
                         //Ruta guardada en BD de la ruta 
                         $pathToBD = "PFPOwners/" . $hashedNameFile . '.' . $extension[1];
                     } else if ($typeUser == "keeper") {
+                        if(!file_exists(PFP_KEEPERS))
+                            {
+                                mkdir(PFP_KEEPERS,0777,true);
+                            }
                         //en el caso de keeper solo hasheo el archivo para posterior subida de la imagen
                         $pathToSave = PFP_KEEPERS . $hashedNameFile . '.' . $extension[1];
                         //Ruta guardada en BD de la ruta 

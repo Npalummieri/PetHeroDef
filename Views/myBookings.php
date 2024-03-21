@@ -19,7 +19,6 @@ require_once(VIEWS_PATH . "formBookingList.php");
         <th>Status</th>
         <th>Initial date</th>
         <th>End date</th>
-        <th>Initial hour - End hour</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -55,13 +54,13 @@ require_once(VIEWS_PATH . "formBookingList.php");
           <td>
             <span><?php echo $objBook->getEndDate(); ?></span>
           </td>
-          <td><span><?php echo $objBook->getInitHour() . " - " . $objBook->getEndHour();  ?></span></td>
+
 
           <td>
             <?php if ($objBook->getStatus() === "pending" && $loggedUser instanceof Models\Keeper) { ?>
               <a href="<?php echo FRONT_ROOT . 'Booking/manageBooking/' . $objBook->getBookCode(); ?>" class="btn btn-success">Confirm</a>
             <?php } elseif ($objBook->getStatus() === "confirmed" && $loggedUser instanceof Models\Owner) { ?>
-              <a href="<?php echo FRONT_ROOT . '' . $objBook->getBookCode(); ?>" class="btn btn-success">Pay it</a>
+              <a href="<?php echo FRONT_ROOT . 'Coupon/showCouponFromBook/' . $objBook->getBookCode(); ?>" class="btn btn-success">Pay it</a>
             <?php } ?>
             <a class="btn btn-link" href="<?php echo FRONT_ROOT . 'Booking/fullInfoBookView/' . $objBook->getBookCode(); ?>"><i class="bi bi-eyeglasses"></i> Full Info</a>
           </td>

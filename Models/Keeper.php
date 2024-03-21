@@ -89,7 +89,7 @@ class Keeper extends User{
     //Visto un par de semanas despues,esta bueno esto de Reflection pero no se si es el proposito...
     //Quizá deberia tener una funcion dentro de la clases hijas (Own,Keep) que reciban el objeto padre y de ahi copiar sus datos direcemtante sin el uso de Reflection
     //Voy a probarlo en owner
-    public function fromUserToKeeper(User $user,$typePet,$typeCare,$price)
+    public function fromUserToKeeper(User $user,$typePet,$typeCare,$initDate,$endDate,$price,$visitPerDay)
     {
         $reflexUser = new ReflectionClass($user);
         $reflexKeeper = new ReflectionClass($this);
@@ -116,7 +116,10 @@ class Keeper extends User{
 
         $this->setTypePet($typePet);
         $this->setTypeCare($typeCare);
+        $this->setInitDate($initDate);
+        $this->setEndDate($endDate);
         $this->setPrice($price);
+        $this->setVisitPerDay($visitPerDay);
 
         echo "VALOR REFLEX";
         var_dump($this);

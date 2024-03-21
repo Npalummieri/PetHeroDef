@@ -35,9 +35,6 @@ use Utils\Session as Session;
                     <a class="nav-link" href="#">How it works</a>
                </li>
 
-               <li class="nav-item active">
-                    <a class="nav-link" href="Views\pruebasViews.php">PRUEBAS</a>
-               </li>
                <?php if (!isset($_SESSION["loggedUser"])) { ?>
                <li class="nav-item active">
                     <a class="nav-link" href="<?php echo FRONT_ROOT ?>Home/showLoginView">Login</a>
@@ -51,7 +48,8 @@ use Utils\Session as Session;
                <?php } else if (is_a($_SESSION["loggedUser"], 'Models\Keeper'))
                { ?>
                     <li class="nav-item active">
-                    <a class="nav-link" href="<?php echo FRONT_ROOT ?>Keeper/ShowMyProfile">My profile</a>
+                         <!-- <input type="hidden" name="keeperCode" value="<?php echo Session::GetLoggedUser()->getKeeperCode(); ?>"> -->
+                    <a class="nav-link" href="<?php echo FRONT_ROOT ?>Keeper/showProfileKeeper">My profile</a>
                </li>
                <?php } 
                } ?>

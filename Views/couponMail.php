@@ -17,8 +17,7 @@
             <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Coupon Code</th>
             <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Init Date</th>
             <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">End Date</th>
-            <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Init Hour</th>
-            <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">End Hour</th>
+            <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Total price</th>
         </tr>
         <tr>
             
@@ -32,10 +31,7 @@
                 <?php echo $fullCoup["endDate"] ; ?>
             </td>
             <td style="text-align: center;">
-                <?php echo $fullCoup["initHour"] ; ?>
-            </td >
-            <td style="text-align: center;">
-                <?php echo $fullCoup["endHour"] ; ?>
+                <?php echo $fullCoup["totalPrice"] ; ?>
             </td>
         
         </tr>

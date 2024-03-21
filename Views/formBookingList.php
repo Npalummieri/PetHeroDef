@@ -11,6 +11,7 @@
                 <option value="confirmed">confirmed</option>
                 <option value="pending">pending</option>
                 <option value="finished">finished</option>
+                <option value="rejected">rejected</option>
                 <option value="cancelled">cancelled</option>
                 <option value="paidup">paidup</option>
             </select>

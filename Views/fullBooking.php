@@ -50,20 +50,18 @@
                             <tr>
                                 <th>Initial Date</th>
                                 <th>End Date</th>
-                                <th>Initial Hour</th>
-                                <th>End Hour</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><?php echo $fullBook["initDate"] ?></td>
                                 <td><?php echo $fullBook["endDate"] ?></td>
-                                <td><?php echo $fullBook["initHour"] ?></td>
-                                <td><?php echo $fullBook["endHour"] ?></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+                <button type="button" style="display: none;" id="btnprof" data-codebook="<?php echo $fullBook["bookCode"] ?>"></button>
+                <div id="calendar"></div>
                 <p><strong>Bio:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget odio nec leo condimentum congue.</p>
                 <div class="d-flex justify-content-between">
                     <?php if($loggedUser instanceof Models\Keeper && $fullBook["status"] == "pending") { ?>
@@ -83,5 +81,9 @@
         </div>
     </form>
 </div>
+<script src="<?php echo JS_PATH."formScripts.js" ?>"></script>
+<script>
+KeepersInteract.calendarKeeper();
+FormAjaxModule.calendarBooking();</script>
 <?php include("footer.php") ?>
 

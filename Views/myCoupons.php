@@ -4,34 +4,30 @@
 <div class="container mt-5">
     <h2 class="mb-4">My Coupons</h2>
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-                    <th>Coupon Code</th>
-                    <th>Booking Code</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Start Hour</th>
-                    <th>End Hour</th>
-                    <th>Pet Name</th>
-                    <th>Keeper Email</th>
-                    <th>Status</th>
-                    <th> </th>
+                    <th scope="col">Coupon Code</th>
+                    <th scope="col">Booking Code</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Pet Name</th>
+                    <th scope="col">Keeper Email</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="">
                 <?php foreach ($myCoupons as $coupon) { ?>
                     <tr>
-                        <td><?php echo $coupon["couponCode"]; ?></td>
-                        <td><?php echo $coupon["bookCode"]; ?></td>
-                        <td><?php echo $coupon["initDate"]; ?></td>
-                        <td><?php echo $coupon["endDate"]; ?></td>
-                        <td><?php echo $coupon["initHour"]; ?></td>
-                        <td><?php echo $coupon["endHour"]; ?></td>
-                        <td><?php echo $coupon["namePet"]; ?></td>
-                        <td><?php echo $coupon["emailKeeper"]; ?></td>
-                        <td><?php echo $coupon["statusCoup"]; ?></td>
-                        <td>
+                        <td class="align-middle"><?php echo $coupon["couponCode"]; ?></td>
+                        <td class="align-middle"><?php echo $coupon["bookCode"]; ?></td>
+                        <td class="align-middle"><?php echo $coupon["initDate"]; ?></td>
+                        <td class="align-middle"><?php echo $coupon["endDate"]; ?></td>
+                        <td class="align-middle"><?php echo $coupon["namePet"]; ?></td>
+                        <td class="align-middle"><?php echo $coupon["emailKeeper"]; ?></td>
+                        <td class="align-middle"><?php echo $coupon["statusCoup"]; ?></td>
+                        <td class="align-middle">
                             <a href="<?php echo FRONT_ROOT . "Coupon/myCouponView/" . $coupon["couponCode"]; ?>" class="btn btn-primary">Manage</a>
                         </td>
                     </tr>

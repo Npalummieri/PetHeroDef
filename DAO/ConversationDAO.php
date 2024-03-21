@@ -91,17 +91,26 @@ class  conversationDAO{
 
     public function checkPrevConver($codeKeeper,$codeOwner){
         try{
-            $query = "SELECT codeConv FROM ".$this->tableName."
+            $query = "SELECT codeConv FROM ".$this->tableName." 
             WHERE keeperCode = :codeKeeper AND ownerCode = :codeOwner;";
 
             $this->connection = Connection::GetInstance();
 
-            $parameters["keeperCode"] = $codeKeeper;
-            $parameters["ownerCode"] = $codeOwner;
+            $parameters["codeKeeper"] = $codeKeeper;
+            $parameters["codeOwner"] = $codeOwner;
 
             $resultSet = $this->connection->Execute($query,$parameters);
+            
+            //Si retorna array vacio == empty
+            if(empty($resultSet) || $resultSet == null)
+            {
+                $resp = null;
+            }else{
+                $resp = $resultSet[0][0];
+            }
+           
 
-            return $resultSet[0][0];
+            return $resp;
         }catch(Exception $ex)
         {
             throw $ex;

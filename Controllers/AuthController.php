@@ -52,8 +52,20 @@ class AuthController{
             {
                 if($this->userService->checkPassword(get_class($user),$user->getEmail(),$password))
             {
+                
                 $msge = "Login Successfully";
                 Session::CreateSession($user);
+                $userLogged = Session::GetLoggedUser();
+                if($userLogged->getStatus == "inactive")
+                {
+                    if($userLogged instanceof Owner)
+                {
+                    $this->userService->updateStatusUser($userLogged->getOwnerCode());
+                }else{
+                    $this->userService->updateStatusUser($userLogged->getKeeperCode());
+                }
+                }
+                
                 $this->homeController->Index($msge);
             }else
             {

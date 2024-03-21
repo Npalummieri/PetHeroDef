@@ -36,6 +36,16 @@ namespace Utils;
     {
         return get_class($_SESSION["loggedUser"]);
     }
+
+    public static function SetOkMessage($msge)
+    {
+        $_SESSION["gmsg"] = $msge;
+    }
+
+    public static function SetBadMessage($msge)
+    {
+        $_SESSION["bmsg"] = $msge;
+    }
 }
 
 ?>

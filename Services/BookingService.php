@@ -10,6 +10,8 @@ use \DateTime as DateTime;
 use Models\Booking as Booking;
 use Services\CouponService as CouponService;
 use Utils\Dates as Dates;
+use \DateInterval as DateInterval;
+use \DatePeriod as DatePeriod;
 
 
 class BookingService{
@@ -79,7 +81,13 @@ class BookingService{
                     $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(),$totalDays,$visitPerDay));
                     echo "SOY BOOKING SERVICE";
                     var_dump($booking);
-                    $resp = $this->bookingDAO->Add($booking);
+                    echo "SOY VARDUMOVERBOOK";
+                    var_dump($this->bookingDAO->checkOverBooking($booking));
+                    if($this->bookingDAO->checkOverBooking($booking) == 1)
+                    {
+                            $resp = $this->bookingDAO->Add($booking);
+                    }
+                    
                 }   
 
                 
@@ -140,21 +148,29 @@ class BookingService{
     //Si la reserva se confirmo con exito -> se genera el cupon correspondiente
     public function srv_confirmBooking($codeBook)
     {
-        try{
+        try {
 
-            $conf = $this->bookingDAO->confirmBooking($codeBook);
-            echo "CONF" . $conf;
-            if ($conf == 1) {
-                $this->couponService->srv_GenerateCouponToOwner($codeBook);
-            } else {
-                $errorMsge = "Not posible to confirm this booking,check the ones you already confirmed";
+            $booking = $this->bookingDAO->GetByCode($codeBook);
+            if ($booking != null) {
+                $conf = $this->bookingDAO->checkOverBooking($booking);
+                $confTwo = $this->bookingDAO->checkFirstBreed($booking);
+                echo "CONF" . $conf;
+                echo "CONFTWO".$confTwo;
+                if ($conf == 1 && ($confTwo != null || $confTwo != 0) ) {
+                    $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(),"confirmed");
+                    if($resp == 1)
+                    {
+                        $result = $this->couponService->srv_GenerateCouponToOwner($codeBook);
+                    }
+                } else {
+                    $result = "Not posible to confirm this booking,check the ones you already confirmed";
+                }
             }
-            
-        }catch(Exception $ex)
-        {
+            //Retorna null si salio algo mal en el generateCoupon,retorna el coupCode si OK,retorna el msje de error si hay overBook o firstBreed mala
+            return $result;
+        } catch (Exception $ex) {
             echo $ex->getMessage();
         }
-        
     }
 
  
@@ -181,6 +197,33 @@ class BookingService{
         {
             echo $ex->getMessage();
         }
+    }
+
+    public function srv_getIntervalBooking($bookingCode)
+    {
+
+            $dates = $this->bookingDAO->getDatesByCode($bookingCode);
+
+
+        //Generate Interval
+
+        $intervalDates = array();
+
+        // Convertir las fechas a objetos DateTime
+        $initDateDT = new DateTime($dates["initDate"]);
+        $endDateDT = new DateTime($dates["endDate"]);
+    
+        // Agregar un día al rango de fechas para incluir la fecha final
+        $endDateDT->modify('+1 day');
+    
+        // Iterar sobre el intervalo de fechas y agregarlas al array
+        $intervalObj = new DateInterval('P1D'); // Intervalo de 1 día
+        $datePeriodObj = new DatePeriod($initDateDT, $intervalObj, $endDateDT);
+        foreach ($datePeriodObj as $date) {
+            $intervalDates[] = $date->format('Y-m-d'); // Formato YYYY-MM-DD
+        }
+
+        return $intervalDates;
     }
 }
 

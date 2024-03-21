@@ -47,8 +47,9 @@ class CouponService{
         //Recheck status booking recently confirmed (passed by parameter)
         $booking = $this->bookingDAO->GetByCode($bookCode);
 
-        if($booking->getStatus() == "confirmed")
+        if($booking != null)
         {
+            echo "HOLA TOY GENERANDO COUP";
             $coupon = new Coupon();
             //En keeper tengo el precio por hora y en booking el totalPrice deberia setearlo en base a horas*price
             $coupon->setPrice($booking->getTotalPrice());
@@ -189,8 +190,12 @@ class CouponService{
 
                         $bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
 
+                        echo "SOY BOOKING PAIDUP from couponService";
+                        var_dump($bookingPaidup);
                         //Devuelve el idConver que ya existia o el generado recien,si ya devuelve el existente no genera
                         $idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(),$bookingPaidup->getOwnerCode());
+                        echo "SOYIDCONVER :";
+                        var_dump($idConver);
                     }else{
                         $errorMsge = "We couldn't validate your pay!";
                     }
@@ -202,6 +207,36 @@ class CouponService{
         }
             
             return $flag;
+    }
+
+    public function srv_declineCoupon($couponCode)
+    {
+        try{
+            $coupon = $this->couponDAO->getCouponByCode($couponCode);
+            $datesBooking = $this->bookingDAO->getDatesByCode($coupon->getBookCode());
+            $initDateFormat = DateTime::createFromFormat("Y-m-d",$datesBooking["initDate"]);
+            $currentDateTime = new DateTime();
+            if($initDateFormat > $currentDateTime )
+            {
+                //este decline coupon deberia medio en cascada cancelar el booking a cancelled too
+                $this->couponDAO->declineCoupon($couponCode);
+            }
+        }catch(Exception $ex)
+        {
+            $ex->getMessage();
+        }
+    }
+
+    public function srv_getCoupCodeByBook($bookCode)
+    {
+        try{
+            $couponCode = $this->couponDAO->getCoupCodeByBook($bookCode);
+
+            return $couponCode;
+        }catch(Exception $ex)
+        {
+            echo $ex->getMessage();
+        }
     }
 }
 

@@ -1,16 +1,17 @@
 <?php
 include("header.php");
 include("nav.php");
+
 use Utils\Session as Session;
-var_dump($infoKeeper);
+
 ?>
-<div class="container mt-5">
+<div class="container mt-5" id="contMain">
     <div class="row">
         <!-- Columna para la foto de perfil -->
-        <div class="col-lg-3">
+        <div class="col-lg-3 text-center">
             <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="img-fluid rounded-circle">
-            <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() != Session::GetLoggedUser()->getKeeperCode() ) { ?>
-            <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode(); ?>">Edit Profile</a>
+            <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
+                <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Edit Profile</a>
             <?php } ?>
         </div>
         <!-- Columna para la información del usuario -->
@@ -39,7 +40,7 @@ var_dump($infoKeeper);
                                     <tr>
                                         <th class="text-center">InitDate</th>
                                         <th class="text-center">EndDate</th>
-                                        <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() != Session::GetLoggedUser()->getKeeperCode() ) { ?>
+                                        <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
                                             <th class="text-center"></th> <!-- Celda extra para el botón de editar -->
                                         <?php } ?>
                                     </tr>
@@ -49,29 +50,30 @@ var_dump($infoKeeper);
                                         <td class="text-center p-3"><?php echo $infoKeeper->getInitDate(); ?></td>
                                         <td class="text-center p-3"><?php echo $infoKeeper->getEndDate(); ?></td>
                                         <?php if ($loggedKeeper != null) {
-                                            if ($loggedKeeper->getKeeperCode() != Session::GetLoggedUser()->getKeeperCode()) {
+                                            if ($loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) {
 
 
                                         ?>
                                                 <td class="text-center ">
-                                                    <button class="btn btn-primary btn-edit">Editar</button> <!-- Botón de editar -->
+                                                    <button class="btn btn-primary btn-edit">Edit</button> <!-- Botón de editar -->
                                                     <button class="btn btn-success btn-save" style="display: none;">Save</button> <!-- Botón de guardar -->
                                                     <button class="btn btn-danger btn-cancel" style="display: none;">Cancel</button> <!-- Botón de cancelar -->
                                                 </td>
 
-                                            <?php }
-                                        } else if ($loggedOwner != null) { ?>
-                                            <div class="d-flex justify-content-between">
-                                                <a class="btn btn-success" href="<?php echo FRONT_ROOT."Booking/showBookCreate/".$keeperCode ?>" >Hire it!</a>
-                                                <!-- Botón Rate -->
-                                                <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
-                                            </div>
-                                        <?php  } ?>
+                                        <?php }
+                                        } ?>
 
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+                        <?php if ($loggedOwner != null) { ?>
+                            <div class="d-flex justify-content-between">
+                                <a class="btn btn-success" href="<?php echo FRONT_ROOT . "Booking/showBookCreate/" . $keeperCode ?>">Hire it!</a>
+                                <!-- Botón Rate -->
+                                <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
+                            </div>
+                        <?php  } ?>
                     </div>
                 </div>
             </div>
@@ -87,36 +89,36 @@ var_dump($infoKeeper);
 </div>
 
 
-    <!-- Modal -->
-    <div class="modal" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<!-- Modal -->
+<div class="modal" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <div class="modal-body">
-                    <textarea id="reviewText" class="form-control" rows="4" maxlength="200" placeholder="Write your review (max 200 characters)"></textarea>
-                    <div class="form-group mt-3">
-                        <label for="rating">Rating:</label>
+            <div class="modal-body">
+                <textarea id="reviewText" class="form-control" rows="4" maxlength="200" placeholder="Write your review (max 200 characters)"></textarea>
+                <div class="form-group mt-3">
+                    <label for="rating">Rating:</label>
 
-                        <select class="form-control" id="rating"> <i class="fa-solid fa-star">
-                                <option value="1"><i class="bi bi-star-fill"></i> 1</option>
-                                <option value="2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 2</option>
-                                <option value="3"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 3</option>
-                                <option value="4"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 4</option>
-                                <option value="5"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 5</option>
-                        </select>
-                    </div>
+                    <select class="form-control" id="rating"> <i class="fa-solid fa-star">
+                            <option value="1"><i class="bi bi-star-fill"></i> 1</option>
+                            <option value="2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 2</option>
+                            <option value="3"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 3</option>
+                            <option value="4"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 4</option>
+                            <option value="5"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i> 5</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="submitReview" type="button" class="btn btn-primary">Submit</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="submitReview" type="button" class="btn btn-primary">Submit</button>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 

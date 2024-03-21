@@ -62,6 +62,26 @@ class OwnerDAO extends IDAO{
         return $ownerCode;
     }
 
+    public function updateStatus($code)
+    {
+        try{
+
+            $query = "UPDATE ".$this->tableName." 
+            SET status = :status 
+            WHERE keeperCode = :code ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["code"] = $code;
+            $parameters["status"] = "active";
+            return $this->connection->ExecuteNonQuery($query,$parameters);
+
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
+    }
+
     public function GetAll()
     {
         try{
