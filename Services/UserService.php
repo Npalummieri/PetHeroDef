@@ -6,10 +6,8 @@ namespace Services;
 use DAO\KeeperDAO;
 use DAO\ownerDAO as OwnerDAO;
 use DateTime;
-use DateTimeInterface;
 use \Exception as Exception;
 use Models\User as User;
-use Models\Keeper as Keeper;
 Use Utils\Dates as Dates;
 
 class UserService {
@@ -22,7 +20,9 @@ class UserService {
         $this->keeperDAO = new KeeperDAO();
     }
 
-    public function searchUsernameLogin($username) {
+    public function searchUsernameLogin($username)
+    {
+        
         $user = $this->ownerDAO->searchByUsername($username);
 
         if ($user === null) {
@@ -32,55 +32,46 @@ class UserService {
         return $user;
     }
 
-    
 
-    public function searchEmailLogin($email) {
-        $user = $this->ownerDAO->searchByEmail($email);
 
-        if ($user === null) {
-            $user = $this->keeperDAO->searchByEmail($email);
-        }
-
+    public function searchEmailLogin($email)
+    {
+        
+            $user = $this->ownerDAO->searchByEmail($email);
+            if ($user === null) {
+                $user = $this->keeperDAO->searchByEmail($email);
+            }
         return $user;
     }
 
-    public function checkPassword($typeUser,$email,$password)
+    public function checkPassword($typeUser, $email, $password)
     {
-        try{
-            //Revisar valor de TypeUser
-            var_dump($typeUser);
-            if($typeUser == "Models\Owner")
-            {
-                $pwdBd = $this->ownerDAO->getPassword($email);
-            }else
-            {
-                $pwdBd = $this->keeperDAO->getPassword($email);
-            }
-            $rsp = password_verify($password,$pwdBd);
-        }catch(Exception $ex)
-        {
-            throw $ex;
-        }
 
+        if ($typeUser == "Models\Owner") {
+            $pwdBd = $this->ownerDAO->getPassword($email);
+        } else {
+            $pwdBd = $this->keeperDAO->getPassword($email);
+        }
+        $rsp = password_verify($password, $pwdBd);
         return $rsp;
     }
 
     public function updateStatusUser($codeUserLogged)
     {
-
+        $errorMsge = "";
         try{
             if(strpos($codeUserLogged,"OWN"))
         {
-            $resp = $this->ownerDAO->updateStatus($codeUserLogged);
+            $errorMsge = $this->ownerDAO->updateStatus($codeUserLogged);
         }else if (strpos($codeUserLogged,"KEP")){
-            $resp = $this->keeperDAO->updateStatus($codeUserLogged);
+            $errorMsge = $this->keeperDAO->updateStatus($codeUserLogged);
         }else{
-            $resp = "Error with the logging";
+            $errorMsge = "Error with the logging";
         }
         
         }catch(Exception $ex)
         {
-            $resp = $ex->getMessage();
+            $resp = $errorMsge.' '.$ex->getMessage();
         }
         return $resp;
     }
@@ -90,40 +81,37 @@ class UserService {
     {
         try {
             $msgResult = "";
-            $msgeError = 0;
+            $msgeError = "";
             $user = new User();
-
-            // ||||||||||||||||||||||||||||||||||||||||||||||||Filter email
-            //Validacion de Email (Se puede implementar regex)
+            echo "SOY EMAIL VAIDATE".$email;
+                        // ||||||||||||||||||||||||||||||||||||||||||||||||Filter email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $msgeError = "Not an Email";
+               throw new Exception("Not an Email");
             } else {
-                $user = $this->searchEmailLogin($email);
-                if($user == null)
-                {
+                
+                $searched = $this->searchEmailLogin($email);
+                if ($searched == null) {
+                    
                     $email = trim($email);
                     $user->setEmail($email);
-                }else{
-                    $msgeError = "email already exists!";
+                } else {
+                    throw new Exception("email already exists!");
                 }
-                
             }
-
             // ||||||||||||||||||||||||||||||||||||||||||||||||Filter username
             $regexUsername = "/^(?=.*[A-Za-z])(?!.*[\s!@])(?:\D*\d){0,4}[A-Za-z\d]{6,20}$/";
-            if ($this->searchUsernameLogin($username) != null) //No repetido
+            if ($this->searchUsernameLogin($username) == null) //No repetido
             {
-
                 if (preg_match($regexUsername, $username)) {
-                    echo "HOLA?";
+
                     $username = trim($username);
 
                     $user->setUserName($username);
                 } else {
-                    $msgeError = "Not validate userName";
+                    throw new Exception("Not validate userName");
                 }
             } else {
-                $msgeError = "Username already exists!";
+                throw new Exception("Username already exists!");
             }
 
 
@@ -134,18 +122,18 @@ class UserService {
                 $hashedPass = password_hash($password, PASSWORD_DEFAULT);
                 $user->setPassword($hashedPass);
             } else {
-                $msgeError = "Password does not match the requirements!";
+                throw new Exception("Password does not match the requirements!");
             }
 
 
             $user->setStatus("inactive");
 
-            //Saco los espacios e.g = Juan Pablo --> JuanPablo si ta ok seteo el nombre como venia,no admite ñ ni tildes
+            //Check spaces for +2 words name
             $name_alpha_spaces = ctype_alpha(str_replace(' ', '', $name));
             if ($name_alpha_spaces) {
                 $user->setName($name);
             } else {
-                $msgeError = "Something does not match with our requirements check your name";
+                throw new Exception("Something does not match with our requirements check your name");
             }
 
 
@@ -153,37 +141,36 @@ class UserService {
             if ($lastname_alpha_spaces) {
                 $user->setLastname($lastname);
             } else {
-                $msgeError = "Something does not match with our requirements check your Lastname";
+                throw new Exception("Something does not match with our requirements check your Lastname");
             }
 
-            //Le sacamos los espacios por las dudas
+            //No spaces
             $dni = trim($dni);
             $checkDni = ctype_digit($dni);
             if ($checkDni) {
                 $user->setDni($dni);
-                //unset($dni);
             } else {
-                $msgeError = "Something does not match with our requirements. Only numbers not spaces or dots allowed";
+                throw new Exception("Something does not match with our requirements. Only numbers not spaces or dots allowed");
             }
 
 
-            //Variable que almacena la ruta relativa que figura en BD
+
             $pathToBD = "";
             if (isset($pfpInfo["pfp"]["tmp_name"]) && !empty($pfpInfo["pfp"]["tmp_name"])) {
 
                 $nameFile = $pfpInfo["pfp"]["name"];
                 $imgSize = $pfpInfo["pfp"]["size"];
-                $typeImg = $pfpInfo["pfp"]["type"];
                 $dim = getimagesize($pfpInfo["pfp"]["tmp_name"]);
+                $extension = explode(".", $nameFile);
+                $typeImg = $pfpInfo["pfp"]["type"];
                 $width = $dim[0];
                 $height = $dim[1];
-                $extension = explode(".", $nameFile);
 
 
-                //Deberia verificar la integridad de la img/archivo que no contenga nada raro
+
                 $admittedTypes = ["image/jpg", "image/png", "image/jpeg", "image/bmp", "image/gif"];
 
-                //El MIME es un id que valida que lo que se sube es una imagen como tal y no por ejemplo un archivo.exe con extension cambiada
+                //MIME check
                 $mime = mime_content_type($pfpInfo["pfp"]["tmp_name"]);
 
                 if (!in_array($mime, $admittedTypes)) {
@@ -191,55 +178,51 @@ class UserService {
                 } else if ($imgSize > 3 * 1024 * 1024) {
                     throw new Exception("Not supported size");
                 } else {
-                    //Tomo el nombre del archivo del lado del cliente
+
+                    //Name from the clientfile
                     $name_pfp = $pfpInfo["pfp"]["name"];
 
-                    //Tomo el archivo como tal (Donde esta almacenado temporalmente)
+                    //Tmp location on $pfp
                     $pfp = $pfpInfo["pfp"]["tmp_name"];
 
-
-                    //hasheo el archivo
+                    //Hashing
                     $hashedNameFile = hash_file('sha1', $pfp);
+
                     if ($typeUser == "owner") {
-                        if(!file_exists(PFP_OWNERS))
-                            {
-                                mkdir(PFP_OWNERS,0777,true);
-                            }
+                        if (!file_exists(PFP_OWNERS)) {
+                            mkdir(PFP_OWNERS, 0777, true);
+                        }
                         $pathToSave =  PFP_OWNERS . $hashedNameFile . '.' . $extension[1];
-                        //Ruta guardada en BD de la ruta 
+
                         $pathToBD = "PFPOwners/" . $hashedNameFile . '.' . $extension[1];
                     } else if ($typeUser == "keeper") {
-                        if(!file_exists(PFP_KEEPERS))
-                            {
-                                mkdir(PFP_KEEPERS,0777,true);
-                            }
-                        //en el caso de keeper solo hasheo el archivo para posterior subida de la imagen
+                        if (!file_exists(PFP_KEEPERS)) {
+                            mkdir(PFP_KEEPERS, 0777, true);
+                        }
+
                         $pathToSave = PFP_KEEPERS . $hashedNameFile . '.' . $extension[1];
-                        //Ruta guardada en BD de la ruta 
+
                         $pathToBD = "PFPKeepers/" . $hashedNameFile . '.' . $extension[1];
                     }
-                    //Seteo la ruta donde despues moveré la PFP
                     $user->setPfp($pathToBD);
                 }
             } else {
 
-                //Contemplo que pudo no haber subido o hubo un error con la PFP pero el registro continuó
                 if ($user->getPfp() == null) {
-                    $errorMsge = "Registered user,upload your pfp later!";
+                    throw new Exception("Registered user,upload your pfp later!");
                 }
             }
-        } catch (Exception $ex) {
-            $ex->getMessage();
-        }
 
-        //Retorno un arreglo con el usuario validado,y la información para el seteo de PFP's
+            //Retorno un arreglo con el usuario validado,y la información para el seteo de PFP's
         $response = [
             "user" => $user,
             "pfp" => $pfp,
             "pathToDB" => $pathToBD,
             "pathToSave" => $pathToSave
         ];
-
+        } catch (Exception $ex) {
+            $response =  $ex->getMessage();
+        }
         return $response;
     }
 
