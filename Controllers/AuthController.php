@@ -2,12 +2,10 @@
 
 namespace Controllers;
 
-use Models\User as User;
+
 use Models\Owner as Owner;
-use Models\Keeper as Keeper;
 use DAO\ownerDAO as OwnerDAO;
 use DAO\keeperDAO as KeeperDAO;
-use \Exception as Exception;
 use Controllers\HomeController as HomeController;
 use Utils\Session as Session;
 use Services\UserService as UserService;
@@ -15,16 +13,14 @@ use Services\UserService as UserService;
 class AuthController{
 
     private $ownerDAO;
-    private $homeController;
     private $userService;
     private $keeperDAO;
-    private $availabilityDAO;
+
 
     
     public function __construct()
     {
         $this->ownerDAO = new OwnerDAO();
-        $this->homeController = new HomeController();
         $this->userService = new UserService($this->ownerDAO,$this->keeperDAO);
         $this->keeperDAO = new KeeperDAO();
     }
@@ -34,7 +30,7 @@ class AuthController{
 
     public function Login($userField,$password)
     {
-        try{
+
             if(filter_var($userField,FILTER_VALIDATE_EMAIL))
             {
                 $user = $this->userService->searchEmailLogin($userField);
@@ -45,18 +41,18 @@ class AuthController{
             
             if($user == null)
             {
-                $msge = "User not found,try again!";
+                Session::SetBadMessage("User not found");
                 //throw New Exception("Fatal error,not user found");
-                $this->homeController->showLoginView($msge);
+                header("location: ".FRONT_ROOT."Home/showLoginView");
             }else
             {
                 if($this->userService->checkPassword(get_class($user),$user->getEmail(),$password))
             {
                 
-                $msge = "Login Successfully";
+                Session::SetOkMessage("Login Successfully!");
                 Session::CreateSession($user);
                 $userLogged = Session::GetLoggedUser();
-                if($userLogged->getStatus == "inactive")
+                if($userLogged->getStatus() == "inactive")
                 {
                     if($userLogged instanceof Owner)
                 {
@@ -66,22 +62,17 @@ class AuthController{
                 }
                 }
                 
-                $this->homeController->Index($msge);
+                header("location: ".FRONT_ROOT."Home/Index");
             }else
             {
-                $msge = "Wrong password!";
-                $this->homeController->showLoginView($msge);
+                Session::SetBadMessage("Wrong password!");
+                header("location: ".FRONT_ROOT."Home/showLoginView");
             }
-            }
-
-            
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
+            } 
         }
     }
+    
 
     
-}
 
 ?>
