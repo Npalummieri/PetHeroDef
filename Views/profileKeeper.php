@@ -16,6 +16,15 @@ use Utils\Session as Session;
         </div>
         <!-- Columna para la información del usuario -->
         <div class="col-lg-9">
+            <?php if (isset($_SESSION["bmsg"])) { ?>
+                <p class="alert alert-danger"><?php echo $_SESSION["bmsg"];
+                                                unset($_SESSION["bmsg"]); ?> </p>
+
+            <?php
+            } else if (isset($_SESSION["gmsg"])) { ?>
+                <p class="alert alert-success"><?php echo $_SESSION["gmsg"];
+                                                unset($_SESSION["gmsg"]); ?></p>
+            <?php } ?>
             <h2>User Information</h2>
             <div class="row">
                 <div class="col-md-6">
@@ -44,6 +53,7 @@ use Utils\Session as Session;
                                             <th class="text-center"></th> <!-- Celda extra para el botón de editar -->
                                         <?php } ?>
                                     </tr>
+                                    <div id="result-message" style="display: none;"></div>
                                 </thead>
                                 <tbody>
                                     <tr>
@@ -83,7 +93,6 @@ use Utils\Session as Session;
             <div id="calendar"></div>
             <hr>
             <p><strong>Bio:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget odio nec leo condimentum congue.</p>
-            <p><strong>Reviews:</strong> <?php echo $infoKeeper->getScore(); ?></p>
         </div>
     </div>
 </div>
@@ -123,22 +132,40 @@ use Utils\Session as Session;
 
 
 <h2>Reviews</h2>
-<div id="reviews">
+<div id="reviews" class="row row-cols-1 row-cols-md-2 g-4">
     <?php foreach ($reviews as $review) { ?>
-        <div class="row mb-4">
-            <div class="col">
-                <div class="d-flex flex-start">
-                    <img class="rounded-circle shadow-1-strong me-3" src="<?php echo FRONT_ROOT . "Images/" . $review["pfp"]; ?>" alt="avatar" width="65" height="65" />
-                    <div class="flex-grow-1 flex-shrink-1">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <p class="mb-1">
-                                <?php echo $review["name"] . " " . $review["lastname"] ?> <span class="small"><?php echo $review["timeStamp"] ?></span>
-                            </p>
-                            <!-- <a href="#!"><i class="fas fa-reply fa-xs"></i><span class="small"> reply</span></a> -->
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <img class="rounded-circle shadow-1-strong me-3" src="<?php echo FRONT_ROOT . "Images/" . $review["pfp"]; ?>" alt="avatar" width="65" height="65" />
+                        <div class="flex-grow-1 flex-shrink-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-1"><span class="font-weight-bold text-decoration-underline fs-5"><?php echo $review["name"] . " " . $review["lastname"] ?></span> <span class="small"><?php echo $review["timeStamp"] ?></span></p>
+                                <div class="stars">
+                                    <?php
+                                    // Loop para mostrar las estrellas según el puntaje
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        if ($i <= $review['score']) {
+                                            echo '<span class="star filled small">&#9733;</span>';
+                                        } else {
+                                            echo '<span class="star small">&#9733;</span>';
+                                        }
+                                    }
+                                    ?>
+                                    <span class="small"><?php echo $review['score'] . "/5" ?></span>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                            <p class="font-weight-bold mb-0 rounded p-1 flex-grow-1" style="background-color: #ebf2f7;"><?php echo $review["comment"]; ?></p>
+                            <?php if(Session::GetTypeLogged() == 'Models\Owner'){
+                                if(Session::GetLoggedUser()->getOwnerCode() == $review["ownerCode"])
+                                { ?>
+                                        <a class="btn btn-dis text-end rounded p-2" style="text-decoration: none;background-color: #d14d63;" href="<?php echo FRONT_ROOT."Review/delete/".$review["reviewCode"] ?>" data-msg="Delete the review?"><i class="fa-solid fa-trash my-2"></i></a>
+                               <?php }
+                            } ?> 
+                            </div>
                         </div>
-                        <p class="small mb-0">
-                            <?php echo $review["comment"]; ?>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -151,6 +178,7 @@ use Utils\Session as Session;
     KeepersInteract.displayEditDates();
     KeepersInteract.updateDates();
     moduleReview.displayFieldReview();
+    KeepersInteract.reConfirm();
 </script>
 
 <?php include("footer.php"); ?>
