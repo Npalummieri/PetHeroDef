@@ -28,87 +28,67 @@ class BookingService{
     }
 
     public function generateCode() {
-        // Genera un UUID único
-        $uuid = uniqid('BOOK', true); // Utiliza 'KEP' como prefijo
-    
-        // Devuelve el ownerCode generado
+        // UUID 
+        $uuid = uniqid('BOOK', true); 
+
         return $uuid;
     }
 
 
 
-    public function srv_validateBooking($ownerCode,$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay)
+    public function srv_validateBooking($ownerCode, $initDate, $endDate, $petCode, $keeperCode, $typePet, $typeSize, $visitPerDay)
     {
         $resp = null;
-        try{
-            //Se revalida el tipo de mascota y se chequea el overbooking! Si puede pasar que haya un falso overbooking de varias reservas 'iguales' pero en pending
-            if($this->keeperDAO->revalidateKeeperPet($keeperCode,$petCode) > 0  && $this->bookingDAO->checkDoubleBooking($ownerCode,$keeperCode,$petCode,$initDate,$endDate) == 0)
-            {
+        try {
+            if ($this->keeperDAO->revalidateKeeperPet($keeperCode, $petCode) > 0  && $this->bookingDAO->checkDoubleBooking($ownerCode, $keeperCode, $petCode, $initDate, $endDate) == 0) {
 
                 $booking = new Booking();
+
                 $booking->setBookCode($this->generateCode());
                 $booking->setOwnerCode($ownerCode);
                 $booking->setKeeperCode($keeperCode);
-                $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
-
-                //¿Validar existencia de PET? Incluso en la vista ya esta 'asegurado'
                 $booking->setPetCode($petCode);
 
-                if(Dates::validateAndCompareDates($initDate,$endDate) == 1 || Dates::validateAndCompareDates($initDate,$endDate) == 0 )
-                {
+                $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
+
+
+
+                if (Dates::validateAndCompareDates($initDate, $endDate) == 1 || Dates::validateAndCompareDates($initDate, $endDate) == 0) {
+
                     $booking->setInitDate($initDate);
                     $booking->setEndDate($endDate);
-                }else{
-                    throw new Exception("Not valid dates");
-                }
-                
-                
-                
-                $totalDays = Dates::calculateDays($initDate,$endDate);
-                if($totalDays != null)
-                {
-                    $booking->setTotalDays($totalDays);
-                }else{
-                    throw new Exception("Something is wrong with dates");
-                }
-                
+                    $totalDays = Dates::calculateDays($initDate, $endDate);
 
-                if($keeper->getVisitPerDay() != $visitPerDay)
-                {
-                    throw new Exception("Visit per day has no coincidence");
-                }else{
-                    $booking->setVisitPerDay($visitPerDay);
-                    $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(),$totalDays,$visitPerDay));
-                    echo "SOY BOOKING SERVICE";
-                    var_dump($booking);
-                    echo "SOY VARDUMOVERBOOK";
-                    var_dump($this->bookingDAO->checkOverBooking($booking));
-                    if($this->bookingDAO->checkOverBooking($booking) == 1)
-                    {
-                            $resp = $this->bookingDAO->Add($booking);
+                    if ($totalDays != null) {
+                        $booking->setTotalDays($totalDays);
                     }
-                    
-                }   
+                } else {
+                    $resp = "Not valid dates";
+                }
 
-                
-            }else
-            {
-                $resp = false;
+                if ($keeper->getVisitPerDay() != $visitPerDay) {
+                    $resp = "Visit per day has no coincidence";
+                } else {
+
+                    $booking->setVisitPerDay($visitPerDay);
+                    $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(), $totalDays, $visitPerDay));
+
+                    if ($this->bookingDAO->checkOverBooking($booking) == 1) {
+                        $resp = $this->bookingDAO->Add($booking);
+                    }
+                }
+            } else {
+                $resp = "Error with the dates and the pet selected!";
             }
-            return $resp;
-            
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
+        } catch (Exception $ex) {
+            $resp = $ex->getMessage();
         }
         return $resp;
     }
 
-    //
+
     private function srv_calculateBookingPrice($price,$totalDays,$visitPerDay)
     {
-        //Se asume que todas las variables tan saneadas del srv_validateBooking
-
         return $price * ($totalDays * $visitPerDay);
     }
 
@@ -118,15 +98,13 @@ class BookingService{
             $array =  $this->bookingDAO->getAllMyBookings($userCode);
         }catch(Exception $ex)
         {
-            throw $ex;
+            $array = $ex->getMessage();
         }
         return $array;
     }
 
     public function srv_getMyBookings($initDate,$endDate,$status,$keeperCode)
     {
-        //Deberia validar en los service que las fechas sean coherentes por ej
-        //Si alguna de las fechas esta vacia muestra unicamente por status
         if(empty($initDate) || empty($endDate))
         {
             $initDate = null;
@@ -152,11 +130,11 @@ class BookingService{
 
             $booking = $this->bookingDAO->GetByCode($codeBook);
             if ($booking != null) {
-                $conf = $this->bookingDAO->checkOverBooking($booking);
+                $conf = $this->bookingDAO->checkOverBookingConfirm($booking);
                 $confTwo = $this->bookingDAO->checkFirstBreed($booking);
                 echo "CONF" . $conf;
                 echo "CONFTWO".$confTwo;
-                if ($conf == 1 && ($confTwo != null || $confTwo != 0) ) {
+                if ($conf <= 1 && ($confTwo != null || $confTwo != 0) ) {
                     $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(),"confirmed");
                     if($resp == 1)
                     {
@@ -165,12 +143,12 @@ class BookingService{
                 } else {
                     $result = "Not posible to confirm this booking,check the ones you already confirmed";
                 }
-            }
-            //Retorna null si salio algo mal en el generateCoupon,retorna el coupCode si OK,retorna el msje de error si hay overBook o firstBreed mala
-            return $result;
+            } 
+            
         } catch (Exception $ex) {
-            echo $ex->getMessage();
-        }
+            $result = "Major problem ". $ex->getMessage();
+        }//Retorna null si salio algo mal en el generateCoupon,retorna el coupCode si OK,retorna el msje de error si hay overBook o firstBreed mala
+        return $result;
     }
 
  
@@ -180,47 +158,54 @@ class BookingService{
         try{
             $fullBook = $this->bookingDAO->getBookingByCodeLogged($userCode,$bookCode);
 
-            return $fullBook;
+            
         }catch(Exception $ex)
         {
-            echo $ex->getMessage();
+            $fullBook = "Cannot get this booking ".$ex->getMessage();
         }
+        return $fullBook;
         
     }
 
     public function srv_cancelBooking($bookCode)
     {
         try{
-            $this->bookingDAO->cancelBooking($bookCode);
-            
+            $result = $this->bookingDAO->cancelBooking($bookCode);
         }catch(Exception $ex)
         {
-            echo $ex->getMessage();
+            $result .= "Not possible to cancel this booking ". $ex->getMessage();
         }
+        return $result;
     }
 
     public function srv_getIntervalBooking($bookingCode)
     {
 
+        try {
+
+
             $dates = $this->bookingDAO->getDatesByCode($bookingCode);
 
 
-        //Generate Interval
+            //Interval
 
-        $intervalDates = array();
+            $intervalDates = array();
 
-        // Convertir las fechas a objetos DateTime
-        $initDateDT = new DateTime($dates["initDate"]);
-        $endDateDT = new DateTime($dates["endDate"]);
-    
-        // Agregar un día al rango de fechas para incluir la fecha final
-        $endDateDT->modify('+1 day');
-    
-        // Iterar sobre el intervalo de fechas y agregarlas al array
-        $intervalObj = new DateInterval('P1D'); // Intervalo de 1 día
-        $datePeriodObj = new DatePeriod($initDateDT, $intervalObj, $endDateDT);
-        foreach ($datePeriodObj as $date) {
-            $intervalDates[] = $date->format('Y-m-d'); // Formato YYYY-MM-DD
+            // string dates to DateTime
+            $initDateDT = new DateTime($dates["initDate"]);
+            $endDateDT = new DateTime($dates["endDate"]);
+
+            
+            $endDateDT->modify('+1 day');
+
+            // Iterates over the interval and add to array
+            $intervalObj = new DateInterval('P1D'); // 1day interval
+            $datePeriodObj = new DatePeriod($initDateDT, $intervalObj, $endDateDT);
+            foreach ($datePeriodObj as $date) {
+                $intervalDates[] = $date->format('Y-m-d'); // Format YYYY-MM-DD
+            }
+        } catch (Exception $ex) {
+            $intervalDates = "Problem at getting the interval ".$ex->getMessage();
         }
 
         return $intervalDates;
