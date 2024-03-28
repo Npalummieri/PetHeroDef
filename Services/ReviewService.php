@@ -30,10 +30,6 @@ class ReviewService{
 
     public function srv_canReview($ownerCode,$keeperCode)
     {
-        echo "OWNERCODE";
-        var_dump($ownerCode);
-        echo "KEEPCODE";
-        var_dump($keeperCode);
         try
         {
                 $result = null;
@@ -92,6 +88,21 @@ class ReviewService{
         {
             $ex->getMessage();
         }
+    }
+
+    public function srv_deleteReview($codeReview,$ownerCodeLog)
+    {
+        try{
+
+            $result = $this->reviewDAO->delete($codeReview,$ownerCodeLog);
+            
+            return $result;
+        }catch(Exception $ex)
+        {
+            echo $ex->getMessage();
+        }
+
+        return $result;
     }
 
 }
