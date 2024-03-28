@@ -2,14 +2,12 @@
 
 namespace Controllers;
 
-use Models\Booking as Booking;
+
 use Models\Keeper as Keeper;
 use Models\Owner as Owner;
 use Services\BookingService as BookingService;
 use Services\KeeperService as KeeperService;
-use Services\AvailabilityService as AvailabilityService;
 use Services\PetService as PetService;
-use Services\CouponService as CouponService;
 use Utils\Session as Session;
 
 
@@ -17,33 +15,31 @@ class BookingController{
 
     private $bookingService;
     private $petService;
-    private $couponService;
     private $keeperService;
+
     public function __construct()
     {
         $this->bookingService = new BookingService();
         $this->petService = new PetService();
-        $this->couponService = new CouponService();
         $this->keeperService = new KeeperService();
     }
 
     public function addBooking($initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay)
     {
-        var_dump($_POST);
+        
         if (Session::IsLogged() && Session::GetTypeLogged() == 'Models\Owner') {
             $userLogged = $_SESSION["loggedUser"];
 
             $resp = $this->bookingService->srv_validateBooking($userLogged->getOwnerCode(),$initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay);
         } else {
             Session::DeleteSession();
-            header("location: ../index.php");
+            header("location: ".FRONT_ROOT."Home/Index");
         }
 
-        if($resp != null && $resp != false){
-
-            $this->showMyBookings($resp);
+        if($resp == 1 || strpos($resp,"BOOK") != 1){
+            Session::SetOkMessage("Booking added successfully");
+            header("location: ".FRONT_ROOT."Booking/showMyBookings");
         }else{
-            $resp = "ERROR AT CREATING BOOK.CHECK THE DATA";
             $this->showBookCreate($keeperCode,$resp);
         }
         
@@ -61,47 +57,40 @@ class BookingController{
             $typePet = $keeper->getTypePet();
             $typeSize = $keeper->getTypeCare();
         }
-
         require_once(VIEWS_PATH . "registerBooking.php");
     }
     
 
 
-    //Esta retorna todas las mascotas del dueño
+    //Return pets from the ownerLogged (filtered by type)
     public function getPetsByOwnAndType($typePet)
     {
-        
         $userLogged = $_SESSION["loggedUser"];
 
         $petsFiltered = $this->petService->petsByOwnAndType($userLogged->getOwnerCode(),$typePet);
         
-        //header('Content-Type: application/json');
-        
         echo $petsFiltered;
     }
 
-    //Esta retorna las mascotas del dueño segun tipo y tamaño (para que la reserva sea precisa ya del lado del cliente tambn)
+    //Return pets from the ownerLogged (filtered by type and size)
     public function getPetsByOwnFiltered($typePet,$typeSize)
     {
         
         $userLogged = Session::GetLoggedUser();
         
         $petsFiltered = $this->petService->srv_getPetsByOwnFilters($userLogged->getOwnerCode(),$typePet,$typeSize);
-        
-        //header('Content-Type: application/json');
-        
+         
         echo $petsFiltered;
     }
 
-    public function showMyBookings($resp = " ")
+    public function showMyBookings()
     {
         if(Session::GetLoggedUser())
         {
             $loggedUser = Session::GetLoggedUser();
         }else
         {
-            //Patear al inicio
-            header("location: ../index.php");
+            header("location: ".FRONT_ROOT."Home/Index");
         }
         
         if($loggedUser instanceof Keeper)
@@ -140,7 +129,7 @@ class BookingController{
         //levantar keeperCode del session actual si no hay session,pateamos al index
 
         if (!Session::IsLogged()) {
-            header("location: ../index.php");
+            header("location: ".FRONT_ROOT."Home/Index");
         } else {
             if (Session::GetTypeLogged() == "Models\Keeper") {
                 $loggedUser = Session::GetLoggedUser();
@@ -161,9 +150,11 @@ class BookingController{
                 $conf = $this->bookingService->srv_confirmBooking($codeBook);
             }
         }
-        echo "SOY CONF del controller,llego dele service";
-        var_dump($conf);
         $myBookings = $this->bookingService->srv_getAllMyBookings($loggedUser->getKeeperCode());
+        if(is_string($myBookings))
+        {
+            Session::SetBadMessage($myBookings);
+        }
         require_once(VIEWS_PATH . "myBookings.php");
     }
 
@@ -178,7 +169,7 @@ class BookingController{
         $loggedUser = Session::GetLoggedUser();
         if($loggedUser == NULL)
         {
-            header("Location: ../index.php");
+            header("location: ".FRONT_ROOT."Home/Index");
         }
         if($loggedUser instanceof Keeper)
         {

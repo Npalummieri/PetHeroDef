@@ -193,19 +193,14 @@ class BookingDAO{
                 WHERE b.ownerCode = :userCode ";
             }
 
-            $query .= "ORDER BY id DESC;";
+            $query .= "ORDER BY b.initDate DESC;";
             
             $this->connection = Connection::GetInstance();
 
-            // $parameters["petCode"] = $petCode;
-            // $parameters["ownerCode"] = $ownerCode;
             $parameters["userCode"] = $userCode;
 
             $resultSet = $this->connection->Execute($query,$parameters);
 
-            
-
-                //Voy a usar el bookCode como referencia al resto en el mini arreglo post obj Booking
             foreach($resultSet as $bookingInfo)
             {
                 $booking = new Booking();
@@ -220,8 +215,6 @@ class BookingDAO{
                 $booking->setStatus($bookingInfo["status"]);
                 $booking->setTotalPrice($bookingInfo["totalPrice"]);
 
-                //$key = ($bookingInfo["bookCode"]);
-
                  $arrayTmp = [
                     "booking" => $booking,
                     "ownerName" => $bookingInfo["ownerName"],
@@ -231,8 +224,6 @@ class BookingDAO{
                 ;
                 $megArray[$bookingInfo["bookCode"]] = $arrayTmp;
             }
-
-
 
             return $megArray;
         }catch(Exception $ex)
@@ -241,76 +232,69 @@ class BookingDAO{
         }
     }
 
-    //De ultima si status es null hacer aparte if(status!=null) query+= 'AND status = :status ORDER BY initDate DESC'
-    public function getMyBookingsByStatus($userCode,$status)
+    public function getMyBookingsByStatus($userCode, $status)
     {
-        try
-        {
-            if(($status != "")){
-
-            
-            $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice,o.name as ownerName,p.name as petName,p.pfp
-            FROM ".$this->tableName." as b
+        try {
+            if ($status != "") {
+                $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice,o.name as ownerName,p.name as petName,p.pfp
+            FROM " . $this->tableName . " as b
             JOIN pet as p
             ON  b.petCode = p.petCode ";
-            //Hay que chequear con !== false ya que puede devolver 0 y por haberlo encontrado en la pos0 de la cadena
-            if(strpos($userCode,"KEP") !== false )
-            {
-                $query .= " JOIN owner as o
+                
+                if (strpos($userCode, "KEP") !== false) {
+                    $query .= " JOIN owner as o
                 ON b.ownerCode = o.ownerCode
-                WHERE b.keeperCode = :userCode AND b.status = :status ;";
-            }else if(strpos($userCode,"OWN")!== false)
-            {
-                $query .= " JOIN keeper as k
+                WHERE b.keeperCode = :userCode AND b.status = :status ";
+                } else if (strpos($userCode, "OWN") !== false) {
+                    $query .= " JOIN keeper as k
                 ON b.keeperCode = k.keeperCode 
                 JOIN owner as o 
                 ON b.ownerCode = o.ownerCode
-                WHERE b.ownerCode = :userCode AND b.status = :status;";
+                WHERE b.ownerCode = :userCode AND b.status = :status ";
+                }
+
+                $query .= "ORDER BY b.initDate DESC;";
+                $parameters["status"] = $status;
+                $parameters["userCode"] = $userCode;
+
+                $this->connection = Connection::GetInstance();
+
+                $resultSet = $this->connection->Execute($query, $parameters);
+
+                $myBookingsArray = array();
+                foreach ($resultSet as $bookingInfo) {
+                    $booking = new Booking();
+
+                    $booking->setId($bookingInfo["id"]);
+                    $booking->setBookCode($bookingInfo["bookCode"]);
+                    $booking->setOwnerCode($bookingInfo["ownerCode"]);
+                    $booking->setKeeperCode($bookingInfo["keeperCode"]);
+                    $booking->setPetCode($bookingInfo["petCode"]);
+                    $booking->setInitDate($bookingInfo["initDate"]);
+                    $booking->setEndDate($bookingInfo["endDate"]);
+                    $booking->setStatus($bookingInfo["status"]);
+                    $booking->setTotalPrice($bookingInfo["totalPrice"]);
+
+                    $arrayTmp = [
+                        "booking" => $booking,
+                        "ownerName" => $bookingInfo["ownerName"],
+                        "petName" => $bookingInfo["petName"],
+                        "pfp" => $bookingInfo["pfp"]
+                    ];
+
+                    $megArray[$bookingInfo["bookCode"]] = $arrayTmp;
+                }
+            } else {
+                $megArray = $this->getAllMyBookings($userCode);
             }
 
-            $parameters["status"] = $status;
-            $parameters["userCode"] = $userCode;
-
-            $this->connection = Connection::GetInstance();
-
-            $resultSet = $this->connection->Execute($query,$parameters);
-
-            $myBookingsArray = array();
-            foreach($resultSet as $bookingInfo)
-            {
-                $booking = new Booking();
-
-                $booking->setId($bookingInfo["id"]);
-                $booking->setBookCode($bookingInfo["bookCode"]);
-                $booking->setOwnerCode($bookingInfo["ownerCode"]);
-                $booking->setKeeperCode($bookingInfo["keeperCode"]);
-                $booking->setPetCode($bookingInfo["petCode"]);
-                $booking->setInitDate($bookingInfo["initDate"]);
-                $booking->setEndDate($bookingInfo["endDate"]);
-                $booking->setStatus($bookingInfo["status"]);
-                $booking->setTotalPrice($bookingInfo["totalPrice"]);
-
-                 $arrayTmp = [
-                    "booking" => $booking,
-                    "ownerName" => $bookingInfo["ownerName"],
-                    "petName" => $bookingInfo["petName"],
-                    "pfp" => $bookingInfo["pfp"]
-                    ]
-                ;
-
-                $megArray[$bookingInfo["bookCode"]] = $arrayTmp;
-            }
-        }else{
-            $megArray = $this->getAllMyBookings($userCode);
-        }
 
 
-
-            return $megArray;
-        }catch(Exception $ex)
-        {
+           
+        } catch (Exception $ex) {
             throw $ex;
         }
+        return $megArray;
     }
 
 
@@ -371,8 +355,7 @@ class BookingDAO{
                 $booking->setStatus($bookingInfo["status"]);
                 $booking->setTotalPrice($bookingInfo["totalPrice"]);
 
-                //$key = ($bookingInfo["bookCode"]);
-
+                
                  $arrayTmp = [
                     "booking" => $booking,
                     "ownerName" => $bookingInfo["ownerName"],
@@ -401,17 +384,16 @@ class BookingDAO{
             ON  b.petCode = p.petCode
             JOIN keeper as k
             ON k.keeperCode = b.keeperCode ";
-            //Hay que chequear con !== false ya que puede devolver 0 y por haberlo encontrado en la pos0 de la cadena
+
+           
             if(strpos($userCode,"KEP") !== false )
             {
                 $query .= " JOIN owner as o
                 ON b.ownerCode = o.ownerCode 
                 WHERE b.bookCode = :bookCode;";
-            }else if(strpos($userCode,"OWN")!== false)
+            }else if(strpos($userCode,"OWN") !== false)
             {
-                $query .= " JOIN keeper as k
-                ON b.keeperCode = k.keeperCode
-                JOIN owner as o
+                $query .= "JOIN owner as o
                 ON o.ownerCode = b.ownerCode 
                 WHERE b.bookCode = :bookCode;";
             }
@@ -479,52 +461,6 @@ class BookingDAO{
         }
     }
 
-
-    // public function confirmBooking($codeBook)
-    // {
-
-    //     try{
-    //     $booking = $this->GetByCode($codeBook);
-
-    //     //Se verifica el overbooking
-    //     $query = "SELECT COUNT(*) AS result
-    //     FROM booking AS b
-    //     WHERE (b.keeperCode = :keeperCode OR b.petCode = :petCode)
-    //         AND b.status = :status
-    //         AND b.initDate <= :endDate
-    //         AND b.endDate >= :initDate;";
-
-
-            
-    //     //$parameters["bookCode"] = $booking->getBookCode();
-    //     $parameters["keeperCode"] = $booking->getKeeperCode();
-    //     $parameters["petCode"] = $booking->getPetCode();
-    //     $parameters["status"] = $booking->getStatus();
-    //     $parameters["initDate"] = $booking->getInitDate();
-    //     $parameters["endDate"] = $booking->getEndDate();
-
-    //     var_dump($parameters);
-
-    //     $this->connection = Connection::GetInstance();
-
-    //     $result = $this->connection->Execute($query,$parameters);
-        
-        
-    //     // Si COUNT(*) arroja 1 es pq esta devolviendo la misma fila a comprobar pero ya si devuelve 2,es porque hay otra que 'choca'
-    //     if($result[0]["result"] < 2)
-    //     {
-            
-            
-    //     }else{
-    //         $resultTwo = "Overbooking error!";
-    //     }
-        
-    //     return $resultTwo[0][0];
-    // }catch(Exception $ex)
-    // {
-    //     throw $ex;
-    // }
-
     public function checkFirstBreed(Booking $booking)
     {
         try{
@@ -537,25 +473,18 @@ class BookingDAO{
             $parameters["p_keeperCode"] = $booking->getKeeperCode();
             $parameters["p_petCode"] = $booking->getPetCode();
 
-            var_dump($parameters);
-
             $result = $this->connection->Execute($query,$parameters);
 
-            echo "SOY RESULT  CHECKFIRST BREED";
-            var_dump($result);
 
-            echo "SOY EL RESULT DE checkFIRSTBREED";
-            var_dump($result[0][0]);
-            $resp = $result[0][0];
 
-            return $resp;
+            return $result[0][0];
         }catch(Exception $ex)
         {
             throw $ex;
         }
     }
 
-    //Chequea el historial si hubo una reserva realizada entre ambos y esta como completed/finished permite el escribirle review
+    //Check if exists previous bookings between Keeper & Owner involved
     public function checkPrevBook($codeKeeper,$codeOwner)
     {
         try
@@ -582,7 +511,7 @@ class BookingDAO{
         }
     }
 
-    //Cancela el booking y verifica si hay un coupon asoaciado al mismo para cancelarlo tambien...
+    //Kind of 'cancel cascade' 
     public function cancelBooking($bookCode)
     {
         try{
@@ -606,8 +535,8 @@ class BookingDAO{
                 $resultTwo = $this->connection->ExecuteNonQuery($queryTwo,$parameters);
             }
 
-            //No estoy seguro de esto 
-            return $result; //o cual?
+            //Which return?
+            return $result; 
 
         }catch(Exception $ex){
             throw $ex;
@@ -662,7 +591,41 @@ class BookingDAO{
                 throw $ex;
             }
         }
+
+
+        //Practicamente igual a checkOverBook pero tiene en cuenta que si devuelve 1 es pq la reserva a confirmar es la misma que en pendiente
+        //Ya si hay 2 no se puede confirmar (Si quedar en pendiente...)
+        public function checkOverBookingConfirm(Booking $booking)
+        {
+            try{
+                $query = "SELECT COUNT(*) FROM ".$this->tableName." AS b
+                WHERE (b.keeperCode = :p_keeperCode AND b.petCode = :p_petCode)
+                    AND (b.status = 'confirmed' OR b.status = 'pending' OR b.status = 'paidup' OR b.status = 'finished')
+                    AND (
+                        (:p_initDate BETWEEN b.initDate AND b.endDate)  
+                        OR (:p_endDate BETWEEN b.initDate AND b.endDate) 
+                        OR (b.initDate BETWEEN :p_initDate AND :p_endDate) 
+                        OR (b.endDate BETWEEN :p_initDate AND :p_endDate)
+                    );";
+
+                $this->connection = Connection::GetInstance();
+
+                $parameters["p_keeperCode"] = $booking->getKeeperCode();
+                $parameters["p_petCode"] = $booking->getPetCode();
+                $parameters["p_initDate"] = $booking->getInitDate();
+                $parameters["p_endDate"] = $booking->getEndDate();
+
+                $result = $this->connection->Execute($query,$parameters);
+
+                return $result[0][0];
+            }catch(Exception $ex)
+            {
+                throw $ex;
+            }
+        }
     }
+
+
 
     
 
