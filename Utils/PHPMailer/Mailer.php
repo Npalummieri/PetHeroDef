@@ -43,6 +43,45 @@ class Mailer{
         }
     }
 
+    public function sendResetPass($recipient,$newPass)
+    {
+        try{
+            $this->mail->setFrom('cuenta7ds1@gmail.com', 'Mailer');// ¿Enviar desde una constante? 
+            $this->mail->addAddress($recipient, '');     //Add a recipient
+
+            //Content
+            $this->mail->isHTML(true);                                  //Set email format to HTML
+            $this->mail->Subject = 'Password recovery';
+            //$this->mail->Body    = 'We attached your coupon information related to your booking! Thanks you!</b>';
+            $this->mail->AltBody = "This will be your new password,keep it safe! ".$newPass." DONT SHARE TO ANYONE";
+ 
+             // Agregar un mensaje al principio del contenido HTML
+             $htmlContent = "<body>
+             <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+                 <h2>Password Recovery</h2>
+                 <p>Hello ".$recipient."</p>
+                 <p>We send your new password.Do not share.</p>
+                 <p><strong>".$newPass."</strong></p>
+                 <p>This change will expire in 24hs</p>
+                 <p>Thanks!</p>
+                 <p>Pet Hero Team</p>
+             </div>
+         </body>";
+  
+             
+             $this->mail->msgHTML($htmlContent);
+
+             $this->mail->send();
+             echo 'Message has been sent';
+             $sended = true;
+
+
+        }catch(Exception $ex)
+        {
+            echo $ex->getMessage();
+        }
+    }
+
     public function sendingEmail($recipient,$fullCoup,$file)
     {
         try {
