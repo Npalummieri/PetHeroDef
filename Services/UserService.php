@@ -9,16 +9,20 @@ use DateTime;
 use \Exception as Exception;
 use Models\User as User;
 Use Utils\Dates as Dates;
+use Utils\PHPMailer\Mailer as Mailer;
 
 class UserService {
     private $ownerDAO;
     private $keeperDAO;
-
+    private $mailer;
 
     public function __construct() {
         $this->ownerDAO = new OwnerDAO();
         $this->keeperDAO = new KeeperDAO();
+        $this->mailer = new Mailer();
     }
+
+    
 
     public function searchUsernameLogin($username)
     {
@@ -72,6 +76,47 @@ class UserService {
         }catch(Exception $ex)
         {
             $resp = $errorMsge.' '.$ex->getMessage();
+        }
+        return $resp;
+    }
+
+    public function resetPassword($email,$newPass)
+    {
+        try{
+            $user = $this->searchEmailLogin($email);
+
+            if($user != null)
+            {
+                $pattern = '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[a-zA-Z])(?!.*[!@ ])[a-zA-Z\d]{8,15}$/';
+    
+                while (true) {
+                $randomString = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)), 0, rand(8, 15));
+
+        // Verifica si cumple con las condiciones requeridas
+            if (preg_match($pattern, $randomString))
+            {
+
+                $pass = $randomString;
+                $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+                
+                if(is_a($user,"Models\Owner"))
+                {
+                    echo "paso el is-a?";
+                    $resp = $this->ownerDAO->updatePassword($email,$hashedPass);
+                }else if(is_a($user,"Models\Keeper"))
+                {
+                    echo "paso el is-a?";
+                    $resp = $this->keeperDAO->updatePassword($email,$hashedPass);
+                }
+                $this->mailer->sendResetPass($email,$pass);
+            }
+        }
+        }else{
+            $resp = "Not existing email";
+        }
+        }catch(Exception $ex)
+        {
+            $resp = $ex->getMessage();
         }
         return $resp;
     }
