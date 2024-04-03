@@ -25,9 +25,24 @@ const registerForm = {
         $(document).ready(function () {
             // Obtener referencia al campo de entrada usando jQuery
             var dni = $("#dni");
-
+    
             // Escuchar el evento de entrada en el campo
             dni.on("input", function () {
+            
+                // Obtener el valor actual del campo
+                var value = dni.val();
+                
+                // Eliminar caracteres no numéricos del valor (si los hay)
+                var newValue = dni.val().replace(/\D/g, '');
+    
+                // Establecer el valor del campo como el nuevo valor sin caracteres no numéricos
+                dni.val(newValue);
+    
+                // Verificar si el valor es negativo
+                if (value < 0) {
+                    dni.val('');
+                }
+    
                 // Verificar si la longitud del valor es mayor que 8
                 if (dni.val().length > 8) {
                     // Si es mayor, recortar el valor a 8 caracteres
@@ -162,73 +177,6 @@ const FormAjaxModule = {
         });
     },
 
-
-
-
-    // checkDatesHours: function () {
-    //     $(document).ready(function () {
-    //         // Agrega un manejador de eventos al formulario para controlar su envío
-    //         //$('#BookForm').on('submit', function(e) {
-    //         //e.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
-
-    //         // Define una función para verificar si todos los campos requeridos están llenos
-    //         function checkAllFieldsComplete() {
-    //             var allFieldsComplete = true;
-
-    //             // Verifica cada campo requerido
-    //             $('#BookForm [required]').each(function () {
-    //                 if ($(this).val() === '') {
-    //                     allFieldsComplete = false;
-    //                     return false; // Detiene el bucle si falta un campo
-    //                 }
-    //             });
-    //             console.log("ALLFILDS" + allFieldsComplete);
-    //             console.log("SERIALIZED" + $('#BookForm').serialize());
-    //             return allFieldsComplete;
-    //         }
-
-    //         document.getElementById("ButtonCheck").addEventListener("click", function () {
-    //             // Verifica si todos los campos requeridos están llenos
-    //             if (checkAllFieldsComplete()) {
-    //                 // Ejecuta la solicitud AJAX aquí
-    //                 $.ajax({
-    //                     url: '../Booking/checkBooking',
-    //                     method: 'POST',
-    //                     data: $('#BookForm').serialize(), // Envía todos los datos del formulario
-    //                     success: function (response) {
-    //                         var availMsge = $('#AvailMsge');
-    //                         console.log("SOY RESPONSE" + response);
-    //                         if (response == 1) {
-    //                             availMsge.text("Confirmed, the Keeper is available");
-    //                             var containerButForm = document.getElementById("buttonToForm");
-
-    //                             // Eliminar el botón existente, si lo hay
-    //                             var existingButton = containerButForm.querySelector('button');
-    //                             if (existingButton) {
-    //                                 existingButton.parentNode.removeChild(existingButton);
-    //                             }
-
-    //                             var buttonForm = document.createElement("button"); // Crear un nuevo botón
-    //                             // Establecer el atributo "type" como "submit"
-    //                             buttonForm.innerHTML = "Confirm Book"; // Texto dentro del botón
-    //                             buttonForm.type = "submit"; // Tipo de botón
-    //                             containerButForm.appendChild(buttonForm); // Agregar el nuevo botón al contenedor
-    //                         } else {
-    //                             availMsge.text("Keeper not available at this date");
-    //                         }
-    //                     },
-    //                     error: function (xhr, status, error) {
-    //                         console.error("Error en la solicitud AJAX:");
-    //                         console.error("Estado: " + status);
-    //                         console.error("Error: " + error);
-    //                     }
-    //                 });
-    //             }
-    //         });
-    //     });
-    //     //});
-    // },
-
     selectYours: function () {
         var typePetCode = document.getElementById('PetCode');
         var typeSelected = document.getElementById('TypePet');
@@ -360,6 +308,56 @@ const infoModule = {
                 });
             });
         });
+    },
+
+    bioEdit: function () {
+        $(document).ready(function () {
+            var userCode = $('#bio').data("userlogged");
+            $('#editBioBtn').click(function () {
+                $('#bio').hide();
+                $('#bioEditor').show();
+                $('#bioTextarea').val($('#bio').text()); //en caso que haya bio muestra el valor dentro del textarea es la actual
+                $('#editBioBtn').hide();
+                $('#saveBioBtn').show();
+                $('#cancelBioBtn').show();
+            });
+
+            $('#cancelBioBtn').click(function () {
+                $('#bio').show();
+                $('#bioEditor').hide();
+                $('#editBioBtn').show();
+                $('#saveBioBtn').hide();
+                $('#cancelBioBtn').hide();
+            });
+
+            $('#saveBioBtn').click(function () {
+                var bio = $('#bioTextarea').val();
+                if (bio.length > 200) {
+                    alert('Bio should be max 200 characters');
+                    return;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '../Home/doBio', // Ruta del controlador para guardar la bio
+                    data: { bio: bio,
+                            userCode :userCode },
+                    success: function(response) {
+                        
+                        
+                        $('#bioEditor').hide();
+                        $('#editBioBtn').show();
+                        $('#saveBioBtn').hide();
+                        $('#cancelBioBtn').hide();
+                        $('#bio').show();
+                        location.reload();
+                       
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("error");
+                    }
+                });
+            })
+        })
     }
 };
 
@@ -733,6 +731,7 @@ const KeepersInteract = {
     
             // Reemplaza el contenido de las celdas con inputs para editar
             row.find("td:first").html('<input type="date" class="form-control initial-date-input" value="' + initDate + '">');
+            //Selector for 2nd td in tr
             row.find("td:nth-child(2)").html('<input type="date" class="form-control end-date-input" value="' + endDate + '">');
             // Oculta el botón de editar
             row.find(".btn-edit").hide();
@@ -747,8 +746,12 @@ const KeepersInteract = {
             var initDate = row.find(".initial-date-input").val();
             var endDate = row.find(".end-date-input").val();
             
-            // Aquí puedes realizar validaciones adicionales si es necesario
-    
+            
+            if (!initDate || !endDate) {
+                // Mostrar mensaje de error
+                $("#result-message").text("Please,complete both fields").show();
+                return; // Detener la ejecución
+            }
             // Aquí puedes enviar los datos actualizados al servidor usando AJAX
             $.ajax({
                 url: '../Keeper/updateAvailability', // Ruta al controlador
@@ -757,11 +760,19 @@ const KeepersInteract = {
                     initDate: initDate,
                     endDate: endDate
                 },
+                dataType: 'json',
                 success: function (response) {
                     console.log("Actualización exitosa");
                     console.log("response: " + response);
+                    
                     // Recarga la página automáticamente para que se muestre el cambio
-                    location.reload();
+                    
+                    if(response != 1){
+                        $("#result-message").removeClass("alert alert-success").addClass("alert alert-danger").text("Invalid initial date.").show();
+                    }else{
+                        location.reload();
+                        $("#result-message").removeClass("alert alert-danger").addClass("alert alert-success").text("Dates updated.").show();
+                    }
                 },
                 error: function (xhr, status, error) {
                     // Manejar errores de la petición AJAX
@@ -931,7 +942,19 @@ const KeepersInteract = {
                 }
             });
         });
+    },
+
+    reConfirm: function() {
+        $(document).ready(function() {
+            $('.btn-dis').click(function(event) {
+                var message = $(this).data('msg');
+                if (!confirm(message)) {
+                    event.preventDefault();
+                }
+            });
+        });
     }
+    
 };
 
 const cardFuncs = {
@@ -1062,4 +1085,5 @@ const moduleReview = {
             });
         });
     }
+
 }
