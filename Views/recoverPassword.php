@@ -16,7 +16,7 @@ include ("nav.php");
                             </div>
                             <div class="mb-3">
                                 <label for="dni" class="form-label">DNI</label>
-                                <input type="text" class="form-control" id="dni" name="dni" placeholder="DNI" required>
+                                <input type="number" class="form-control" id="dni" name="dni" placeholder="DNI" required aria-valuemin="0">
                             </div>
                             <button type="submit" class="btn btn-primary">Recover password</button>
                         </form>
@@ -25,7 +25,10 @@ include ("nav.php");
             </div>
         </div>
     </div>
-
+<script src="<?php echo JS_PATH."formScripts.js" ?>"> </script>
+<script>
+    registerForm.limitDni();
+</script>
     <?php 
 include ("footer.php");
 ?>

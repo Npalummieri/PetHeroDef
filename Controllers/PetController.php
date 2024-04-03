@@ -29,15 +29,16 @@ class PetController{
                 $loggedUser = Session::GetLoggedUser();
                 $msge = $this->petService->validatePet($name, $typePet, $loggedUser->getOwnerCode(), $size, $breed, $vaccPlan, $video, $pfp, $age);
                 
-                $this->ownerController->showMyPets($msge);
+                if($msge == null)
+                {
+                    Session::SetOkMessage("Pet successfully added");
+                    
+                }else{
+                    Session::SetBadMessage($msge);
+                }
+                header("location: " . FRONT_ROOT . "Owner/showMyPets");
             }
         }
-            
-            // var_dump($_SESSION["loggedUser"]);
-            // echo "POST :";
-            // var_dump($_POST);
-            // echo "filesss :";
-            // var_dump($_FILES);
             
     }
 
@@ -91,13 +92,7 @@ class PetController{
             }
         }else{
             $sessionOk = 0;
-        }
-        // if($sessionOk == 0)
-        // {
-        //     Session::DeleteSession();
-        //     header("location: '../index.php' ");
-        // }
-        
+        }        
     }
 
     public function updatePet($petCode,$pfp,$vaccPlan,$video,$size,$age)

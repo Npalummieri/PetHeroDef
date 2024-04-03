@@ -7,6 +7,7 @@ use \DateTime as DateTime;
 
 class Dates{
 
+
     public static function validateDate($date)
     {
         $valid = null;
@@ -20,13 +21,13 @@ class Dates{
         // Convertir las fechas a objetos DateTime
         $initDateTime = DateTime::createFromFormat('Y-m-d', $initDate);
         $endDateTime = DateTime::createFromFormat('Y-m-d', $endDate);
+        
     
         $result = null;
         // Verificar si las fechas son válidas
         if (!$initDateTime || !$endDateTime) {
             $result = null;
         }
-    
         // Comparar las fechas
         if ($initDateTime > $endDateTime) {
             $result = -1;
@@ -34,6 +35,22 @@ class Dates{
             $result = 0;
         } else {
            $result = 1;
+        }
+
+        
+        return $result;
+    }
+
+    public static function currentCheck($date)
+    {
+        $currentDate = new DateTime();
+        $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+        
+        if($dateTime < $currentDate)
+        {
+            $result = null;
+        }else{
+            $result = 1;
         }
         return $result;
     }

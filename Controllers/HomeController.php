@@ -75,7 +75,7 @@ class HomeController{
         // echo "keeperListParam :";
         // var_dump($keeperListParam);
         $allKeepers = $newArray;
-        require_once(VIEWS_PATH."keeperList.php");
+        require_once(VIEWS_PATH."keeperListPag.php");
     }
 
     public function Logout()
@@ -83,6 +83,21 @@ class HomeController{
         Session::DeleteSession();
         header("Location: ../index.php");
         exit();
+    }
+
+    public function doBio($bio,$userCode)
+    {
+        var_dump($bio);
+        var_dump($userCode);
+        echo "POST";
+        var_dump($_POST);
+        if(Session::IsLogged())
+        {
+            $result = $this->userService->srv_updateBio($bio,$userCode);
+        }else{
+            header("location: ".FRONT_ROOT."Home/Index");
+        }
+       
     }
 
     

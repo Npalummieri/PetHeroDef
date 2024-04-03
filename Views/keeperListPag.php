@@ -3,22 +3,25 @@ require_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php"); 
 ?>
 
-<div class="container mt-5" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>">
-  <h2 class="text-center">Keepers</h2>
+<div class="container mt-5" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>" style="background-color :#364a6e;" >
+  <h2 class="text-center text-white">Keepers</h2>
   <div class="row justify-content-center">
     <?php foreach ($allKeepers as $keeper) { ?>
       <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-        <div class="card border-dark">
+        <div class="card border-dark" style="background-color: #d6c9ae;">
           <div class="card-body text-center">
             <?php if ($keeper->getTypePet() == "dog") { ?>
-              <i class="bi bi-dog"></i>
+              <i class="fa-solid fa-dog"></i>
             <?php } else if ($keeper->getTypePet() == "cat") { ?>
-              <i class="bi bi-cat"></i>
+              <i class="fa-solid fa-cat"></i>
             <?php } ?>
 
-            <div class="mt-3">
+            <div class="mt-3 mb-2">
               <img src="<?php echo ($keeper->getPfp() == 0) ? FRONT_ROOT . 'Images/SysImages/default-avatar-icon-of-social-media-user-vector.jpg' : FRONT_ROOT . 'Images/' . $keeper->getPfp(); ?>" onerror="this.onerror=null;this.src='<?php echo FRONT_ROOT . 'Images/SysImages/default-avatar-icon-of-social-media-user-vector.jpg' ?>'" class="rounded-circle" width="120" height="120" alt="pfpKeeper">
             </div>
+            <p>Score : <?php if($keeper->getScore() == 0){ echo "Not reviewed" ;} for ($i = 0; $i < $keeper->getScore(); $i++) {
+                            echo '<i class="fa-solid fa-star"></i>';
+                        }?></p>
             <p><strong>Name:</strong> <?php echo $keeper->getName(); ?></p>
             <p><strong>Lastname:</strong> <?php echo $keeper->getLastname(); ?></p>
             <p><strong>Type care:</strong> <?php echo $keeper->getTypeCare(); ?></p>
@@ -38,10 +41,10 @@ require_once(VIEWS_PATH . "formKeepersList.php");
   </div>
 </div>
 
-<div class="container mt-3">
+<div class="container mt-3" style="background-color: #364a6e;">
   <div class="d-flex justify-content-center">
     <?php for ($page = 1; $page <= $totalPages; $page++) { ?>
-      <a href="<?php echo FRONT_ROOT . 'Home/showKeeperListPag/' . $page ?>" class="btn btn-primary"><?php echo $page ?></a>
+      <a href="<?php echo FRONT_ROOT . 'Home/showKeeperListPag/' . $page ?>" class="btn m-1" style="background-color:#d6c9ae;"><?php echo $page ?></a>
     <?php } ?>
   </div>
 </div>

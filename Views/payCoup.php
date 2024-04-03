@@ -105,7 +105,7 @@ include("nav.php");
                     </div>
 
                     <div class="mt-1">
-                        <sup class="super-price"><?php echo $fullCoup["totalPrice"]/2 .'$' ;  ?></sup>
+                        <sup class="super-price"><?php echo $fullCoup["totalPrice"] / 2 . '$';  ?></sup>
                         <span class="super-month">/Hour</span>
                     </div>
 
@@ -118,7 +118,7 @@ include("nav.php");
                     <div class="d-flex justify-content-between mb-2">
 
                         <span>Bonuses</span>
-                        <span><?php echo $fullCoup["totalPrice"]*0.02 .'$' ;  ?></span>
+                        <span><?php echo $fullCoup["totalPrice"] * 0.02 . '$';  ?></span>
 
                     </div>
 
@@ -140,10 +140,10 @@ include("nav.php");
                     <div class="d-flex flex-column">
 
                         <span>Today you pay(US Dollars)</span>
-                        <small>After 48 hours +$5.00</small>
+                        <small>After 24 hours +$5.00</small>
 
                     </div>
-                    <span><?php echo ($fullCoup["totalPrice"]/2) - $fullCoup["totalPrice"]*0.02 .'$' ?></span>
+                    <span><?php echo ($fullCoup["totalPrice"] / 2) - $fullCoup["totalPrice"] * 0.02 . '$' ?></span>
 
 
 

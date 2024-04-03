@@ -6,9 +6,9 @@ use \Exception as Exception;
 use DAO\QueryType as QueryType;
 use DAO\Connection as Connection;
 use Models\Owner as Owner;
-use Interfaces\IDAO as IDAO;
 
-class OwnerDAO extends IDAO{
+
+class OwnerDAO {
 
     private $tableName = "owner";
     private $connection;
@@ -17,9 +17,6 @@ class OwnerDAO extends IDAO{
     {
         $ownerCode = null;
         try{
-
-            //Nicolas del futuro --> Trata de hacer una transaccion dentro de Connection con una function LastInsertId totalmente
-            //hardcodeada por vos asi tenes acceso a PDO sin quebrar el resto del framework
 
             $query = "INSERT INTO ".$this->tableName." (ownerCode,email,username,password,status,name,lastname,dni,pfp)
             VALUES (:ownerCode,:email,:username,:password,:status,:name,:lastname,:dni,:pfp) ;";
@@ -40,25 +37,14 @@ class OwnerDAO extends IDAO{
             $parameters["dni"] = $owner->getDni();
             $parameters["pfp"] = null;
 
-            
-
             $resultInsert = $this->connection->ExecuteNonQuery($query,$parameters);
-
-            //Provisional hasta que arregle todo lo de UUID
-            if ($resultInsert == 1) {
-
-                $ownerCode = $owner->getOwnerCode();
-            
-                // Hacer algo con $ownerCode (por ejemplo, almacenarlo o utilizarlo en otra consulta)
-            }
-
 
         }catch(Exception $ex)
         {
             throw $ex;   
         }
 
-        //En caso que se haya ejecutado bien todo devuelve el codigo owner generado sino null
+        //null or ownerCode generated
         return $ownerCode;
     }
 
@@ -74,6 +60,7 @@ class OwnerDAO extends IDAO{
 
             $parameters["code"] = $code;
             $parameters["status"] = "active";
+            
             return $this->connection->ExecuteNonQuery($query,$parameters);
 
         }catch(Exception $ex)
@@ -320,6 +307,7 @@ class OwnerDAO extends IDAO{
                 $owner->setLastname($value["lastname"]);
                 $owner->setDni($value["dni"]);
                 $owner->setPfp($value["pfp"]);
+                $owner->setBio($value["bio"]);
             }
 
            
@@ -401,6 +389,9 @@ class OwnerDAO extends IDAO{
 
     public function updateBio($ownerCode,$bio){
         try{
+            echo "Soy ownerCode y bio";
+            var_dump($ownerCode);
+            var_dump($bio);
             $query = "UPDATE ".$this->tableName." 
             SET bio = :bio
             WHERE ownerCode = :ownerCode;";
@@ -417,6 +408,25 @@ class OwnerDAO extends IDAO{
             throw $ex;
         }
 
+    }
+
+    public function updatePassword($email,$password)
+    {
+        try{
+            $query = "UPDATE ".$this->tableName." 
+            SET password = :password 
+            WHERE email = :email ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["email"] = $email;
+            $parameters["password"] = $password;
+
+            return $this->connection->ExecuteNonQuery($query,$parameters);
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
     }
 
 }

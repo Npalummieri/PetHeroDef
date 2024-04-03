@@ -5,12 +5,10 @@ namespace DAO;
 use \Exception as Exception;
 use DAO\QueryType as QueryType;
 use DAO\Connection as Connection;
-use Models\Owner as Owner;
-use Interfaces\IDAO as IDAO;
 use Models\Keeper as Keeper;
 
 
-class KeeperDAO extends IDAO
+class KeeperDAO 
 {
 
     private $tableName = "keeper";
@@ -30,7 +28,6 @@ class KeeperDAO extends IDAO
             $parameters["keeperCode"] = $keeper->getKeeperCode();
             $parameters["email"] = $keeper->getEmail();
             $parameters["username"] = $keeper->getUserName();
-            //Averiguar como encriptar pass
             $parameters["password"] = $keeper->getPassword();
             $parameters["status"] = $keeper->getStatus();
             $parameters["name"] = $keeper->getName();
@@ -84,7 +81,6 @@ class KeeperDAO extends IDAO
     }
 
 
-    //El getAll deberia discriminar el status del keeper (O sea si esta activo o no)
     public function GetAll()
     {
 
@@ -168,10 +164,11 @@ class KeeperDAO extends IDAO
                 }
             }
 
-            return $keeper;
+            
         } catch (Exception $ex) {
             throw $ex;
         }
+        return $keeper;
     }
 
     public function searchByUsername($username)
@@ -184,7 +181,6 @@ class KeeperDAO extends IDAO
 
             $this->connection = Connection::GetInstance();
 
-            //Asumo que con Laravel+ORM te podes ahorrar todo esto de setear TODAS las variables pero bueno...
             $resultSet = $this->connection->Execute($query, $parameters);
 
             if ($resultSet == null) {
@@ -228,7 +224,6 @@ class KeeperDAO extends IDAO
 
             $this->connection = Connection::GetInstance();
 
-            //Asumo que con Laravel+ORM te podes ahorrar todo esto de setear TODAS las variables pero bueno...
             $resultSet = $this->connection->Execute($query, $parameters);
 
             if ($resultSet == null) {
@@ -254,19 +249,17 @@ class KeeperDAO extends IDAO
                     $keeper->setInitDate($value["initDate"]);
                     $keeper->setEndDate($value["endDate"]);
                     $keeper->setVisitPerDay($value["visitPerDay"]);
+                    $keeper->setBio($value["bio"]);
                 }
             }
-            //var_dump($keeper);
-            return $keeper;
+
+            
         } catch (Exception $ex) {
             throw $ex;
         }
+        return $keeper;
     }
 
-
-
-    //Esta bien para traer la info en gral de Keeper y para entender la logica
-    //Pero para displayear la info completa no sirve,deberia hacer un left join/right join para que no haya keepers repetidos  pero si sus avails
     public function getKeeperFullInfo()
     {
         try {
@@ -304,12 +297,13 @@ class KeeperDAO extends IDAO
                     array_push($arrayFullInfo, $keeper);
                 } 
             
-            return $arrayFullInfo;
+           
 
-            //var_dump($arrayFullInfo);
+
         } catch (Exception $ex) {
             throw $ex;
         }
+        return $arrayFullInfo;
     }
 
     //Ahora
@@ -325,8 +319,6 @@ class KeeperDAO extends IDAO
 
             $this->connection = Connection::GetInstance();
 
-            // $parameters["offSet"] =  $offset;
-            // $parameters["resultsPp"] =  $resultsPerPage;
 
             $resultSet = $this->connection->Execute($query);
 
@@ -372,7 +364,7 @@ class KeeperDAO extends IDAO
             $offset = ($pageNumber - 1) * $resultsPerPage;
 
             $query = "CALL GetFilteredKeepers(?,?,?,?,?,?,?);";
-            //"CALL GetFilteredKeepers(:p_initDate,:p_endDate,:p_initHour,:p_endHour,:p_size,:p_typePet);"
+            
 
             $parameters["p_initDate"] = $initDate;
             $parameters["p_endDate"] = $endDate;
@@ -419,7 +411,6 @@ class KeeperDAO extends IDAO
         }
     }
 
-    //Con esto queda obsoleto todas las contraseñas guardadas en plano,solo logean aquellos keepers con contraseña hasheada
     public function getPassword($email)
     {
         try {
@@ -435,14 +426,14 @@ class KeeperDAO extends IDAO
             $arrPwd = array_shift($resultSet);
 
             $pwd = $arrPwd["password"];
-            var_dump($pwd);
+
             return $pwd;
         } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    //Revalidar que coincida los atributos del pet con lo que cuida el keeper para ver que el booking ta ok
+    //Validate the attr from the pet === keeper takecare
     public function revalidateKeeperPet($keeperCode, $petCode)
     {
         try {
@@ -491,11 +482,12 @@ class KeeperDAO extends IDAO
 
             $result = $this->connection->ExecuteNonQuery($query,$parameters);
 
-            return $result;
+            
         }catch(Exception $ex)
         {
             throw $ex;
         }
+        return $result;
     }
 
     public function updatePfp($keeperCode, $pfp)
@@ -619,5 +611,24 @@ class KeeperDAO extends IDAO
             throw $ex;
         }
 
+    }
+
+    public function updatePassword($email,$password)
+    {
+        try{
+            $query = "UPDATE ".$this->tableName." 
+            SET password = :password 
+            WHERE email = :email ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["email"] = $email;
+            $parameters["password"] = $password;
+
+            return $this->connection->ExecuteNonQuery($query,$parameters);
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
     }
 }

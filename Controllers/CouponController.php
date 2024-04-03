@@ -2,59 +2,77 @@
 
 namespace Controllers;
 
-use DAO\BookingDAO;
-use Models\Coupon as Coupon;
-use DAO\CouponDAO as CouponDAO;
 use Services\CouponService as CouponService;
 use Utils\Session as Session;
 
 class CouponController{
 
-    private $couponDAO;
-    private $bookingDAO;
+
     private $couponService;
 
     public function __construct()
     {
-        $this->couponDAO = new CouponDAO();
-        $this->bookingDAO = new BookingDAO();
         $this->couponService = new CouponService();
     }
 
-    public function addCoupon($bookCode,$price)//Me llega el precio por hora o jornada ya calculada (ver si lo hago en booking)
+    public function addCoupon($bookCode, $price)
     {
-        $this->couponService->srv_generateCouponToOwner($bookCode,$price);
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
+                $this->couponService->srv_generateCouponToOwner($bookCode, $price);
+            } else {
+                Session::SetBadMessage("Not allowed to be there!");
+                header("location: " . FRONT_ROOT . "Home/Index");
+            }
+        } else {
+            Session::SetBadMessage("Not allowed to be there!");
+            header("location: " . FRONT_ROOT . "Home/Index");
+        }
     }
 
     public function showMyCoupons()
     {
-        $loggedUser = Session::GetLoggedUser();
-        $codeOwnerLogged = $loggedUser->getOwnerCode();
-        $myCoupons = $this->couponService->srv_getCouponsByOwn($codeOwnerLogged);
-        require_once(VIEWS_PATH."myCoupons.php");
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
+                $loggedUser = Session::GetLoggedUser();
+                $codeOwnerLogged = $loggedUser->getOwnerCode();
+                $myCoupons = $this->couponService->srv_getCouponsByOwn($codeOwnerLogged);
+                require_once(VIEWS_PATH . "myCoupons.php");
+            }
+        }
     }
 
     public function myCouponView($couponCode)
     {
-        $coupon = $this->couponService->srv_getInfoFullCoup($couponCode);
-        require_once(VIEWS_PATH."manageCoupon.php");
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
+                $coupon = $this->couponService->srv_getInfoFullCoup($couponCode);
+                require_once(VIEWS_PATH . "manageCoupon.php");
+            }
+        }
     }
 
     public function showCouponFromBook($bookCode)
     {
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
         $couponCode = $this->couponService->srv_getCoupCodeByBook($bookCode);
 
         $this->myCouponView($couponCode);
+            }
+        }
     }
 
-    public function manageCoupon($mngCoup,$couponCode)
+    public function manageCoupon($mngCoup, $couponCode)
     {
-        if($mngCoup == "paidup")
-        {
-            $this->payCouponView($couponCode);
-        }else
-        {
-            //Vista normal,se cancela el coup+book y al inicio
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
+                if ($mngCoup == "paidup") {
+                    $this->payCouponView($couponCode);
+                } else {
+                    //Vista normal,se cancela el coup+book y al inicio
+                }
+            }
         }
     }
 
@@ -76,10 +94,10 @@ class CouponController{
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
                 if ($this->couponService->srv_validateCoup($couponCode, $ccnum, $cardholder, $expdate, $ccv) != 1) {
-                    $errorMsge = "SOMETHING'S FAILED WITH THE PAYMENT";
+                    Session::SetBadMessage("SOMETHING'S FAILED WITH THE PAYMENT");
                     $this->payCouponView($couponCode);
                 } else {
-                    $msge = "Payment aproved!";
+                    Session::SetOkMessage("Payment aproved!");
                     $this->showMyCoupons();
                 }
             }

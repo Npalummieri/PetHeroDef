@@ -21,7 +21,7 @@
                 <?php foreach ($myCoupons as $coupon) { ?>
                     <tr>
                         <td class="align-middle"><?php echo $coupon["couponCode"]; ?></td>
-                        <td class="align-middle"><?php echo $coupon["bookCode"]; ?></td>
+                        <td class="align-middle"><a class="link m-2" href="<?php echo FRONT_ROOT . 'Booking/fullInfoBookView/'.$coupon['bookCode'] ?>" ><?php echo $coupon["bookCode"]; ?></a></td>
                         <td class="align-middle"><?php echo $coupon["initDate"]; ?></td>
                         <td class="align-middle"><?php echo $coupon["endDate"]; ?></td>
                         <td class="align-middle"><?php echo $coupon["namePet"]; ?></td>

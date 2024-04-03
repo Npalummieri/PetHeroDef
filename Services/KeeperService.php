@@ -38,62 +38,64 @@ class KeeperService
 
     public function validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay) //valida los campos y retorna ya no el user sino un Keeper
     {
-        // echo "USER validatekeeperfield :";
-        //var_dump($user);
-        if (isset($typeCare)) {
-            if ($typeCare != "big") {
-                if ($typeCare != "medium") {
-                    if ($typeCare != "small") {
-                        throw new Exception("Not size allowed");
+        try {
+            // echo "USER validatekeeperfield :";
+            //var_dump($user);
+            if (isset($typeCare)) {
+                if ($typeCare != "big") {
+                    if ($typeCare != "medium") {
+                        if ($typeCare != "small") {
+                            $msgeError = "Not size allowed";
+                        }
                     }
                 }
-            }
-        } else {
-            throw new Exception("Null typeCare");
-        }
-
-        if (isset($typePet)) {
-            if ($typePet != "dog" && $typePet != "cat") {
-                throw new Exception("And that pet is a?");
-            }
-        }
-
-        if (isset($price)) {
-            if ($price < 1) {
-                throw new Exception("Nothing for free");
-            }
-        }
-
-        if (!($visitPerDay == 1 || $visitPerDay == 2)) {
-            throw new Exception("Not valid amount of day to visit");
-        }
-
-
-        if (!(Dates::validateDate($initDate) && Dates::validateDate($endDate))) {
-            throw new Exception("Something wrong with the dates");
-        } else {
-            $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
-        }
-
-        $keeper = new Keeper();
-
-        if ($userInfo["user"] instanceof User) {
-            echo "VALOR TYPEPET PRE FROMSUER";
-            var_dump($typePet);
-            if ($validateDates >= 0) {
-                $keeper = $keeper->fromUserToKeeper($userInfo["user"], $typePet, $typeCare,$initDate,$endDate,$price, $visitPerDay);
-                $keeper->setKeeperCode($this->generateCode());
-                $keeperCode = $this->keeperDAO->Add($keeper);
+            } else {
+                $msgeError = "Null typeCare";
             }
 
-            if ($keeperCode != null && $keeperCode != " ") {
-                move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
-                $this->keeperDAO->updatePfp($keeperCode, $userInfo["pathToDB"]);
+            if (isset($typePet)) {
+                if ($typePet != "dog" && $typePet != "cat") {
+                    $msgeError = "And that pet is a?";
+                }
             }
+
+            if (isset($price)) {
+                if ($price < 1) {
+                    $msgeError = "Nothing for free";
+                }
+            }
+
+            if (!($visitPerDay == 1 || $visitPerDay == 2)) {
+                $msgeError = "Not valid amount of day to visit";
+            }
+
+
+            if (!(Dates::validateDate($initDate) && Dates::validateDate($endDate))) {
+                $msgeError = "Something wrong with the dates";
+            } else {
+                $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
+            }
+
+            $keeper = new Keeper();
+
+            if ($userInfo["user"] instanceof User) {
+                echo "VALOR TYPEPET PRE FROMSUER";
+                var_dump($typePet);
+                if ($validateDates >= 0) {
+                    $keeper = $keeper->fromUserToKeeper($userInfo["user"], $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay);
+                    $keeper->setKeeperCode($this->generateCode());
+                    $keeperCode = $this->keeperDAO->Add($keeper);
+                }
+
+                if ($keeperCode != null && $keeperCode != " ") {
+                    move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
+                    $this->keeperDAO->updatePfp($keeperCode, $userInfo["pathToDB"]);
+                }
+            }
+        } catch (Exception $ex) {
+            //keeper takes the error msge
+            $keeper = $msgeError . ' ' . $ex->getMessage();
         }
-
-
-
         return $keeper;
     }
 
@@ -235,13 +237,20 @@ class KeeperService
         try {
             $result = Dates::validateAndCompareDates($initDate, $endDate);
             if ($result == 1 || $result == 0) {
-                $this->keeperDAO->updateAvailability($keeperCode, $initDate, $endDate);
+                if(Dates::currentCheck($initDate) != null &&  Dates::currentCheck($endDate) != null)
+                {
+                    $result = $this->keeperDAO->updateAvailability($keeperCode, $initDate, $endDate);
+                }else{
+                    $result ="Not possible this date at this time";
+                }
+                
             } else {
-                $error = "Not valid dates";
+                $result = "Not valid dates";
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $result .=  $ex->getMessage();
         }
+        return $result;
     }
 
     public function srv_getDates($keeperCode)

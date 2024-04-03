@@ -1,9 +1,9 @@
 <?php include("header.php");
 include("nav.php") ?>
 <form action="<?php echo FRONT_ROOT . "Pet/UpdatePetInfo" ?>" method="POST" enctype="multipart/form-data">
- 
-    <h2>UPDATE YOUR PET INFO</h2>
-  
+
+  <h2>UPDATE YOUR PET INFO</h2>
+
   <div class="form-group">
     <label for="size">Size</label>
     <select name="size" id="size">
@@ -41,6 +41,3 @@ include("nav.php") ?>
   <button type="submit">Update info</button>
 </form>
 <script src="<?php echo JS_PATH . "formScripts.js" ?>"></script>
-<script>
-  //breedSelection.loadBreed();
-</script>

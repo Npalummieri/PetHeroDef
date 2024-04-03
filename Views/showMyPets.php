@@ -6,9 +6,7 @@ include("nav.php");
 <!-- ################################################################################################ -->
 <?php var_dump($_SESSION["loggedUser"]); ?>
 <!-- ################################################################################################ -->
-<?php if (!empty($msge) && $msge != null && $msge != " ") { ?>
-  <p class="alert alert-danger"><?php echo $msge; ?></p>
-<?php } ?>
+<?php include("msgeDisplay.php") ?>
 
 <div class="row ">
   <h2 class="text-center">My pets</h2>
@@ -26,8 +24,6 @@ include("nav.php");
           </div>
 
           <div class=" col-lg-9 col-md-9 col-sm-12 text-white" style="background: linear-gradient(to right, #3258a6, #3498db);">
-
-            <!-- <div class="row mx-2"> -->
 
             <div class=" col-lg-6 col-md-6 col-sm-12 mt-3 p-2 mx-2">
               <label class="text-truncate">Name : <span><?php echo $pet->getName(); ?><span></label>
@@ -62,20 +58,13 @@ include("nav.php");
 
             <div class="col-lg-12 col-md-12 col-sm-12 mt-auto">
               <div class="text-end">
-                <a class="btn bg-light" href="<?php echo FRONT_ROOT."Pet/showEditPet/".$pet->getpetCode(); ?>">Update</a>
+                <a class="btn bg-light" href="<?php echo FRONT_ROOT . "Pet/showEditPet/" . $pet->getpetCode(); ?>">Update</a>
               </div>
+              
             </div>
-
           </div>
-
-
-
-
-
-
         </div>
       <?php } ?>
-
     </form>
   </div>
 </div>

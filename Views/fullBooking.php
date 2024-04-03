@@ -73,10 +73,7 @@
                     <?php if($loggedUser instanceof Models\Owner) { ?>
                         <a class="btn btn-primary" href="<?php echo FRONT_ROOT . 'Review/doReview/' . $fullBook["keeperCode"] ?>">Rate!</a>
                     <?php }?>
-                </div>
-                <p><strong>Reviews:</strong> <?php // Aquí va la información de las reviews ?></p>
-                <!-- Tabla con initDate, endDate, initHour y endHour -->
-                
+                </div>  
             </div>
         </div>
     </form>

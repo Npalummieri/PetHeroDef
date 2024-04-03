@@ -6,12 +6,7 @@
         <div class="content mt-3 ">
             <h2 class="text-center">REGISTER KEEPER</h2>
 
-            <?php if (!empty($msgResult)) { ?>
-                <div class="alert alert-danger" role="alert">
-                    <?php echo $msgResult; ?>
-                </div>
-            <?php } ?>
-
+            <?php include("msgeDisplay.php"); ?>
             <form action="<?php echo FRONT_ROOT . "Keeper/registerKeeper"; ?>" method="POST" enctype="multipart/form-data" class="login-form bg-dark-alpha p-5 text-white">
 
                 <?php require_once("register.php"); ?>

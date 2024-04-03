@@ -294,7 +294,7 @@ class PetService{
                 }
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $error =  $ex->getMessage();
         }
 
         return $error;

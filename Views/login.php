@@ -2,13 +2,15 @@
 <?php 
  include("header.php");
  include("nav.php");
+ use Utils\Session as Session;
 ?>
 <div class="wrapper row4">
-<main class="container clear" style="width: max-content;"> 
+<main class="container clear rounded" style="width: max-content;"> 
   <div class="content"> 
       <h2>LOGIN</h2>
-      <p class="alert alert-danger" ><?php  echo $message; ?></p>
-        <form action="<?php echo FRONT_ROOT . "Auth/login" //2 ?>" method="POST" class="login-form bg-dark-alpha p-5 text-white">
+      <?php  include_once("msgeDisplay.php") ?>
+      
+        <form action="<?php echo FRONT_ROOT . "Auth/login" //2 ?>" method="POST" class="login-form p-5 text-white"  style = "background-color: #364a6e;">
           <div class="form-group">
             <label for="User">User</label>
             <input type="text" name="userField" class="form-control form-control-lg" placeholder="Username or Email" required>
@@ -19,7 +21,7 @@
           </div>
 
           <div>
-            <p><a href="">Forgot password? <strong>CLICK HERE</strong></a></p>
+            <p><a href="<?php echo FRONT_ROOT."Auth/recoverPasswordView" ?>" class="text-white">Forgot password? <strong>CLICK HERE</strong></a></p>
           </div>
           <br/>
           <button class="btn btn-dark btn-block btn-lg" type="submit">Login</button>

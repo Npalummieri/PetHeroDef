@@ -87,6 +87,16 @@ use Utils\Session as Session;
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="bio">About Me</label>
+                <p id="bio" data-userlogged ="<?php echo $infoKeeper->getKeeperCode(); ?>"><?php echo $infoKeeper->getBio(); ?></p>
+                <div class="form-group" style="display: none;" id="bioEditor">
+                    <textarea class="form-control" name="bio" id="bioTextarea" maxlength="200" placeholder="Enter your bio (max 200 characters)"></textarea>
+                </div>
+                <button class="btn btn-primary" id="editBioBtn">Edit bio</button>
+                <button class="btn btn-success" id="saveBioBtn" style="display: none;">Save</button>
+                <button class="btn btn-secondary" id="cancelBioBtn" style="display: none;">Cancel</button>
+            </div>
 
 
 
@@ -156,6 +166,7 @@ use Utils\Session as Session;
                                     <span class="small"><?php echo $review['score'] . "/5" ?></span>
                                 </div>
                             </div>
+                            
                             <div class="d-flex">
                             <p class="font-weight-bold mb-0 rounded p-1 flex-grow-1" style="background-color: #ebf2f7;"><?php echo $review["comment"]; ?></p>
                             <?php if(Session::GetTypeLogged() == 'Models\Owner'){
@@ -177,8 +188,9 @@ use Utils\Session as Session;
     KeepersInteract.calendarKeeper();
     KeepersInteract.displayEditDates();
     KeepersInteract.updateDates();
-    moduleReview.displayFieldReview();
     KeepersInteract.reConfirm();
+    moduleReview.displayFieldReview();
+    infoModule.bioEdit();
 </script>
 
 <?php include("footer.php"); ?>

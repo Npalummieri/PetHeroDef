@@ -4,28 +4,28 @@ namespace Controllers;
 
 use \Exception as Exception;
 use Models\Owner as Owner;
-use DAO\OwnerDAO as OwnerDAO;
+
 use Services\PetService as PetService;
 use Utils\Session as Session;
 use Services\OwnerService as OwnerService;
 use Services\UserService as UserService;
-use Controllers\HomeController as HomeController;
+
 
 class OwnerController{
 
-    private $ownerDAO;
+
     private $petService;
     private $ownerService;
     private $userService;
-    private $homeController;
+
 
     public function __construct()
     {
-        $this->ownerDAO = new OwnerDAO();
+
         $this->petService = new PetService();
         $this->ownerService = new OwnerService();
         $this->userService = new UserService();
-        $this->homeController = new HomeController;
+
     }
 
     public function registerOwner($email, $username, $password, $name, $lastname, $dni, $pfp)
@@ -34,16 +34,22 @@ class OwnerController{
         $pfpInfo = $_FILES;
         $typeUser = "owner";
         $userInfo = $this->userService->validateRegisterUser($typeUser, $email, $username, $password, $name, $lastname, $dni, $pfpInfo);
-        $userOwn = new Owner();
-        $userOwn->fromUserToOwner($userInfo["user"]);
+        if (is_array($userInfo)) {
+            $userOwn = new Owner();
+            $userOwn->fromUserToOwner($userInfo["user"]);
 
-
-        $result = $this->ownerService->srv_add($userOwn, $userInfo);
-        if ($result == 1) {
-            $msgResult = "Successfully registered!";
-            $this->homeController->Index($msgResult);
-        } else {
-            $this->homeController->showOwnerRegisterView("Error at the register");
+            $result = $this->ownerService->srv_add($userOwn, $userInfo);
+            if ($result == 1) {
+                Session::SetOkMessage("Successfully Registered!");
+                header("location: " . FRONT_ROOT . "Home/Index");
+            } else {
+                Session::SetBadMessage($result);
+                header("location: " . FRONT_ROOT . "Home/showOwnerRegisterView");
+            }
+        }else if(is_string($userInfo))
+        {
+            Session::SetBadMessage($userInfo);
+            header("location: " . FRONT_ROOT . "Home/showOwnerRegisterView");
         }
     }
 
@@ -86,7 +92,7 @@ class OwnerController{
         {
             echo $ex->getMessage();
         }
-        require_once(VIEWS_PATH."keeperList.php");
+        require_once(VIEWS_PATH."keeperListPag.php");
     }
 
 
@@ -95,9 +101,9 @@ class OwnerController{
     {
         if (Session::IsLogged()) {
             $ownerLogged = Session::GetLoggedUser();
-            //echo "<br> ownerlogged :". var_dump($ownerLogged);
+
             $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
-            //var_dump($infoOwner);
+
             require_once(VIEWS_PATH . "myProfileOwner.php");
         }else
         {
@@ -136,7 +142,7 @@ class OwnerController{
                 }
             }
         }else{
-            header("location: '../index.php'");
+            header("location: ".FRONT_ROOT."Home/Index");
         }
     }
 

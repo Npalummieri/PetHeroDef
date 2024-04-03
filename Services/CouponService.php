@@ -5,9 +5,6 @@ namespace Services;
 use Models\Coupon as Coupon;
 use DAO\CouponDAO as CouponDAO;
 use DAO\BookingDAO as BookingDAO;
-use DAO\KeeperDAO as KeeperDAO;
-use DAO\OwnerDAO as OwnerDAO;
-use DAO\PetDAO as PetDAO;
 use DAO\conversationDAO as ConversationDAO;
 use Exception;
 use DateTime as DateTime;
@@ -17,9 +14,6 @@ class CouponService{
 
     private $couponDAO;
     private $bookingDAO;
-    private $keeperDAO;
-    private $ownerDAO;
-    private $petDAO;
     private $conversationDAO;
     private $mailer;
 
@@ -27,93 +21,99 @@ class CouponService{
     {
         $this->couponDAO = new CouponDAO();
         $this->bookingDAO = new BookingDAO();
-        $this->keeperDAO = new KeeperDAO();
-        $this->ownerDAO = new OwnerDAO();
-        $this->petDAO = new PetDAO();
         $this->conversationDAO = new ConversationDAO();
         $this->mailer = new Mailer();
     }
 
     public function generateCode() {
-        // Genera un UUID único
-        $uuid = uniqid('COU', true); // Utiliza 'KEP' como prefijo
-    
-        // Devuelve el ownerCode generado
+
+        $uuid = uniqid('COU', true);
+
         return $uuid;
     }
 
     public function srv_GenerateCouponToOwner($bookCode)
     {
-        //Recheck status booking recently confirmed (passed by parameter)
-        $booking = $this->bookingDAO->GetByCode($bookCode);
+        try {
+            //Recheck status booking recently confirmed (passed by parameter)
+            $booking = $this->bookingDAO->GetByCode($bookCode);
 
-        if($booking != null)
-        {
-            echo "HOLA TOY GENERANDO COUP";
-            $coupon = new Coupon();
-            //En keeper tengo el precio por hora y en booking el totalPrice deberia setearlo en base a horas*price
-            $coupon->setPrice($booking->getTotalPrice());
-            $coupon->setBookCode($bookCode);
-            $coupon->setCouponCode($this->generateCode());
-            //Podria setear el price aca o hacer calculo para la jornada,es medio lo mismo 
-            $resultInsert = $this->couponDAO->Add($coupon);
-        }   
-        return $resultInsert;     
+            if ($booking != null) {
+
+                $coupon = new Coupon();
+
+                $coupon->setPrice($booking->getTotalPrice());
+                $coupon->setBookCode($bookCode);
+                $coupon->setCouponCode($this->generateCode());
+
+                $resultInsert = $this->couponDAO->Add($coupon);
+            }
+        } catch (Exception $ex) {
+            $resultInsert = $ex->getMessage();
+        }
+        return $resultInsert;
     }
 
     public function srv_getCouponsByOwn($ownerCode)
     {
-
-        //¿Deberia hacer algun filtro,validar algo,no se? Chequear que el ownerCode sea valido pero ya lo hace la BD quizá el formato del propio code
-        $couponsArr = array();
-        $couponsArr = $this->couponDAO->getAllCouponsByOwner($ownerCode);
+        try {
+            $couponsArr = array();
+            $couponsArr = $this->couponDAO->getAllCouponsByOwner($ownerCode);
+            
+        } catch (Exception $ex) {
+            $couponsArr = $ex->getMessage();
+        }
         return $couponsArr;
     }
 
     public function srv_getInfoFullCoup($coupCode)
     {
-        $coup = $this->couponDAO->getCouponByCode($coupCode);
-        return $this->couponDAO->getFullInfoCoupon($coup->getCouponCode(),$coup->getBookCode());
+        try {
+            $coup = $this->couponDAO->getCouponByCode($coupCode);
+            $result = $this->couponDAO->getFullInfoCoupon($coup->getCouponCode(), $coup->getBookCode());
+        } catch (Exception $ex) {
+            $result = $ex->getMessage();
+        }
+        return $result;
     }
 
     //Algo Luhn
-    public function validateCardNumber($cardnumber)
+    private function validateCardNumber($cardnumber)
     {
-        // Eliminar los espacios en blanco del número de tarjeta
+        // Delete blankspaces
         $cardNumberFormatted = str_replace(" ", "", $cardnumber);
         
-        // Invertir la cadena de números
+        //Reverse cardnumber
         $reversedCardNumber = strrev($cardNumberFormatted);
         
-        // Inicializar la variable de suma
         $sum = 0;
         
-        // Iterar sobre cada dígito del número de tarjeta
+        // Iterate each digit
         for ($i = 0; $i < strlen($reversedCardNumber); $i++) {
-            // Obtener el dígito actual
+
             $digit = (int)$reversedCardNumber[$i];
             
-            // Verificar si el índice actual es par o impar
+            // odd or even
             $isEvenIndex = ($i % 2 == 0);
             
-            // Si el índice actual es impar, multiplicar el dígito por 2
+            // if is odd *2
             if (!$isEvenIndex) {
                 $digit *= 2;
                 
-                // Si el resultado es mayor que 9, restar 9
+                
                 if ($digit > 9) {
                     $digit -= 9;
                 }
             }
             
-            // Sumar el dígito al total
+
             $sum += $digit;
         }
         
-        // El número de tarjeta es válido si la suma es un múltiplo de 10
         return ($sum % 10 == 0);
     }
-    public function validateCardHolder($cardHolder)
+
+    private function validateCardHolder($cardHolder)
     {
         $pattern = "/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]{2,25}(?:\s+[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+){1,5}(?:\s+[-\sa-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+)?$/";
 
@@ -151,23 +151,11 @@ class CouponService{
                 throw new Exception("Impossible this year");
             }
 
-            //Literal es algo de programacion I pero vale anotarlo 
-            /*  El % indica el comienzo de una especificación de formato.
-                El 0 indica que si el número tiene menos de tres dígitos, se llenará con ceros a la izquierda.
-                El 3 indica la anchura mínima del campo, en este caso, tres caracteres.
-                La d indica que se trata de un número entero (decimal).*/
-            $ccvStr = sprintf('%03d',$ccv); //Formateas el string con 3 digitos 
+            $ccvStr = sprintf('%03d',$ccv); //3 digits 
 
-            $ccvLimitLen = substr($ccvStr, 0, 3); //Limitas a los primeros 3 digitos,en teoria no deberia haber más
+            $ccvLimitLen = substr($ccvStr, 0, 3);
 
-            echo "Probando prev if triple &&";
 
-            echo "VALOR CHECK CC";
-            var_dump($checkCc);
-            echo "VALOR CHECK checkCh";
-            var_dump($checkCh);
-            echo "VALOR ccvLimitLen";
-            var_dump($ccvLimitLen);
             if($checkCc && $checkCh && $ccvLimitLen)
             {
                 //Return 1,1 row modified to paidup
@@ -190,25 +178,25 @@ class CouponService{
 
                         $bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
 
-                        echo "SOY BOOKING PAIDUP from couponService";
-                        var_dump($bookingPaidup);
-                        //Devuelve el idConver que ya existia o el generado recien,si ya devuelve el existente no genera
+
+                        //get the idConver between keeper/owner or generate a new one from both 'parts'
                         $idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(),$bookingPaidup->getOwnerCode());
-                        echo "SOYIDCONVER :";
-                        var_dump($idConver);
+
                     }else{
-                        $errorMsge = "We couldn't validate your pay!";
+                        $flag = "We couldn't validate your pay!";
                     }
                
             }
         }catch(Exception $ex)
         {
-            echo $ex->getMessage();
+            $flag =  $ex->getMessage();
         }
             
             return $flag;
     }
 
+
+    //Validar lo de 24hs
     public function srv_declineCoupon($couponCode)
     {
         try{
@@ -219,24 +207,26 @@ class CouponService{
             if($initDateFormat > $currentDateTime )
             {
                 //este decline coupon deberia medio en cascada cancelar el booking a cancelled too
-                $this->couponDAO->declineCoupon($couponCode);
+                $result = $this->couponDAO->declineCoupon($couponCode);
+            }else{
+                $result = "Not possible cancel.Too late (minimum 24hs)";
             }
         }catch(Exception $ex)
         {
-            $ex->getMessage();
+            $result = $ex->getMessage();
         }
+        return $result;
     }
 
     public function srv_getCoupCodeByBook($bookCode)
     {
-        try{
-            $couponCode = $this->couponDAO->getCoupCodeByBook($bookCode);
+        try {
 
-            return $couponCode;
-        }catch(Exception $ex)
-        {
+            $couponCode = $this->couponDAO->getCoupCodeByBook($bookCode);
+        } catch (Exception $ex) {
             echo $ex->getMessage();
         }
+        return $couponCode;
     }
 }
 

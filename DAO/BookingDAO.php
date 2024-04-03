@@ -9,7 +9,7 @@ use Models\Booking as Booking;
 use Models\Owner as Owner;
 use Models\Keeper as Keeper;
 use Models\Pet as Pet;
-use Interfaces\IDAO as IDAO;
+
 
 
 class BookingDAO{

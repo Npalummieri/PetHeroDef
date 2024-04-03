@@ -167,10 +167,20 @@ class BookingService{
         
     }
 
+    //Validar lo de 24hs
     public function srv_cancelBooking($bookCode)
     {
         try{
-            $result = $this->bookingDAO->cancelBooking($bookCode);
+            $datesBooking = $this->bookingDAO->getDatesByCode($bookCode);
+            $initDateFormat = DateTime::createFromFormat("Y-m-d",$datesBooking["initDate"]);
+            $currentDateTime = new DateTime();
+            if($initDateFormat > $currentDateTime )
+            {
+                $result = $this->bookingDAO->cancelBooking($bookCode);
+            }else{
+                $result = "Not possible cancel.Too late (minimum 24hs)";
+            }
+            
         }catch(Exception $ex)
         {
             $result .= "Not possible to cancel this booking ". $ex->getMessage();

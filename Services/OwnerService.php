@@ -4,7 +4,6 @@ namespace Services;
 
 
 use \Exception as Exception;
-use Models\User as User;
 use Models\Owner as Owner;
 use DAO\OwnerDAO as OwnerDAO;
 use DAO\KeeperDAO as KeeperDAO;
@@ -23,10 +22,8 @@ class OwnerService{
     }
 
     public function generateCode() {
-        // Genera un UUID único
-        $uuid = uniqid('OWN', true); // Utiliza 'OWN' como prefijo
-    
-        // Devuelve el ownerCode generado
+        $uuid = uniqid('OWN', true);
+
         return $uuid;
     }
 
@@ -37,16 +34,14 @@ class OwnerService{
         try{
             $ownerCode = $this->generateCode();
             $owner->setOwnerCode($ownerCode);
-            var_dump($owner);
+
             $resultCode = $this->ownerDAO->Add($owner);
 
-            echo "RESULT CODE :";
             
         if($resultCode  != null)
         {
             $updatepfp = $this->ownerDAO->updatePfp($resultCode,$userInfo["pathToDB"]);
-            echo "updatePFP :";
-            var_dump($resultCode);
+
             if($updatepfp == 1){
                 move_uploaded_file($userInfo["pfp"],$userInfo["pathToSave"]);
             }else{
@@ -57,7 +52,7 @@ class OwnerService{
             $errorMsge = "Failed register.Check it again";
         }
         }catch(Exception $ex){
-            echo $ex->getMessage();
+            $errorMsge .=  $ex->getMessage();
         }
         return $errorMsge;
     }
@@ -95,8 +90,7 @@ class OwnerService{
     {
         try {
             $error = 1;
-            echo "SOY PFPINFO service";
-            var_dump($pfpInfo);
+
             $ownerSearched = $this->ownerDAO->searchByCode($ownerLogged);
             $pfpToDelete = $ownerSearched->getPfp();
             if (isset($pfpInfo["pfp"]["tmp_name"]) && !empty($pfpInfo["pfp"]["tmp_name"])) {

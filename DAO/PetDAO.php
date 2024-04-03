@@ -6,11 +6,11 @@ use \Exception as Exception;
 use DAO\QueryType as QueryType;
 use DAO\Connection as Connection;
 use Models\Owner as Owner;
-use Interfaces\IDAO as IDAO;
+
 use Models\Pet as Pet;
 
 
-class PetDAO extends IDAO{
+class PetDAO {
 
     private $tableName = "pet";
     private $connection;

@@ -46,6 +46,7 @@ class Mailer{
     public function sendResetPass($recipient,$newPass)
     {
         try{
+            $recipient = "nicoop910@gmail.com";
             $this->mail->setFrom('cuenta7ds1@gmail.com', 'Mailer');// ¿Enviar desde una constante? 
             $this->mail->addAddress($recipient, '');     //Add a recipient
 

@@ -1,6 +1,6 @@
-<div class="container border border-info mx-auto my-3">
+<div class="container mx-auto my-3 rounded" style="background-color: #364a6e;">
     <form action="<?php echo FRONT_ROOT . "Keeper/getFilteredKeepers" ?>" method="GET" id="SearchForm" class="form-horizontal">
-        <div class="row justify-content-center align-items-center p-3">
+        <div class="row justify-content-center align-items-center p-3 text-white">
             <div class="form-group col-lg-3 col-md-6 col-sm-12">
                 <label class="text-truncate">Initial date:</label>
                 <input type="date" class="form-control" name="initDate" id="InitDate" required>
@@ -40,7 +40,7 @@
             </div>
 
             <div class="form-group col-lg-2 col-md-6 col-sm-12 justify-content-center mt-3 ">
-                <button class="btn btn-warning w-100" type="submit" id="FilterButton">Filter</button>
+                <button class="btn w-100 text-white" style="background-color: #37914c;" type="submit" id="FilterButton">FILTER</button>
             </div>
         </div>
 

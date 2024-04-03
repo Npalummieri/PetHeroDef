@@ -4,11 +4,8 @@ include_once("nav.php");
 require_once(VIEWS_PATH . "formBookingList.php");
 ?>
 
-<p class="bg-danger">
-  <?php if (isset($errorMsge)) {
-    echo $errorMsge;
-  } ?>
-</p>
+<?php require_once("msgeDisplay.php"); ?>
+
 
 <div class="table-responsive">
   <table class="table table-striped table-bordered align-middle mb-0">
@@ -58,11 +55,13 @@ require_once(VIEWS_PATH . "formBookingList.php");
 
           <td>
             <?php if ($objBook->getStatus() === "pending" && $loggedUser instanceof Models\Keeper) { ?>
-              <a href="<?php echo FRONT_ROOT . 'Booking/manageBooking/' . $objBook->getBookCode(); ?>" class="btn btn-success">Confirm</a>
+              <a href="<?php echo FRONT_ROOT . 'Booking/manageBooking/' . $objBook->getBookCode(); ?>" class="btn btn-dis btn-success" data-msg="Confirm the booking?">Confirm</a>
+              <a href="<?php echo FRONT_ROOT . 'Booking/cancelBooking/' . $objBook->getBookCode(); ?>" class="btn  btn-dis btn-danger" data-msg="Cancel the booking?">Reject</a>
             <?php } elseif ($objBook->getStatus() === "confirmed" && $loggedUser instanceof Models\Owner) { ?>
               <a href="<?php echo FRONT_ROOT . 'Coupon/showCouponFromBook/' . $objBook->getBookCode(); ?>" class="btn btn-success">Pay it</a>
+              <a href="<?php echo FRONT_ROOT . 'Booking/cancelBooking/' . $objBook->getBookCode(); ?>" class="btn  btn-dis btn-danger" data-msg="Cancel the booking?">Cancel</a>
             <?php } ?>
-            <a class="btn btn-link" href="<?php echo FRONT_ROOT . 'Booking/fullInfoBookView/' . $objBook->getBookCode(); ?>"><i class="bi bi-eyeglasses"></i> Full Info</a>
+            <a class="link m-2" href="<?php echo FRONT_ROOT . 'Booking/fullInfoBookView/' . $objBook->getBookCode(); ?>"><i class="bi bi-eyeglasses"></i> Full Info</a>
           </td>
 
         </tr>
@@ -74,3 +73,8 @@ require_once(VIEWS_PATH . "formBookingList.php");
 <?php
 include("footer.php");
 ?>
+<script src="<?php echo JS_PATH . "formScripts.js";  ?>">
+</script>
+<script>
+  KeepersInteract.reConfirm();
+</script>
