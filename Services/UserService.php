@@ -80,42 +80,42 @@ class UserService {
         return $resp;
     }
 
-    public function resetPassword($email,$newPass)
+    public function srv_resetPassword($email, $dni)
     {
-        try{
+        try {
             $user = $this->searchEmailLogin($email);
 
-            if($user != null)
-            {
+            if ($user != null) {
                 $pattern = '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[a-zA-Z])(?!.*[!@ ])[a-zA-Z\d]{8,15}$/';
-    
-                while (true) {
-                $randomString = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)), 0, rand(8, 15));
+                if ($user->getDni() == $dni) {
 
-        // Verifica si cumple con las condiciones requeridas
-            if (preg_match($pattern, $randomString))
-            {
 
-                $pass = $randomString;
-                $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
-                
-                if(is_a($user,"Models\Owner"))
-                {
-                    echo "paso el is-a?";
-                    $resp = $this->ownerDAO->updatePassword($email,$hashedPass);
-                }else if(is_a($user,"Models\Keeper"))
-                {
-                    echo "paso el is-a?";
-                    $resp = $this->keeperDAO->updatePassword($email,$hashedPass);
+                   
+                        $randomString = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)), 0, rand(8, 15));
+
+                        // Verifica si cumple con las condiciones requeridas
+                        if (preg_match($pattern, $randomString)) {
+
+                            $pass = $randomString;
+                            $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+
+                            if (is_a($user, "Models\Owner")) {
+                                echo "paso el is-a?";
+                                $resp = $this->ownerDAO->updatePassword($email, $hashedPass);
+                            } else if (is_a($user, "Models\Keeper")) {
+                                echo "paso el is-a?";
+                                $resp = $this->keeperDAO->updatePassword($email, $hashedPass);
+                            }
+                            $this->mailer->sendResetPass($email, $pass);
+                        }
+                    
+                }else{
+                    $resp = "Not valid DNI ";
                 }
-                $this->mailer->sendResetPass($email,$pass);
+            } else {
+                $resp = "Not existing email";
             }
-        }
-        }else{
-            $resp = "Not existing email";
-        }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $resp = $ex->getMessage();
         }
         return $resp;
@@ -311,6 +311,22 @@ class UserService {
         {
             throw $ex;
         }
+        return $result;
+    }
+
+    public function srv_updateBio($bio, $userCode)
+    {
+        $result = null;
+        try {
+            if (strpos($userCode, "OWN") !== false) {
+                $result = $this->ownerDAO->updateBio($userCode, $bio);
+            } else if (strpos($userCode, "KEP") !== false) {
+                $result =  $this->keeperDAO->updateBio($userCode, $bio);
+            }
+        } catch (Exception $ex) {
+            $result = $ex->getMessage();
+        }
+
         return $result;
     }
 

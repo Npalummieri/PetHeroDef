@@ -6,7 +6,6 @@ namespace Controllers;
 use Models\Owner as Owner;
 use DAO\ownerDAO as OwnerDAO;
 use DAO\keeperDAO as KeeperDAO;
-use Controllers\HomeController as HomeController;
 use Utils\Session as Session;
 use Services\UserService as UserService;
 
@@ -21,8 +20,8 @@ class AuthController{
     public function __construct()
     {
         $this->ownerDAO = new OwnerDAO();
-        $this->userService = new UserService($this->ownerDAO,$this->keeperDAO);
         $this->keeperDAO = new KeeperDAO();
+        $this->userService = new UserService($this->ownerDAO,$this->keeperDAO);
     }
 
 
@@ -42,7 +41,6 @@ class AuthController{
             if($user == null)
             {
                 Session::SetBadMessage("User not found");
-                //throw New Exception("Fatal error,not user found");
                 header("location: ".FRONT_ROOT."Home/showLoginView");
             }else
             {
@@ -52,6 +50,7 @@ class AuthController{
                 Session::SetOkMessage("Login Successfully!");
                 Session::CreateSession($user);
                 $userLogged = Session::GetLoggedUser();
+                //"active" the status for the user
                 if($userLogged->getStatus() == "inactive")
                 {
                     if($userLogged instanceof Owner)
@@ -70,7 +69,28 @@ class AuthController{
             }
             } 
         }
+
+        public function recoverPasswordView()
+        {
+            require_once(VIEWS_PATH."recoverPassword.php");
+        }
+
+        public function recoverPassword($email,$dni)
+        {
+            $resp = $this->userService->srv_resetPassword($email,$dni);
+            if($resp != 1)
+            {
+                Session::SetBadMessage("Not valid credentials!");
+                
+            }else{
+                Session::SetOkMessage("Password recovered,check your email!");
+                
+            }
+            header("location: ".FRONT_ROOT."Home/showLoginView");
+        }
     }
+
+    
     
 
     
