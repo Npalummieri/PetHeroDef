@@ -33,6 +33,9 @@
             <td style="text-align: center;">
                 <?php echo $fullCoup["totalPrice"] ; ?>
             </td>
+            <td style="text-align: center;">
+                <?php echo $fullCoup["visitPerDay"] ; ?>
+            </td>
         
         </tr>
 
