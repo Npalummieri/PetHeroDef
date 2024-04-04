@@ -41,10 +41,10 @@ require_once(VIEWS_PATH . "formKeepersList.php");
   </div>
 </div>
 
-<div class="container mt-3" style="background-color: #110257;">
-  <div class="d-flex justify-content-center">
+<div class="container mt-3" >
+  <div class="text-center">
     <?php for ($page = 1; $page <= $totalPages; $page++) { ?>
-      <a href="<?php echo FRONT_ROOT . 'Home/showKeeperListPag/' . $page ?>" class="btn m-1" style="background-color:#d6c9ae;"><?php echo $page ?></a>
+      <a href="<?php echo FRONT_ROOT . 'Home/showKeeperListPag/' . $page ?>" class="btn m-1 text-white" style="background-color: #110257;"><?php echo $page ?></a>
     <?php } ?>
   </div>
 </div>
