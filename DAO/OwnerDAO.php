@@ -23,8 +23,6 @@ class OwnerDAO {
 
             $this->connection = Connection::GetInstance();
 
-            $nextId = $this->connection->LastInsertId($this->tableName);
-
             
             $parameters["ownerCode"] = $owner->getOwnerCode();
             $parameters["email"] = $owner->getEmail();
@@ -37,8 +35,12 @@ class OwnerDAO {
             $parameters["dni"] = $owner->getDni();
             $parameters["pfp"] = null;
 
-            $resultInsert = $this->connection->ExecuteNonQuery($query,$parameters);
 
+            $resultInsert = $this->connection->ExecuteNonQuery($query,$parameters);
+            if($resultInsert == 1)
+            {
+                $ownerCode = $owner->getOwnerCode();
+            }
         }catch(Exception $ex)
         {
             throw $ex;   
@@ -354,11 +356,9 @@ class OwnerDAO {
             $parameters["pfp"] = $pfp;
             $parameters["ownerCode"] = $ownerCode;
             
-            var_dump($query);
+
             $result = $this->connection->ExecuteNonQuery($query,$parameters);
-            echo "RESULT :";
-            var_dump($result);
-            //1 success 0 failed
+
             return $result;
         }catch(Exception $ex)
         {   
@@ -389,9 +389,7 @@ class OwnerDAO {
 
     public function updateBio($ownerCode,$bio){
         try{
-            echo "Soy ownerCode y bio";
-            var_dump($ownerCode);
-            var_dump($bio);
+
             $query = "UPDATE ".$this->tableName." 
             SET bio = :bio
             WHERE ownerCode = :ownerCode;";
