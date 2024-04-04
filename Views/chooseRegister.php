@@ -4,11 +4,11 @@ include("nav.php");
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-12 text-center">
-      <h1>Which is your Role?</h1>
+      <h1 class="d-inline bg-dark text-white">Which is your Role?</h1>
     </div>
   </div>
-  <div class="row justify-content-around">
-    <div class="col-sm-6 col-md-4 col-lg-3">
+  <div class="row justify-content-around " >
+    <div class="col-sm-6 col-md-4 col-lg-3 rounded p-4" style="background-color: #110257;">
       <div class="card text-center">
         <h2 class="card-title">Owner</h2>
         <img class="card-img-top img-fluid" src="<?php echo FRONT_ROOT . 'Images/SysImages/owner.jpg'; ?>" alt="Owner Image">
@@ -18,7 +18,7 @@ include("nav.php");
         </div>
       </div>
     </div>
-    <div class="col-sm-6 col-md-4 col-lg-3">
+    <div class="col-sm-6 col-md-4 col-lg-3 rounded p-4" style="background-color: #110257;">
       <div class="card text-center">
         <h2 class="card-title">Keeper</h2>
         <img class="card-img-top img-fluid" src="<?php echo FRONT_ROOT . 'Images/SysImages/keeper.jpg'; ?>" alt="Keeper Image">
