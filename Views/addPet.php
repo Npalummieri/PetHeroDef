@@ -2,13 +2,13 @@
 include("nav.php") ?>
 <form action="<?php echo FRONT_ROOT . "Pet/add" ?>" method="POST" enctype="multipart/form-data">
  
-<div class="container ">
-  <div class="row justify-content-center">
+<div class="container text-white">
+  <div class="row justify-content-center" >
     <div class="col-md-6">
       <div class="p-4">
         <h2 class="text-center">ADD YOUR PET</h2>
-        <div class="form-container border border-dark p-5 m-auto mt-2">
-        <form>
+        <div class="form-container border border-dark p-5 m-auto mt-2" style="background-color: #364a6e;">
+        <form >
           <div class="mb-3 ">
             <label for="name" class="form-label">Name</label>
             <input type="text" class="form-control form-control-lg" id="name" name="name" placeholder="Name" maxlength="30" required>
