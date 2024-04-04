@@ -3,7 +3,7 @@ require_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php"); 
 ?>
 
-<div class="container mt-5" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>" style="background-color :#364a6e;" >
+<div class="container mt-5" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>" style="background-color : #110257;" >
   <h2 class="text-center text-white">Keepers</h2>
   <div class="row justify-content-center">
     <?php foreach ($allKeepers as $keeper) { ?>
@@ -41,7 +41,7 @@ require_once(VIEWS_PATH . "formKeepersList.php");
   </div>
 </div>
 
-<div class="container mt-3" style="background-color: #364a6e;">
+<div class="container mt-3" style="background-color: #110257;">
   <div class="d-flex justify-content-center">
     <?php for ($page = 1; $page <= $totalPages; $page++) { ?>
       <a href="<?php echo FRONT_ROOT . 'Home/showKeeperListPag/' . $page ?>" class="btn m-1" style="background-color:#d6c9ae;"><?php echo $page ?></a>

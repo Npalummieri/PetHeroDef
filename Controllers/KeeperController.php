@@ -51,7 +51,7 @@ class KeeperController
                 Session::SetOkMessage("Successfully registered!");
                 header("location: " . FRONT_ROOT . "Home/Index");
             } else {
-                Session::SetBadMessage("Not validate data.Check the register!");
+                Session::SetBadMessage("Something failed at the register.Do it again!");
                 $this->homeController->Index();
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
