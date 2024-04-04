@@ -295,6 +295,10 @@ class PetService{
             }
         } catch (Exception $ex) {
             $error =  $ex->getMessage();
+            $petAdded = $this->petDAO->getPet($resultInsert);
+            if($petAdded->getPfp() == null || $petAdded->getVaccPlan() == null){
+                $error = "Your pet was added.But upload as soon as you can the VaccPlan/Profile picture";
+            }
         }
 
         return $error;
@@ -443,38 +447,35 @@ class PetService{
     public function srv_updatePetInfo($petCode, $ownerCode, $size, $vaccPlan, $video, $pfp, $age)
     {
         try {
-            echo "PETCODE :".$petCode;
+
             $petSearched = $this->petDAO->getPet($petCode);
-            var_dump($petSearched);
+            $error = 1;
             $typePet = $petSearched->getTypePet();
             $pfpToDelete = $petSearched->getPfp();
             $videoToDelete = $petSearched->getVideo();
             $vaccPlanToDelete = $petSearched->getVaccPlan();
             if ($petSearched != null) {
                 //Si esta seteado,si no esta vacio y si efectivamente pesa algo 
+                //Saltan warnings logicos si es que no habia nada para borrar,pero funcionan no es critico
                 if (isset($pfp["tmp_name"]) && $pfp["size"] > 0 && !empty($pfp["tmp_name"])) {
 
-
-                    echo "Soy la ruta de petSearched PFP :";
-                    var_dump($pfpToDelete);
                     $arrayPaths = $this->getImgsPetRegister("pfp", $pfp, $typePet);
-                    echo "SOY ARR PATHS EN UPPETINFO :";
-                    var_dump($arrayPaths);
+
+
                     $result = $this->petDAO->updatePfp($petCode, $arrayPaths["pathToDB"]);
-                    echo "RESULT PRE :".$result;
+
                     if ($result == 1) {
                         move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
                         if (unlink(IMG_PATH . $pfpToDelete)) {
-                            $error = "El archivo se borró correctamente.";
-                        } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
-                        //     $error = "No se pudo borrar el archivo.";
-                        // }
+                            $error = "Pfp deleted";
+                        }
+                    }else{
+                        $error .= "Error at updating PFP";
                     }
-                    //$petSearched->setPfp($arrayPaths["pathToDB"]);
+
                 }
 
-                echo "SOYV IDEO" ;
-                var_dump($video);
+
                 if (isset($video["tmp_name"]) && $video["size"] > 0 && !empty($video["tmp_name"])) {
 
                     $arrayPathsVideo = $this->getImgsPetRegister("video", $video, $typePet);
@@ -484,13 +485,12 @@ class PetService{
                         $resultVideo = $this->petDAO->updateVideo($petCode, $arrayPathsVideo["pathToDB"]);
                         if ($resultVideo == 1) {
                             move_uploaded_file($arrayPathsVideo["file"], $arrayPathsVideo["pathToSave"]);
-                            echo "ROOT";
-                            var_dump(ROOT);
+
                             if (unlink(ROOT. $videoToDelete)) {
-                                $error = "El archivo se borró correctamente.";
-                            } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
-                            //     $error = "No se pudo borrar el archivo.";
-                            // }
+                                $error = "Video deleted";
+                            } 
+                        }else{
+                            $error .= "Error at updating Video";
                         }                       
                     }
                 }
@@ -501,12 +501,18 @@ class PetService{
                     if ($result == 1) {
                         move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
                         if (unlink(IMG_PATH . $vaccPlanToDelete)) {
-                            $error = "El archivo se borró correctamente.";
-                        } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
-                        //     $error = "No se pudo borrar el archivo.";
-                        // }
+                            $error = "Vaccplan deleted";
+                        }
+                    }else{
+                        $error .= "Error at updating Vaccplan";
                     }
                 }
+            }
+
+            //If everything OK ,error takes value = 1
+            if($result == 1)
+            {
+                $error = $result;
             }
 
             if(isset($size) && !empty($size))
@@ -519,9 +525,11 @@ class PetService{
                 $this->petDAO->updateAge($petCode,$age);
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $error =  $ex->getMessage();
         }
+        return $error;
     }
+
 
     public function srv_getPet($petCode)
     {
