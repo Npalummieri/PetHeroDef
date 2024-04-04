@@ -123,22 +123,19 @@ class OwnerController{
         }
     }
 
-    public function updateOwner($pfp = " ", $email = " ", $bio = " ")
+    public function updateOwner($pfp = " ", $bio = " ")
     {
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $ownerLogged = Session::GetLoggedUser();
-                echo "POST CONTROLLER";
-                var_dump($_POST);
                 $pfpInfo = $_FILES;
-                $result = $this->ownerService->srv_updateOwner($ownerLogged->getOwnerCode(),$pfpInfo, $email, $bio);
+                $result = $this->ownerService->srv_updateOwner($ownerLogged->getOwnerCode(),$pfpInfo,$bio);
                 if($result == 1)
                 {
                     //Info actualizada
                     $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
-                    Session::DeleteSession();
                     Session::CreateSession($infoOwner);
-                    require_once(VIEWS_PATH."myProfileOwner.php");
+                    header("location: ".FRONT_ROOT."Owner/showMyProfile");
                 }
             }
         }else{
