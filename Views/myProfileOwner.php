@@ -3,38 +3,42 @@ include("header.php");
 include("nav.php");
 ?>
 
+<div class="row align-items-center">
+        <div class="col-lg-12">
+            <h2 class="bg-dark rounded text-center mt-2 w-50 mx-auto text-white">My Profile</h2>
+        </div>
+    </div>
 <section class="section about-section text-white" id="about">
-    <div class="container mt-3" style="background-color: #364a6e;">
-        <h2 class="text-center">My Profile</h2>
+    <div class="container  rounded" style="background-color: #110257;">
         <div class="row align-items-center">
             <div class="col-lg-4">
                 <div class="about-avatar text-center">
                     <img class="mt-3 mx-auto img-rounded rounded-circle" src="<?php echo FRONT_ROOT . "Images/" . $infoOwner->getPfp() ?>" title="" alt="" width="384px" height="384px">
-                    <a href="<?php echo FRONT_ROOT . 'Owner/editProfile' ?>" class="btn btn-primary mt-3 text-white">Edit Profile</a>
+                    <a href="<?php echo FRONT_ROOT . 'Owner/editProfile' ?>" class="btn btn-primary m-2 text-white">Edit Profile</a>
                 </div>
 
             </div>
             <div class="col-lg-8">
                 <div class="about-list">
                     <div class="media">
-                        <label>DNI</label>
+                        <label>DNI :</label>
                         <p><?php echo $infoOwner->getDni(); ?></p>
                     </div>
                     <div class="media">
-                        <label>Username</label>
+                        <label>Username :</label>
                         <p><?php echo $infoOwner->getUsername(); ?></p>
                     </div>
                     <div class="media">
-                        <label>Full name</label>
+                        <label>Full name :</label>
                         <p><?php echo $infoOwner->getName() . " " . $infoOwner->getLastName();  ?></p>
                     </div>
                     <div class="media">
-                        <label>E-mail</label>
+                        <label>E-mail :</label>
                         <p><?php echo $infoOwner->getEmail() ?></p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="bio">About Me</label>
+                    <label for="bio">About Me :</label>
                     <p id="bio" data-userlogged="<?php echo $infoOwner->getOwnerCode(); ?>"><?php echo $infoOwner->getBio(); ?></p>
                     <div class="form-group" style="display: none;" id="bioEditor">
                         <textarea class="form-control" name="bio" id="bioTextarea" maxlength="200" placeholder="Enter your bio (max 200 characters)"></textarea>
