@@ -49,7 +49,7 @@ class OwnerService{
             }
             
         }else{
-            $errorMsge = "Failed register.Check it again";
+            $errorMsge = "Failed register error in DB.Contact support";
         }
         }catch(Exception $ex){
             $errorMsge .=  $ex->getMessage();
@@ -86,7 +86,7 @@ class OwnerService{
         return $arrayKeepers;
     }
 
-    public function srv_updateOwner($ownerLogged,$pfpInfo, $email, $bio)
+    public function srv_updateOwner($ownerLogged,$pfpInfo, $bio)
     {
         try {
             $error = 1;
@@ -104,7 +104,6 @@ class OwnerService{
                 $extension = explode(".", $nameFile);
 
 
-                //Deberia verificar la integridad de la img/archivo que no contenga nada raro
                 $admittedTypes = ["image/jpg", "image/png", "image/jpeg", "image/bmp", "image/gif"];
 
                 //El MIME es un id que valida que lo que se sube es una imagen como tal y no por ejemplo un archivo.exe con extension cambiada
@@ -131,22 +130,9 @@ class OwnerService{
                     $result = $this->ownerDAO->updatePfp($ownerLogged, $pathToBD);
                     if ($result == 1) {
                         move_uploaded_file($pfp, $pathToSave);
-                        if (unlink(IMG_PATH . $pfpToDelete)) {
-                            $error = "El archivo se borró correctamente.";
-                        } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
-                            //     $error = "No se pudo borrar el archivo.";
-                            // }
+                        unlink(IMG_PATH . $pfpToDelete);
                     }
                 }
-            }
-
-
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $msgeError = "Not an Email";
-            } else {
-                $email = trim($email);
-                $this->ownerDAO->updateEmail($ownerLogged, $email);
             }
 
             if (isset($bio) && !empty($bio) && $bio != null) {
@@ -154,11 +140,11 @@ class OwnerService{
                     // Si la expresión regular encuentra algún caracter que no sea letra, dígito o signo de puntuación básico, la función devuelve false
                     $error = "error at bio";
                 } else {
-                    $this->ownerDAO->updateBio($ownerLogged, $bio);
+                    $error = $this->ownerDAO->updateBio($ownerLogged, $bio);
                 }
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $error =  $ex->getMessage();
         }
         return $error;
     }
