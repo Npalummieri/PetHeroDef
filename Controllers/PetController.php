@@ -2,23 +2,18 @@
 
 namespace Controllers;
 
-use \Exception as Exception;
 use Models\Pet as Pet;
-use DAO\PetDAO as PetDAO;
 use Services\PetService as PetService;
 use Utils\Session;
-use Controllers\OwnerController as OwnerController;
 class PetController{
 
-    private $petDAO;
-    private $petService;
-    private $ownerController;
 
+    private $petService;
     public function __construct()
     {
-        $this->petDAO = new PetDAO();
+
         $this->petService = new PetService();
-        $this->ownerController = new OwnerController();
+
     }
 
     public function add($name, $typePet, $size, $breed, $vaccPlan, $video, $pfp, $age)
@@ -26,9 +21,9 @@ class PetController{
 
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == 'Models\Owner') {
+                $files = $_FILES;
                 $loggedUser = Session::GetLoggedUser();
-                $msge = $this->petService->validatePet($name, $typePet, $loggedUser->getOwnerCode(), $size, $breed, $vaccPlan, $video, $pfp, $age);
-                
+                $msge = $this->petService->validatePet($name, $typePet, $loggedUser->getOwnerCode(), $size, $breed, $files["vaccPlan"], $files["video"], $files["pfp"], $age);
                 if($msge == null)
                 {
                     Session::SetOkMessage("Pet successfully added");
@@ -77,7 +72,6 @@ class PetController{
                 $loggedOwner = Session::GetLoggedUser();
                 //Chequear que el loggedOwner sea efectivamente dueño
                 $isOwner = $this->petService->srv_checkOwnerPet($petCode,$loggedOwner->getOwnerCode());
-                echo "ISOWNER :";
                 var_dump($isOwner);
                 if($isOwner == 1)
                 {
@@ -85,13 +79,16 @@ class PetController{
                     
                     require_once(VIEWS_PATH."editPet.php");
                 }else{
-                    $sessionOk = 0;
+                    Session::SetBadMessage("Not permitted editing");
+                    header("location: ".FRONT_ROOT."Home/showLoginView");
                 }
             }else{
-                $sessionOk = 0;
+                Session::SetBadMessage("You are not an owner");
+                header("location: ".FRONT_ROOT."Home/showLoginView");
             }
         }else{
-            $sessionOk = 0;
+            Session::SetBadMessage("Log in please :)");
+            header("location: ".FRONT_ROOT."Home/showLoginView");
         }        
     }
 
@@ -103,17 +100,46 @@ class PetController{
             if(Session::GetTypeLogged() == "Models\Owner")
             {
                 $loggedOwner = Session::GetLoggedUser();
-                 echo "POST :";
-                 var_dump($_POST);
                 $files = $_FILES;
-                // echo "FILES :";
-                // echo "<pre>";
-                // var_dump($files);
-                // echo "</pre>";
-                echo "SOY PET CODE CONTROLLER".$petCode;
-                $this->petService->srv_updatePetInfo($petCode,$loggedOwner->getOwnerCode(),$size,$files["vaccPlan"],$files["video"],$files["pfp"],$age);
+                $result = $this->petService->srv_updatePetInfo($petCode,$loggedOwner->getOwnerCode(),$size,$files["vaccPlan"],$files["video"],$files["pfp"],$age);
+
+                if($result == 1)
+                {
+                    Session::SetOkMessage("Updated pet!");
+                    header("location: ".FRONT_ROOT."Owner/showMyPets");
+                }else{
+                    Session::SetBadMessage("Cannot update your pet correctly! Try again");
+                    $this->showEditPet($petCode);
+                }
             }
         }
+        
+    }
+
+    public function deletePet($petCode)
+    {
+        if(Session::IsLogged())
+        {
+            if(Session::GetTypeLogged() == "Models\Owner")
+            {   
+                $ownerLogged = Session::GetLoggedUser();
+                $result = $this->petService->srv_deletePet($ownerLogged->getOwnerCode(),$petCode);
+                if($result == 1)
+                {
+                    Session::SetOkMessage("Pet deleted!");
+                    header("location: ".FRONT_ROOT."Owner/showMyPets");
+                }else{
+                    Session::SetBadMessage($result);
+                    header("location: ".FRONT_ROOT."Owner/showMyPets");
+                }
+            }else{
+                Session::SetBadMessage("U shouldn't be here!");
+                header("location: ".FRONT_ROOT."Home/showLoginView");
+            }
+        }else{
+            header("location: ".FRONT_ROOT."Home/showLoginView");
+        }
+
         
     }
 }

@@ -288,8 +288,6 @@ class PetDAO {
     public function checkOwnerByPet($petCode,$ownerCode)
     {
         try{
-            echo "HOLA?";
-            //Selecciono la mascota si coincide en codigo y dueño por parametro devuelve algo,sino null
             $query = "SELECT COUNT(*) FROM ".$this->tableName."
             WHERE petCode = :petCode AND ownerCode = :ownerCode;";
 
@@ -300,9 +298,6 @@ class PetDAO {
 
             $result = $this->connection->Execute($query,$parameters);
 
-            //Ver si devuelve bien
-            echo "RESULT 00";
-            var_dump($result[0][0]);
             return $result[0][0];
         }catch(Exception $ex){
             throw $ex;
@@ -339,6 +334,24 @@ class PetDAO {
 
             return $pet;
         }catch(Exception $ex){
+            throw $ex;
+        }
+    }
+
+    public function deletePet($petCode)
+    {
+        try{
+
+            $query = "DELETE FROM ".$this->tableName." 
+            WHERE petCode = :petCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameter["petCode"] = $petCode;
+
+            return $this->connection->ExecuteNonQuery($query,$parameter);
+        }catch(Exception $ex)
+        {
             throw $ex;
         }
     }

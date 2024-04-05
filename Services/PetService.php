@@ -262,7 +262,6 @@ class PetService{
                 $error .= " <br> We cant't add your pet.Check again!";
             }
             
-
             if($resultInsert != null && $resultInsert != " ")
             {
                 if (isset($pfp)) {
@@ -289,7 +288,7 @@ class PetService{
                     
                     $arrayPaths = $this->getImgsPetRegister("vaccPlan", $vaccPlan, $typePet);
                     move_uploaded_file($arrayPaths["file"],$arrayPaths["pathToSave"]);
-                    $this->petDAO->updatePfp($resultInsert,$arrayPaths["pathToDB"]);
+                    $this->petDAO->updateVacc($resultInsert,$arrayPaths["pathToDB"]);
                     $pet->setVaccPlan($arrayPaths["pathToDB"]);
                 }
             }
@@ -347,9 +346,10 @@ class PetService{
             array_push($arrayToEncode,$valsToEncode);
             
         }
-        //var_dump($arrayToEncode);
+
         $encodedArray = json_encode($arrayToEncode);
-        //Supuestamente si no existe el archivo lo crea,pero nop,lo tuve que hacer manual
+
+
         file_put_contents("DAOJson\petsByOwnAndType.json",$encodedArray);
         
         
@@ -425,13 +425,11 @@ class PetService{
 
     public function srv_checkOwnerPet($petCode,$ownerCode)
     {
-        var_dump($ownerCode);
         try{
             $result = null;
 
                 if(strpos($ownerCode,"OWN") !== false)
                 {
-                    echo "HOLA?";
                     $result = $this->petDAO->checkOwnerByPet($petCode,$ownerCode);
                 }
 
@@ -542,6 +540,27 @@ class PetService{
         {
             $ex->getMessage();
         }
+    }
+
+    public function srv_deletePet($ownerCode,$petCode)
+    {
+        try{
+            if(strpos($ownerCode,"OWN") !== false)
+            {
+                if($this->srv_checkOwnerPet($petCode,$ownerCode) == 1)
+                {
+                    $result = $this->petDAO->deletePet($petCode);
+                }else{
+                    $resp = "This pet doesn't belong to this owner!";
+                }
+            }else{
+                $resp ="Not except to be here! Good luck!";
+            }
+        }catch(Exception $ex)
+        {
+            $resp = $ex->getMessage();
+        }
+        return $resp;
     }
 }
 
