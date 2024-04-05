@@ -47,17 +47,18 @@ class AuthController{
                 if($this->userService->checkPassword(get_class($user),$user->getEmail(),$password))
             {
                 
-                Session::SetOkMessage("Login Successfully!");
+                Session::SetOkMessage("Login successfully");
                 Session::CreateSession($user);
                 $userLogged = Session::GetLoggedUser();
                 //"active" the status for the user
-                if($userLogged->getStatus() == "inactive")
+
+                if($userLogged->getStatus() === "inactive")
                 {
-                    if($userLogged instanceof Owner)
+                    if(Session::GetTypeLogged() == "Models\Owner")
                 {
-                    $this->userService->updateStatusUser($userLogged->getOwnerCode());
+                    $this->userService->srv_updateStatusUser($userLogged->getOwnerCode(),"active");
                 }else{
-                    $this->userService->updateStatusUser($userLogged->getKeeperCode());
+                    $this->userService->srv_updateStatusUser($userLogged->getKeeperCode(),"active");
                 }
                 }
                 
