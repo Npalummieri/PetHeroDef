@@ -50,18 +50,18 @@ class OwnerDAO {
         return $ownerCode;
     }
 
-    public function updateStatus($code)
+    public function updateStatus($code,$status)
     {
         try{
 
             $query = "UPDATE ".$this->tableName." 
             SET status = :status 
-            WHERE keeperCode = :code ;";
+            WHERE ownerCode = :code ;";
 
             $this->connection = Connection::GetInstance();
 
+            $parameters["status"] = $status;
             $parameters["code"] = $code;
-            $parameters["status"] = "active";
             
             return $this->connection->ExecuteNonQuery($query,$parameters);
 
