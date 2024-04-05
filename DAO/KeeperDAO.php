@@ -59,7 +59,7 @@ class KeeperDAO
         }
     }
 
-    public function updateStatus($code)
+    public function updateStatus($code,$status)
     {
         try{
 
@@ -70,7 +70,7 @@ class KeeperDAO
             $this->connection = Connection::GetInstance();
 
             $parameters["code"] = $code;
-            $parameters["status"] = "active";
+            $parameters["status"] = $status;
 
             return $this->connection->ExecuteNonQuery($query,$parameters);
 
