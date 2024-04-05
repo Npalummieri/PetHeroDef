@@ -60,24 +60,25 @@ class UserService {
         return $rsp;
     }
 
-    public function updateStatusUser($codeUserLogged)
+    public function srv_updateStatusUser($codeUserLogged,$status)
     {
+
         $errorMsge = "";
         try{
-            if(strpos($codeUserLogged,"OWN"))
+            if(strpos($codeUserLogged,"OWN") !== false)
         {
-            $errorMsge = $this->ownerDAO->updateStatus($codeUserLogged);
-        }else if (strpos($codeUserLogged,"KEP")){
-            $errorMsge = $this->keeperDAO->updateStatus($codeUserLogged);
+            $errorMsge = $this->ownerDAO->updateStatus($codeUserLogged,$status);
+        }else if (strpos($codeUserLogged,"KEP") !== false){
+            $errorMsge = $this->keeperDAO->updateStatus($codeUserLogged,$status);
         }else{
             $errorMsge = "Error with the logging";
         }
         
         }catch(Exception $ex)
         {
-            $resp = $errorMsge.' '.$ex->getMessage();
+            $errorMsge = $ex->getMessage();
         }
-        return $resp;
+        return $errorMsge;
     }
 
     public function srv_resetPassword($email, $dni)
@@ -128,7 +129,7 @@ class UserService {
             $msgResult = "";
             $msgeError = "";
             $user = new User();
-            echo "SOY EMAIL VAIDATE".$email;
+           
                         // ||||||||||||||||||||||||||||||||||||||||||||||||Filter email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                throw new Exception("Not an Email");
@@ -258,7 +259,7 @@ class UserService {
                 }
             }
 
-            //Retorno un arreglo con el usuario validado,y la información para el seteo de PFP's
+            
         $response = [
             "user" => $user,
             "pfp" => $pfp,
@@ -296,8 +297,6 @@ class UserService {
 
     public function srv_GetFilteredKeepers($initDate,$endDate,$size,$typePet,$visitPerDay,$pageNumber,$resultsPerPage)
     {
-        //Filtrar form
-        var_dump($_POST);
         try{
             $actualDate = new DateTime();
 
