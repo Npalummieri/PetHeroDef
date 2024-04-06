@@ -7,12 +7,12 @@ require_once(VIEWS_PATH . "formBookingList.php");
 <?php require_once("msgeDisplay.php"); ?>
 
 
-<div class="table-responsive">
+<div class="table-responsive" style="background-color: #110257;">
   <table class="table table-striped table-bordered align-middle mb-0">
     <thead class="bg-light">
       <tr>
-        <th>Pet PFP / Owner name</th>
-        <th>Pet code/Pet name</th>
+        <th>Pet PFP & Owner name</th>
+        <th>Pet code & Pet name</th>
         <th>Status</th>
         <th>Initial date</th>
         <th>End date</th>
@@ -20,7 +20,7 @@ require_once(VIEWS_PATH . "formBookingList.php");
       </tr>
     </thead>
     <tbody>
-      <?php if ($myBookings === null || empty($myBookings)) { ?>
+      <?php if ($myBookings == null || empty($myBookings)) { ?>
         <tr>
           <td colspan="7" class="text-center">No bookings yet</td>
         </tr>

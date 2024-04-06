@@ -74,10 +74,11 @@ use Utils\Session as Session;
                     <?php
                     }
                     ?>
+                    <?php if (Session::IsLogged()) {  ?>
                     <li class="nav-item active">
                          <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Booking/showMyBookings">My Bookings</a>
                     </li>
-
+                    <?php } ?>
                     <?php if (Session::IsLogged()) {
                     ?><li class="nav-item active">
                               <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Message/ToInbox">Messages</a>
