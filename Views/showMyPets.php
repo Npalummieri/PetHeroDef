@@ -61,8 +61,8 @@ include("nav.php");
 
             <div class="col-lg-12 col-md-12 col-sm-12 mt-auto">
               <div class="text-end">
-                <a class="btn bg-light" href="<?php echo FRONT_ROOT . "Pet/showEditPet/" . $pet->getpetCode(); ?>">Update</a>
-                <a class="btn btn-danger" href="<?php echo FRONT_ROOT . "Pet/deletePet/" . $pet->getpetCode(); ?>">Delete</a>
+                <a class="btn bg-light m-1" href="<?php echo FRONT_ROOT . "Pet/showEditPet/" . $pet->getpetCode(); ?>">Update</a>
+                <a class="btn btn-danger m-1" href="<?php echo FRONT_ROOT . "Pet/deletePet/" . $pet->getpetCode(); ?>">Delete</a>
               </div>
               
             </div>
