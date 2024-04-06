@@ -13,11 +13,11 @@ include_once("nav.php"); ?>
         <form action="<?php echo FRONT_ROOT . "Booking/addBooking" ?>" method="POST" id="BookForm">
           <div class="form-group row m-2">
             <label for="InitDate">INITIAL DATE</label>
-            <input type="date" name="initDate" id="InitDate" class="form-control" required>
+            <input type="date" name="initDate" id="InitDate" class="form-control" min="<?php echo date('Y-m-d'); ?>"  required>
           </div>
           <div class="form-group row m-2">
             <label for="EndDate">END DATE</label>
-            <input type="date" name="endDate" id="EndDate" class="form-control" required>
+            <input type="date" name="endDate" id="EndDate" class="form-control" min="<?php echo date('Y-m-d'); ?>"  required>
           </div>
           <div>
             <p id="AvailMsge" class="text-lg text-uppercase"><strong></strong></p>
@@ -30,7 +30,7 @@ include_once("nav.php"); ?>
             <select name="petCode" id="PetCode" class="form-control" required>
               <option value="">Select your Pet</option>
             </select>
-            <p class="text-dark">Note: If you don't see any pets displayed to select, most probably you don't have the type of Pet that Keeper attends</p>
+            <p class="text-danger">Note: If you don't see any pets displayed to select, most probably you don't have the type of Pet that Keeper attends</p>
           </div>
           <div class="form-group row m-2">
             <label for="visitPerDaySelect" class="">Visit per day :</label>
@@ -58,11 +58,6 @@ include_once("nav.php"); ?>
 </div>
 <script src="<?php echo JS_PATH . "formScripts.js" ?>"></script>
 <script>
-
-    // Llamar a la función init del objeto MiFormularioModule
-    //FormAjaxModule.selectYours(); Para otro dia
-    //FormAjaxModule.getPetsByOwnerType();
-    //FormAjaxModule.checkDatesHours();
     FormAjaxModule.getSpecificPets();
     FormAjaxModule.generateVisitPerDaySelect();
 
