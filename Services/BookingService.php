@@ -54,13 +54,14 @@ class BookingService{
 
 
                 if (Dates::validateAndCompareDates($initDate, $endDate) == 1 || Dates::validateAndCompareDates($initDate, $endDate) == 0) {
+                    if (Dates::currentCheck($initDate) && Dates::currentCheck($endDate)) {
+                        $booking->setInitDate($initDate);
+                        $booking->setEndDate($endDate);
+                        $totalDays = Dates::calculateDays($initDate, $endDate);
 
-                    $booking->setInitDate($initDate);
-                    $booking->setEndDate($endDate);
-                    $totalDays = Dates::calculateDays($initDate, $endDate);
-
-                    if ($totalDays != null) {
-                        $booking->setTotalDays($totalDays);
+                        if ($totalDays != null) {
+                            $booking->setTotalDays($totalDays);
+                        }
                     }
                 } else {
                     $resp = "Not valid dates";
@@ -172,9 +173,9 @@ class BookingService{
     {
         try{
             $datesBooking = $this->bookingDAO->getDatesByCode($bookCode);
-            $initDateFormat = DateTime::createFromFormat("Y-m-d",$datesBooking["initDate"]);
-            $currentDateTime = new DateTime();
-            if($initDateFormat > $currentDateTime )
+            var_dump($datesBooking["initDate"]);
+            var_dump(Dates::currentCheck($datesBooking["initDate"]));
+            if(Dates::currentCheck($datesBooking["initDate"]))
             {
                 $result = $this->bookingDAO->cancelBooking($bookCode);
             }else{

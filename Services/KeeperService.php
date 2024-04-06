@@ -39,8 +39,7 @@ class KeeperService
     public function validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay) //valida los campos y retorna ya no el user sino un Keeper
     {
         try {
-            // echo "USER validatekeeperfield :";
-            //var_dump($user);
+            $msgeError = false;
             if (isset($typeCare)) {
                 if ($typeCare != "big") {
                     if ($typeCare != "medium") {
@@ -76,20 +75,23 @@ class KeeperService
                 $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
             }
 
+
             $keeper = new Keeper();
 
-            if ($userInfo["user"] instanceof User) {
-                echo "VALOR TYPEPET PRE FROMSUER";
-                var_dump($typePet);
-                if ($validateDates >= 0) {
-                    $keeper = $keeper->fromUserToKeeper($userInfo["user"], $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay);
-                    $keeper->setKeeperCode($this->generateCode());
-                    $keeperCode = $this->keeperDAO->Add($keeper);
-                }
+            if (empty($msgeError)) {
+                $keeper = $msgeError;
+            } else {
+                if ($userInfo["user"] instanceof User) {
+                    if ($validateDates >= 0) {
+                        $keeper = $keeper->fromUserToKeeper($userInfo["user"], $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay);
+                        $keeper->setKeeperCode($this->generateCode());
+                        $keeperCode = $this->keeperDAO->Add($keeper);
+                    }
 
-                if ($keeperCode != null && $keeperCode != " ") {
-                    move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
-                    $this->keeperDAO->updatePfp($keeperCode, $userInfo["pathToDB"]);
+                    if ($keeperCode != null && $keeperCode != " ") {
+                        move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
+                        $this->keeperDAO->updatePfp($keeperCode, $userInfo["pathToDB"]);
+                    }
                 }
             }
         } catch (Exception $ex) {
