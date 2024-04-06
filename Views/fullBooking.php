@@ -6,11 +6,11 @@
     <form action="<?php echo FRONT_ROOT.'' ?>" method="POST">
         <div class="row">
             <!-- Columna para la foto de perfil -->
-            <div class="col-lg-3">
-                <img src="<?php echo FRONT_ROOT . "Images/".$fullBook["pfp"] ?>" alt="Profile Picture" class="img-fluid rounded-circle">
+            <div class="col-lg-3 p-3 bg-light">
+                <img src="<?php echo FRONT_ROOT . "Images/".$fullBook["pfp"] ?>" alt="Profile Picture" class="img-fluid rounded-circle ">
             </div>
             <!-- Columna para la información de la reserva -->
-            <div class="col-lg-9 bg-light p-4 rounded">
+            <div class="col-lg-9 bg-light p-4 ">
                 <h2 class="mb-4">Booking Information</h2>
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -62,17 +62,14 @@
                 </div>
                 <button type="button" style="display: none;" id="btnprof" data-codebook="<?php echo $fullBook["bookCode"] ?>"></button>
                 <div id="calendar"></div>
-                <p><strong>Bio:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget odio nec leo condimentum congue.</p>
                 <div class="d-flex justify-content-between">
                     <?php if($loggedUser instanceof Models\Keeper && $fullBook["status"] == "pending") { ?>
-                        <a href="<?php echo FRONT_ROOT.'Booking/manageBooking/'.$fullBook["bookCode"]; ?>" class="btn btn-success">Confirm</a>
+                        <a href="<?php echo FRONT_ROOT . 'Booking/manageBooking/' . $fullBook["bookCode"] ?>" class="btn btn-dis btn-success" data-msg="Confirm the booking?">Confirm</a>
+                        <a href="<?php echo FRONT_ROOT . 'Booking/cancelBooking/' . $fullBook["bookCode"] ?>" class="btn  btn-dis btn-danger" data-msg="Cancel the booking?">Reject</a>
                     <?php } ?>
                     <?php if($loggedUser instanceof Models\Owner && $fullBook["status"] == "confirm") { ?>
                         <a href="<?php echo FRONT_ROOT.''.$fullBook["bookCode"]; ?>" class="btn btn-success">Check coupon</a>
                     <?php } ?>
-                    <?php if($loggedUser instanceof Models\Owner) { ?>
-                        <a class="btn btn-primary" href="<?php echo FRONT_ROOT . 'Review/doReview/' . $fullBook["keeperCode"] ?>">Rate!</a>
-                    <?php }?>
                 </div>  
             </div>
         </div>
@@ -81,6 +78,6 @@
 <script src="<?php echo JS_PATH."formScripts.js" ?>"></script>
 <script>
 KeepersInteract.calendarKeeper();
+KeepersInteract.reConfirm();
 FormAjaxModule.calendarBooking();</script>
 <?php include("footer.php") ?>
-

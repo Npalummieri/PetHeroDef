@@ -5,17 +5,19 @@ include("nav.php");
 use Utils\Session as Session;
 
 ?>
-<div class="container mt-5" id="contMain">
+<div class="container mt-5 text-white rounded" id="contMain" style="background-color: #110257;">
     <div class="row">
         <!-- Columna para la foto de perfil -->
-        <div class="col-lg-3 text-center">
-            <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="img-fluid rounded-circle">
-            <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
-                <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Edit Profile</a>
-            <?php } ?>
+        <div class="col-lg-4">
+            <div class="about-avatar text-center">
+                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="mt-3 mx-auto img-rounded rounded-circle" width="384px" height="384px">
+                <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
+                    <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Edit Profile</a>
+                <?php } ?>
+            </div>
         </div>
         <!-- Columna para la información del usuario -->
-        <div class="col-lg-9">
+        <div class="col-lg-8 mt-5">
             <?php if (isset($_SESSION["bmsg"])) { ?>
                 <p class="alert alert-danger"><?php echo $_SESSION["bmsg"];
                                                 unset($_SESSION["bmsg"]); ?> </p>
@@ -43,7 +45,7 @@ use Utils\Session as Session;
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 col-12  p-3 text-center">
-                        <div class="table-responsive">
+                        <div class="table-responsive rounded">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
@@ -77,6 +79,8 @@ use Utils\Session as Session;
                                 </tbody>
                             </table>
                         </div>
+                        </div>
+            </div>
                         <?php if ($loggedOwner != null) { ?>
                             <div class="d-flex justify-content-between">
                                 <a class="btn btn-success" href="<?php echo FRONT_ROOT . "Booking/showBookCreate/" . $keeperCode ?>">Hire it!</a>
@@ -85,27 +89,41 @@ use Utils\Session as Session;
                             </div>
                         <?php  } ?>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
+                
+            
+            <div class="form-group m-3">
                 <label for="bio">About Me</label>
-                <p id="bio" data-userlogged ="<?php echo $infoKeeper->getKeeperCode(); ?>"><?php echo $infoKeeper->getBio(); ?></p>
+                <p id="bio" class="text-black bg-light" data-userlogged="<?php echo $infoKeeper->getKeeperCode(); ?>"><?php echo $infoKeeper->getBio(); ?></p>
                 <div class="form-group" style="display: none;" id="bioEditor">
                     <textarea class="form-control" name="bio" id="bioTextarea" maxlength="200" placeholder="Enter your bio (max 200 characters)"></textarea>
                 </div>
-                <button class="btn btn-primary" id="editBioBtn">Edit bio</button>
+                <?php if (Session::IsLogged() && Session::GetTypeLogged() == "Models\Keeper") {
+                    if (Session::GetLoggedUser()->getKeeperCode() == $infoKeeper->getKeeperCode()) { ?>
+
+                        <div class=" text-end">
+                            <button class="btn btn-primary" id="editBioBtn">Edit bio</button>
+                        </div>
+                <?php }
+                } ?>
                 <button class="btn btn-success" id="saveBioBtn" style="display: none;">Save</button>
                 <button class="btn btn-secondary" id="cancelBioBtn" style="display: none;">Cancel</button>
+
+            </div>
+
+            <div class="container responsive">
+                <div id="calendar" class="text-white bg-white text-center"></div>
             </div>
 
 
 
-            <div id="calendar"></div>
+
             <hr>
-            <p><strong>Bio:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget odio nec leo condimentum congue.</p>
+
         </div>
     </div>
+
 </div>
+
 
 
 <!-- Modal -->
@@ -141,8 +159,9 @@ use Utils\Session as Session;
 </div>
 
 
-<h2>Reviews</h2>
-<div id="reviews" class="row row-cols-1 row-cols-md-2 g-4">
+
+<h2 class="text-white m-3 p-2" style="background-color: #110257;">Reviews</h2>
+<div id="reviews" class="row row-cols-1 row-cols-md-2 g-4" style="background-color: #110257;">
     <?php foreach ($reviews as $review) { ?>
         <div class="col">
             <div class="card h-100">
@@ -154,7 +173,7 @@ use Utils\Session as Session;
                                 <p class="mb-1"><span class="font-weight-bold text-decoration-underline fs-5"><?php echo $review["name"] . " " . $review["lastname"] ?></span> <span class="small"><?php echo $review["timeStamp"] ?></span></p>
                                 <div class="stars">
                                     <?php
-                                    // Loop para mostrar las estrellas según el puntaje
+                                    // Loop score
                                     for ($i = 1; $i <= 5; $i++) {
                                         if ($i <= $review['score']) {
                                             echo '<span class="star filled small">&#9733;</span>';
@@ -166,15 +185,14 @@ use Utils\Session as Session;
                                     <span class="small"><?php echo $review['score'] . "/5" ?></span>
                                 </div>
                             </div>
-                            
+
                             <div class="d-flex">
-                            <p class="font-weight-bold mb-0 rounded p-1 flex-grow-1" style="background-color: #ebf2f7;"><?php echo $review["comment"]; ?></p>
-                            <?php if(Session::GetTypeLogged() == 'Models\Owner'){
-                                if(Session::GetLoggedUser()->getOwnerCode() == $review["ownerCode"])
-                                { ?>
-                                        <a class="btn btn-dis text-end rounded p-2" style="text-decoration: none;background-color: #d14d63;" href="<?php echo FRONT_ROOT."Review/delete/".$review["reviewCode"] ?>" data-msg="Delete the review?"><i class="fa-solid fa-trash my-2"></i></a>
-                               <?php }
-                            } ?> 
+                                <p class="font-weight-bold mb-0 rounded p-1 flex-grow-1" style="background-color: #ebf2f7;"><?php echo $review["comment"]; ?></p>
+                                <?php if (Session::GetTypeLogged() == 'Models\Owner') {
+                                    if (Session::GetLoggedUser()->getOwnerCode() == $review["ownerCode"]) { ?>
+                                        <a class="btn btn-dis text-end rounded p-2" style="text-decoration: none;background-color: #d14d63;" href="<?php echo FRONT_ROOT . "Review/delete/" . $review["reviewCode"] ?>" data-msg="Delete the review?"><i class="fa-solid fa-trash my-2"></i></a>
+                                <?php }
+                                } ?>
                             </div>
                         </div>
                     </div>
