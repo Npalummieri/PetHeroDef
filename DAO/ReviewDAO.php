@@ -137,12 +137,14 @@ class ReviewDAO
 
             $queryTwo = "SELECT COUNT(*) FROM " . $this->tableName . " 
             WHERE ownerCode = :ownerCode AND keeperCode = :keeperCode;";
+
             $this->connection = Connection::GetInstance();
 
             $parameters["ownerCode"] = $ownerCode;
             $parameters["keeperCode"] = $keeperCode;
             $parameters["status"] = "finished";
 
+            //if 1 or +1 could review
             $result = $this->connection->Execute($query, $parameters);
 
             $parametersTwo["ownerCode"] = $ownerCode;
@@ -150,10 +152,9 @@ class ReviewDAO
 
             $resultCountReview = $this->connection->Execute($queryTwo, $parametersTwo);
 
-            if ($result[0][0] >= 1 && $resultCountReview <= 2) {
-                $result = 1;
-            }
-            return $result;
+            $results["result"] = $result[0][0];
+            $results["resultCountReview"] = $resultCountReview[0][0];
+            return $results;
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -181,15 +182,31 @@ class ReviewDAO
                 $review->setScore($row["score"]);
                 $review->setTimeStamp($row["timeStamp"]);
                 $review->setCodeReview($row["reviewCode"]);
+                
             }
             //Using ownerCode make it safer
             $queryDelete = "DELETE FROM " . $this->tableName . " 
             WHERE reviewCode = :reviewCode AND ownerCode = :ownerCode ;";
 
+            
+
             $result = $this->connection->ExecuteNonQuery($queryDelete, $parameters);
+
+            if($result == 1)
+            {
+                $queryTwo = "SELECT updateKeepScoreFunc(:p_keeperCode);"; 
+                $this->connection = Connection::GetInstance();
+                $paramTwo["p_keeperCode"] = $review->getCodeKeeper();
+                $this->connection->ExecuteNonQuery($queryTwo,$paramTwo);
+            }
+            
+
+            
 
             $arrayResult["review"] = $review;
             $arrayResult["deleted"] = $result;
+
+           
             return $arrayResult;
         } catch (Exception $ex) {
             throw $ex;

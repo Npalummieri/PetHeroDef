@@ -27,17 +27,17 @@ class ReviewService
     public function srv_canReview($ownerCode, $keeperCode)
     {
         try {
-            $result = null;
+            $results = null;
             if (strpos($keeperCode, "KEP") !== false) {
 
                 if (strpos($ownerCode, "OWN") !== false) {
 
-                    $result = $this->reviewDAO->canReview($ownerCode, $keeperCode);
+                    $results = $this->reviewDAO->canReview($ownerCode, $keeperCode);
                 }
             }
 
 
-            return $result; // 0 || +1
+            return $results; //null || array(results)
         } catch (Exception $ex) {
             $ex->getMessage();
         }

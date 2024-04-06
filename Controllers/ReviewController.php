@@ -28,15 +28,19 @@ class ReviewController
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $loggedUser = Session::GetLoggedUser();
-                $canReview = $this->reviewService->srv_canReview($loggedUser->getOwnerCode(), $keeperCode);
-                if ($canReview == 1) {
-                    echo "ENTRE AL GMSGE";
-                    $this->reviewService->srv_add($loggedUser->getOwnerCode(), $keeperCode, $comment, $score);
-                    Session::SetOkMessage("Review added successfully!");
-                    header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
+                $results = $this->reviewService->srv_canReview($loggedUser->getOwnerCode(), $keeperCode);
+                if ($results["result"] >= 1) {
+                    if($results["resultCountReview"] <= 2)
+                    {
+                        $this->reviewService->srv_add($loggedUser->getOwnerCode(), $keeperCode, $comment, $score);
+                        Session::SetOkMessage("Review added successfully!");
+                    }else{
+                        Session::SetBadMessage("Error making the review.Can't review it more than 3 times ");
+                    }
+                   // header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 } else {
-                    Session::SetBadMessage("Error making the review.You must have a FINISHED booking with this keeper <br> <strong>Note</strong> : If you have it.Can't review it more than 3 times ");
-                    header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
+                    Session::SetBadMessage("Error making the review.You must have a FINISHED booking with this keeper");
+                    //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 }
             } else {
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
