@@ -66,7 +66,7 @@
             </td>
         </tr>
 
-        <!-- A traves del keeperMail o de una consulta utilziar el keeperCode para obtener mas datos del mismo  -->
+
         <tr style=" background-color: lightgray;">
             <th colspan="8" style="border : 1px solid black; ">
                 <h3 style="margin-top: 1em;">Contact information</h3>

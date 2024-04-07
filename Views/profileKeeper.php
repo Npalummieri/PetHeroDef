@@ -7,7 +7,7 @@ use Utils\Session as Session;
 ?>
 <div class="container mt-5 text-white rounded" id="contMain" style="background-color: #110257;">
     <div class="row">
-        <!-- Columna para la foto de perfil -->
+        <!-- pfp col -->
         <div class="col-lg-4">
             <div class="about-avatar text-center">
                 <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="mt-3 mx-auto img-rounded rounded-circle" width="384px" height="384px">
@@ -16,7 +16,7 @@ use Utils\Session as Session;
                 <?php } ?>
             </div>
         </div>
-        <!-- Columna para la información del usuario -->
+        <!-- userinfo col -->
         <div class="col-lg-8 mt-5">
             <?php if (isset($_SESSION["bmsg"])) { ?>
                 <p class="alert alert-danger"><?php echo $_SESSION["bmsg"];
@@ -52,7 +52,7 @@ use Utils\Session as Session;
                                         <th class="text-center">InitDate</th>
                                         <th class="text-center">EndDate</th>
                                         <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
-                                            <th class="text-center"></th> <!-- Celda extra para el botón de editar -->
+                                            <th class="text-center"></th>
                                         <?php } ?>
                                     </tr>
                                     <div id="result-message" style="display: none;"></div>
@@ -67,9 +67,9 @@ use Utils\Session as Session;
 
                                         ?>
                                                 <td class="text-center ">
-                                                    <button class="btn btn-primary btn-edit">Edit</button> <!-- Botón de editar -->
-                                                    <button class="btn btn-success btn-save" style="display: none;">Save</button> <!-- Botón de guardar -->
-                                                    <button class="btn btn-danger btn-cancel" style="display: none;">Cancel</button> <!-- Botón de cancelar -->
+                                                    <button class="btn btn-primary btn-edit">Edit</button> 
+                                                    <button class="btn btn-success btn-save" style="display: none;">Save</button>
+                                                    <button class="btn btn-danger btn-cancel" style="display: none;">Cancel</button> 
                                                 </td>
 
                                         <?php }
@@ -84,7 +84,6 @@ use Utils\Session as Session;
                         <?php if ($loggedOwner != null) { ?>
                             <div class="d-flex justify-content-between">
                                 <a class="btn btn-success" href="<?php echo FRONT_ROOT . "Booking/showBookCreate/" . $keeperCode ?>">Hire it!</a>
-                                <!-- Botón Rate -->
                                 <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
                             </div>
                         <?php  } ?>

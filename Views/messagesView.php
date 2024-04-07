@@ -2,13 +2,16 @@
 <?php include_once("nav.php"); ?>
 
 
-<section class="py-5 h-100" style="background-color: #f8f9fa;">
-  <h2 class="text-center">CHAT ROOM</h2>
+<section class="py-5 h-100 text-white" >
   <div class="container">
-    <div id="select-container"></div>
+    
+    
 
     <div class="row">
-      <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0 border border-rounded border-dark" style="background-color: lightblue;">
+
+      <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0 border border-rounded border-dark" style="background-color: #364a6e;">
+      <h2 class="text-center">CHAT ROOM</h2>
+      <div id="select-container"></div>
         <h5 class="font-weight-bold mb-3 text-center text-lg-start">Contacts</h5>
         <div class="card">
 
@@ -22,7 +25,7 @@
         </div>
       </div>
 
-      <div class="col-md-6 col-lg-7 col-xl-8 border border-rounded border-dark" style="background-color: lightblue;">
+      <div class="col-md-6 col-lg-7 col-xl-8 border border-rounded border-dark" style="background-color: #364a6e;">
         <div class="chat-box">
           <ul class="list-unstyled scrollable overflow-auto" style="height:500px; max-height: 750px;" id="chatDef"></ul>
 

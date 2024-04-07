@@ -35,7 +35,7 @@ include_once("nav.php"); ?>
           <div class="form-group row m-2">
             <label for="visitPerDaySelect" class="">Visit per day :</label>
           <select id="visitPerDaySelect" class="form-control" name="visitPerDay">
-            <!-- Las opciones del select se generarán dinámicamente aquí -->
+
           </select>
           </div>
           <input type="hidden" id="keeperCode" name="keeperCode" value="<?php echo $keeperToCheck ?>">

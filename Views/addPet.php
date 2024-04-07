@@ -6,8 +6,8 @@ include("nav.php") ?>
   <div class="row justify-content-center" >
     <div class="col-md-6">
       <div class="p-4">
-        <h2 class="text-center">ADD YOUR PET</h2>
-        <div class="form-container border border-dark p-5 m-auto mt-2" style="background-color: #364a6e;">
+        <h2 class="bg-dark rounded text-center">ADD YOUR PET</h2>
+        <div class="form-container border border-dark rounded p-5 m-auto mt-2" style="background-color:  #110257;">
         <form >
           <div class="mb-3 ">
             <label for="name" class="form-label">Name</label>
@@ -64,7 +64,9 @@ include("nav.php") ?>
             </div>
           </div>
 
+          <div class="text-end">
           <button type="submit" class="btn btn-primary">ADD PET</button>
+          </div>
         </form>
       </div>
     </div>

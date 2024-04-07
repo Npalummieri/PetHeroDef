@@ -4,7 +4,7 @@ include("nav.php");
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-12 text-center">
-      <h1 class="d-inline bg-dark text-white">Which is your Role?</h1>
+      <h1 class=" bg-dark text-white rounded p-2 m-2">Which is your Role?</h1>
     </div>
   </div>
   <div class="row justify-content-around " >

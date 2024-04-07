@@ -1,4 +1,4 @@
-<div class="container mx-auto my-3 rounded" style="background-color: #364a6e;">
+<div class="container mx-auto my-3 rounded" style="background-color: #110257;">
     <form action="<?php echo FRONT_ROOT . "Keeper/getFilteredKeepers" ?>" method="GET" id="SearchForm" class="form-horizontal">
         <div class="row justify-content-center align-items-center p-3 text-white">
             <div class="form-group col-lg-3 col-md-6 col-sm-12">

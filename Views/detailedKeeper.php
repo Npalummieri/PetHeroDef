@@ -6,13 +6,12 @@ include("nav.php");
 
     <form action="<?php echo FRONT_ROOT . 'Booking/showBookCreate' ?>" method="POST">
         <div class="row border rounded p-4">
-            <!-- Columna para la foto de perfil -->
+            <!-- colpfp-->
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 text-center my-auto">
                 <img src="<?php echo FRONT_ROOT . "Images/" . $keeper->getPfp() ?>" alt="Profile Picture" class="img-fluid rounded-circle">
             </div>
-            <!-- Columna para la información del keeper -->
+            <!-- infokeep col -->
             <div class="col-12 col-sm-6 col-md-8 col-lg-9 col-xl-9">
-                <!-- No estoy seguro que tipo de info displayear respecto del keeper para el owner -->
                 <h2>Keeper Information</h2>
                 <p><strong>Name :</strong> <?php echo $keeper->getName(); ?></p>
                 <p><strong>Email:</strong> <?php echo $keeper->getEmail(); ?></p>
@@ -38,7 +37,7 @@ include("nav.php");
                 </div>
             </div>
     </form>
-    <!-- Do review dynamic -->
+
 
     <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
     <!-- Modal -->
