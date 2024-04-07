@@ -3,7 +3,7 @@ include("header.php");
 include("nav.php");
 ?>
 <div class="container-fluid mt-5">
-    <form action="<?php echo FRONT_ROOT . "Coupon/manageCoupon" ?>">
+    <form action="">
         <div class="row justify-content-center">
             <div class="col-xl-8">
                 <div class="card">
@@ -11,12 +11,12 @@ include("nav.php");
                         <div class="row">
                             <div class="col-sm-4 bg-c-lite-green user-profile">
                                 <div class="card-block text-center text-white">
-                                    <div class="m-b-25">
-                                        <img src="<?php echo FRONT_ROOT . "Images/" . $coupon["pfpk"]; ?>" class="img-fluid rounded-circle" alt="User-Profile-Image">
+                                    <div class="">
+                                        <img src="<?php echo FRONT_ROOT . "Images/" . $coupon["pfpk"]; ?>" class="img-fluid rounded-circle" alt="User-Profile-Image" >
                                     </div>
                                     <h6 class="f-w-600"><?php echo $coupon["kname"] . ' ' . $coupon["klastname"]; ?></h6>
                                     <p><?php echo $coupon["typePet"] . "s Keeper"; ?></p>
-                                    <a href="#" class="btn btn-sm btn-secondary"><i class="feather icon-edit"></i>Keeper profile</a>
+                                    <a href="<?php echo FRONT_ROOT."Keeper/showProfileKeeper/".$coupon["keeperCode"]; ?>" class="btn btn-sm btn-secondary"><i class="feather icon-edit"></i>Keeper profile</a>
                                 </div>
                             </div>
                             <div class="col-sm-8 ">
@@ -67,7 +67,9 @@ include("nav.php");
 
                                     <?php } ?>
 
-                                    <a href="#" class="btn btn-dis btn-danger" data-msg ="Cancel the coupon? This also cancels the booking!">Cancel Coupon</a>
+                                    <?php if ($coupon["statusCoup"] != "finished" || $coupon["statusCoup"] != "cancelled") { ?>
+                                    <a href="<?php echo FRONT_ROOT."Coupon/declineCoupon/".$coupon["couponCode"] ?>" class="btn btn-dis btn-danger" data-msg ="Cancel the coupon? This also cancels the booking!">Cancel Coupon</a>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>

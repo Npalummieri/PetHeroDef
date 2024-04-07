@@ -1,8 +1,9 @@
 <?php include("header.php"); ?>
 <?php include("nav.php"); ?>
 
-<div class="container mt-5">
-    <h2 class="mb-4">My Coupons</h2>
+<h2 class="bg-dark rounded text-white text-center m-2 p-2">My Coupons</h2>
+<div class="container text-white p-4 "  style="background-color: #110257;">
+<?php require_once("msgeDisplay.php"); ?>
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
@@ -18,6 +19,7 @@
                 </tr>
             </thead>
             <tbody class="">
+
                 <?php foreach ($myCoupons as $coupon) { ?>
                     <tr>
                         <td class="align-middle"><?php echo $coupon["couponCode"]; ?></td>
@@ -30,10 +32,18 @@
                         <td class="align-middle">
                             <a href="<?php echo FRONT_ROOT . "Coupon/myCouponView/" . $coupon["couponCode"]; ?>" class="btn btn-primary">Manage</a>
                         </td>
+
                     </tr>
+
                 <?php } ?>
+
             </tbody>
+
         </table>
+        <?php if($myCoupons == null || empty($myCoupons))
+                {
+                    echo "<p class='text-center'>Not coupons yet </p>";
+                } ?>
     </div>
 </div>
 

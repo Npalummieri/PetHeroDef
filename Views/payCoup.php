@@ -2,11 +2,18 @@
 include("header.php");
 include("nav.php");
 ?>
+<div class="container text-center">
+    <h2 class=" mt-3 bg-dark rounded text-white">COUPON PAY</h2>
+</div>
+<?php
+require_once("msgeDisplay.php");
+?>
 <div class="container d-flex justify-content-center mt-5 mb-5">
-    <div class="row g-3">
+
+    <div class="row g-3 p-2 rounded" style="background-color: #110257;">
         <div class="col-md-6">
             <form action="<?php echo FRONT_ROOT . 'Coupon/payCoupon' ?>" method="POST">
-                <span>Payment Method</span>
+                <span class="text-white">PAYMENT METHOD</span>
                 <div class="card">
                     <div class="accordion" id="accordionExample">
                         <div class="card">
@@ -91,7 +98,7 @@ include("nav.php");
         </div>
 
         <div class="col-md-6">
-            <span>Summary</span>
+            <span class="text-white">SUMMARY</span>
 
             <div class="card">
 
@@ -106,7 +113,7 @@ include("nav.php");
 
                     <div class="mt-1">
                         <sup class="super-price"><?php echo $fullCoup["totalPrice"] / 2 . '$';  ?></sup>
-                        <span class="super-month">/Hour</span>
+                        <span class="super-month">/Visit</span>
                     </div>
 
                 </div>
@@ -150,12 +157,9 @@ include("nav.php");
                 </div>
 
 
-                <div class="p-3">
+                <div class="p-3 text-end">
 
-                    <button type="submit" class="btn btn-success btn-block free-button">Pay it!</button>
-                    <div class="text-center">
-                        <a href="#">Have a promo code?</a>
-                    </div>
+                    <button type="submit" class="btn btn-success btn-block free-button ">Pay it!</button>
 
                 </div>
             </div>
