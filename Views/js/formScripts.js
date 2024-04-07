@@ -266,6 +266,7 @@ const FormAjaxModule = {
     
                     // Renderizar el calendario con las fechas en el rango
                     var calendarEl = document.getElementById('calendar');
+
                     var calendar = new FullCalendar.Calendar(calendarEl, {
                         initialView: 'dayGridMonth',
                         events: datesInRange.map(date => ({
@@ -273,7 +274,7 @@ const FormAjaxModule = {
                             backgroundColor: 'green'
                         }))
                     });
-    
+                    
                     calendar.render();
                 },
                 error: function(xhr, status, error) {
@@ -370,11 +371,16 @@ const chatModule = {
                 method: 'POST',
                 dataType: 'json',
                 success: function (response) {
+                    if(response && response.length > 0)
+                        {
                     // Recorrer los datos recibidos y agregar enlaces al contenedor
                     console.log("RESPONSE :" + response);
                     var userLogged = response[0].logged;
                     console.log("userLogged :" + userLogged);
                     $.each(response, function (index, user) {
+                        
+
+                        
                         // Crear el elemento de imagen del avatar
                         if (userLogged === 'keeper') {
 
@@ -473,7 +479,9 @@ const chatModule = {
                             class: 'p-2 border-bottom',
                             style: 'background-color: #eee;'
                         }).append(conversationLink));
+                    
                     });
+                }
                 },
                 error: function (xhr, status, error) {
                     console.error('Error al obtener usuarios disponibles:', error);
@@ -820,11 +828,11 @@ const KeepersInteract = {
                     
                     success: function (response) {
                         console.log(response);
-                        var html = '<div class="container my-3 border border-dark w-50">';
+                        var html = '<div class="container my-2 text-white ">';
                         html += '<ul class="list-unstyled text-center">';
-                        html += '<div class="border border-primary bg-light mx-auto">';
-                        html += '<li class="list-group-item list-group-item-info border border-dark">';
-                        html += '<h5 class="max-width-100 text-truncate">' + "AVAILABILITY :" + '</h5></li>';
+                        html += '<div class="mx-auto">';
+                        html += '<h5 class="max-width-100 text-truncate">' + "AVAILABILITY :" + '</h5>';
+                        html += '<li class="list-group-item list-group-item-info rounded  ">';
                         html += '<p><strong>START :</strong> ' + response.initDate + '</p>';
                         html += '<p><strong>END :</strong> ' + response.endDate + '</p>';
                         html += '</div>';
