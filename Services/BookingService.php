@@ -40,6 +40,10 @@ class BookingService{
     {
         $resp = null;
         try {
+            echo "revalidate ";
+            var_dump($this->keeperDAO->revalidateKeeperPet($keeperCode, $petCode));
+            echo "checkdouble ";
+            var_dump($this->bookingDAO->checkDoubleBooking($ownerCode, $keeperCode, $petCode, $initDate, $endDate));
             if ($this->keeperDAO->revalidateKeeperPet($keeperCode, $petCode) > 0  && $this->bookingDAO->checkDoubleBooking($ownerCode, $keeperCode, $petCode, $initDate, $endDate) == 0) {
 
                 $booking = new Booking();
@@ -52,13 +56,14 @@ class BookingService{
                 $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
 
 
-
-                if (Dates::validateAndCompareDates($initDate, $endDate) == 1 || Dates::validateAndCompareDates($initDate, $endDate) == 0) {
+                if (Dates::validateAndCompareDates($initDate, $endDate) >= 0) {
+                    var_dump(Dates::currentCheck($initDate));
                     if (Dates::currentCheck($initDate) && Dates::currentCheck($endDate)) {
                         $booking->setInitDate($initDate);
                         $booking->setEndDate($endDate);
                         $totalDays = Dates::calculateDays($initDate, $endDate);
-
+                        echo "initDate dentro dates";
+                        var_dump($initDate);
                         if ($totalDays != null) {
                             $booking->setTotalDays($totalDays);
                         }
@@ -74,8 +79,16 @@ class BookingService{
                     $booking->setVisitPerDay($visitPerDay);
                     $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(), $totalDays, $visitPerDay));
 
+                    echo "checkOverBook";
+                    var_dump($this->bookingDAO->checkOverBooking($booking));
                     if ($this->bookingDAO->checkOverBooking($booking) == 1) {
-                        $resp = $this->bookingDAO->Add($booking);
+                        if($initDate >= $keeper->getInitDate() && $endDate <= $keeper->getEndDate())
+                        {
+                            $resp = $this->bookingDAO->Add($booking);
+                        }else{
+                            $resp = "Your dates doesn't match withe the ones specified by the Keeper!";
+                        }
+                        
                     }
                 }
             } else {
@@ -84,6 +97,8 @@ class BookingService{
         } catch (Exception $ex) {
             $resp = $ex->getMessage();
         }
+        echo "RESP validateBook";
+        var_dump($resp);
         return $resp;
     }
 
@@ -142,7 +157,13 @@ class BookingService{
                         $result = $this->couponService->srv_GenerateCouponToOwner($codeBook);
                     }
                 } else {
-                    $result = "Not posible to confirm this booking,check the ones you already confirmed";
+                    if($conf > 1)
+                    {
+                        $result = "Overbooking problem!";
+                    }else if($confTwo == null || $confTwo == 0){
+                        $result = "Check your first confirmed reservation of the day.You are restricted to that breed!";
+                    }
+                    
                 }
             } 
             

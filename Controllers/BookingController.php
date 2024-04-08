@@ -26,7 +26,7 @@ class BookingController{
 
     public function addBooking($initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay)
     {
-        
+        var_dump($_POST);
         if (Session::IsLogged() && Session::GetTypeLogged() == 'Models\Owner') {
             $userLogged = $_SESSION["loggedUser"];
 
@@ -36,12 +36,13 @@ class BookingController{
             header("location: ".FRONT_ROOT."Home/Index");
         }
 
-        if($resp == 1 || strpos($resp,"BOOK") != 1){
+        if(strpos($resp,"BOOK") !== false){
             Session::SetOkMessage("Booking added successfully");
-            header("location: ".FRONT_ROOT."Booking/showMyBookings");
+           //header("location: ".FRONT_ROOT."Booking/showMyBookings");
         }else{
             $this->showBookCreate($keeperCode,$resp);
         }
+        var_dump($resp);
         
     }
     public function showBookCreate($keeperCode,$message=" ")
@@ -148,14 +149,18 @@ class BookingController{
             if (Session::GetTypeLogged() == "Models\Keeper") {
                 $loggedUser = Session::GetLoggedUser();
                 $conf = $this->bookingService->srv_confirmBooking($codeBook);
+                if($conf == 1)
+                {
+                    Session::SetOkMessage("Successfuly confirmed!");
+                    
+                }else{
+                    Session::SetBadMessage($conf);
+                }
+                header("location: ".FRONT_ROOT."Booking/showMyBookings");
             }
         }
-        $myBookings = $this->bookingService->srv_getAllMyBookings($loggedUser->getKeeperCode());
-        if(is_string($myBookings))
-        {
-            Session::SetBadMessage($myBookings);
-        }
-        require_once(VIEWS_PATH . "myBookings.php");
+
+        
     }
 
         
@@ -179,16 +184,21 @@ class BookingController{
             $fullBook = $this->bookingService->srv_getFullBooking($loggedUser->getOwnerCode(),$codeBook);
         }
         
-        var_dump($fullBook);
-        
-
         require_once(VIEWS_PATH."fullBooking.php");
     }
 
 
     public function cancelBooking($bookCode)
     {
-        $this->bookingService->srv_cancelBooking($bookCode);
+        $result = $this->bookingService->srv_cancelBooking($bookCode);
+        if($result == 1)
+        {
+            Session::SetOkMessage("Booking rejected!");
+        }else{
+            Session::SetBadMessage($result);
+        }
+        header("location: ".FRONT_ROOT."Booking/showMyBookings");
+        
     }
 
     public function getIntervalBooking($bookCode)

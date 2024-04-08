@@ -517,7 +517,7 @@ class BookingDAO{
         try{
             $query = "UPDATE ".$this->tableName." as b
             SET b.status = :status 
-            WHERE b.bookCode = :bbookCode AND b.initDate < CURDATE();";
+            WHERE b.bookCode = :bbookCode";
 
             $this->connection = Connection::GetInstance();
 
