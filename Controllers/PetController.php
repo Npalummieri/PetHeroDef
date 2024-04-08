@@ -72,7 +72,6 @@ class PetController{
                 $loggedOwner = Session::GetLoggedUser();
                 //Chequear que el loggedOwner sea efectivamente dueño
                 $isOwner = $this->petService->srv_checkOwnerPet($petCode,$loggedOwner->getOwnerCode());
-                var_dump($isOwner);
                 if($isOwner == 1)
                 {
                     $pet = $this->petService->srv_getPet($petCode);
@@ -138,9 +137,18 @@ class PetController{
             }
         }else{
             header("location: ".FRONT_ROOT."Home/showLoginView");
+        }  
+    }
+    public function showPetProfile($petCode)
+    {
+        if(Session::IsLogged())
+        {
+            $pet = $this->petService->srv_getProfilePet($petCode);
+            require_once(VIEWS_PATH."profilePet.php");
+        }else{
+            header("location: ".FRONT_ROOT."Home/showLoginView");
         }
-
-        
+       
     }
 }
 

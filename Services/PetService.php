@@ -66,34 +66,31 @@ class PetService{
         $nameFile = $fileInfo["name"];
         $paths = array();
         $temp = null;
-        echo "FILEINFO :";
-        var_dump($fileInfo);
-        echo "NAMEFILE :" . $nameFile;
-        //Tipo de mime permitidos
+        //Allowed mimes
         $imgTypes = ["image/jpg", "image/png", "image/jpeg", "image/bmp", "image/gif"];
 
 
-        //Seguramente se arme el arreglo $_FILES pero vacio 
+        //null != empty
         if ($fileInfo != null) {
 
-            //Si nombre no tiene es pq no subió nada entonces ya el mime no se asigna y queda vacio
+            //Not name,nothing uploaded
             if (!empty($fileInfo["name"])) {
                 $mime = mime_content_type($fileInfo["tmp_name"]);
             } else {
                 $mime = null;
             }
 
-            echo "<br> MIME PRE IF :<br>" . $mime;
+
             if ($mime != null) {
 
-                //Obtenemos la extension para concatenar luego
+                //obtain extension
                 $extension = explode(".", $nameFile);
                 echo "<br> check Extension : <br>";
-                var_dump($extension);
 
-                //Si tiene cierto tamaño pasa
+
+                //Filter size
                 if ($fileInfo["size"] < 5242880 && $fileInfo["size"] > 0) {
-                    //Verifico que el archivo subido (sea de algun tipo $imgTypes)
+                    
                     if (in_array($mime, $imgTypes)) {
                         $imgSize = $fileInfo["size"];
                         $typeImg = $fileInfo["type"];
@@ -103,22 +100,16 @@ class PetService{
                         $height = $dim[1];
                         $hashedNameFile = hash_file('sha1', $temp);
 
-                        echo "<br>FILE SIZE = <br>" . $imgSize;
-                        echo "<br>FILE TYPE = <br>" . $typeImg;
 
-
-                        echo "<br>HashednameFile : " . $hashedNameFile;
                         if ($typeFile == "pfp") {
                             if(!file_exists(PFP_PETS))
                             {
-                                mkdir(PFP_PETS, 0777, true); // El tercer parámetro `true` crea directorios recursivamente,se crearán directorios padres si no existen
+                                mkdir(PFP_PETS, 0777, true); //make directory
                             }
                             $pathToSave = PFP_PETS . $hashedNameFile . '.' . $extension[1];
                             $pathToBD = "PetImages/PFPets/" . $hashedNameFile . '.' . $extension[1];
                             //move_uploaded_file($temp, $pathToSave);
 
-                            echo "PATH SAVE PFPETS";
-                            echo "$pathToSave";
                         } else if ($typeFile == "vaccPlan") {
                             if(!file_exists(VACCS_PLAN))
                             {
@@ -126,29 +117,15 @@ class PetService{
                             }
                             $pathToSave = VACCS_PLAN . $hashedNameFile . '.' . $extension[1];
                             $pathToBD = "PetImages/Vaccplan/" . $hashedNameFile . '.' . $extension[1];
-                            //move_uploaded_file($temp, $pathToSave);
-                            echo "PATH SAVE VACCPETS";
-                            echo "$pathToSave";
-                            
+                            //move_uploaded_file($temp, $pathToSave);                            
                         }
-                        //Si no es una imagen,verificamos si es un video y posteriormente su MIME
                     } else if ($typeFile == "video") {
-                        echo "HOLA ENTRA ACA?";
-                        var_dump($mime);
                         if ($mime == "video/mp4" || $mime = "application/octet-stream") {
                             
                             //Dir almacen temp
                             $temp = $fileInfo["tmp_name"];
                             $hashedNameFile = hash_file('sha1', $temp);
 
-                            echo "SOY TEMP ";
-                            var_dump($temp);
-                            echo "SOYHASH";
-                            var_dump($hashedNameFile);
-
-                            //Estuve literalmente 1.30 hs tratando de ver si con las rutas relativas funcionaban y nada
-                            //Quedara meter una constante al directorio y/o probar con la creacion de la carpeta si ve que el directorio especificado no existe
-                            //Con lo ultimo mencionado deberia arreglarse el problema de las r.relativas
                             if(!file_exists(VIDEO_PATH))
                             {
                                 mkdir(VIDEO_PATH,0777,true);
@@ -156,10 +133,6 @@ class PetService{
                             $pathToSave = VIDEO_PATH . $hashedNameFile . '.' . $extension[1];
                             $pathToBD = "Videos/" . $hashedNameFile . '.' . $extension[1];
 
-
-                            
-                            echo "<br>pathToBD = " . $pathToBD;
-                            echo "<br>pathToSave = " . $pathToSave;
                             //move_uploaded_file($temp, $pathToSave);
                         } else {
                             $error = "Not supported type.Check it";
@@ -176,8 +149,7 @@ class PetService{
         $paths["file"] = $temp;
         $paths["pathToDB"] = $pathToBD;
         $paths["pathToSave"] = $pathToSave;
-        echo "SOY PATHS :";
-        var_dump($paths);
+
         return $paths;
     }
 
@@ -366,7 +338,7 @@ class PetService{
         try {
             $result = $this->petDAO->checkOwnerByPet($petCode, $ownerCode);
         } catch (Exception $ex) {
-            $ex->getMessage();
+            $result = $ex->getMessage();
         }
         return $result;
     }
@@ -377,10 +349,10 @@ class PetService{
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
                 throw new Exception("This pet doesn't belong to you.Contact support for more information.");
             } else {
-                $this->petDAO->updateVacc($petCode, $vaccPlan);
+                return $this->petDAO->updateVacc($petCode, $vaccPlan);
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            return $ex->getMessage();
         }
     }
 
@@ -390,10 +362,10 @@ class PetService{
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
                 throw new Exception("This pet doesn't belong to you.Contact support for more information.");
             } else {
-                $this->petDAO->updatePfp($petCode, $pfp);
+                return $this->petDAO->updatePfp($petCode, $pfp);
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            return $ex->getMessage();
         }
     }
 
@@ -403,10 +375,10 @@ class PetService{
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
                 throw new Exception("This pet doesn't belong to you.Contact support for more information.");
             } else {
-                $this->petDAO->updateAge($petCode, $age);
+                return $this->petDAO->updateAge($petCode, $age);
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            return $ex->getMessage();
         }
     }
 
@@ -416,10 +388,10 @@ class PetService{
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
                 throw new Exception("This pet doesn't belong to you.Contact support for more information.");
             } else {
-                $this->petDAO->updateVideo($petCode, $video);
+                return $this->petDAO->updateVideo($petCode, $video);
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            return $ex->getMessage();
         }
     }
 
@@ -433,11 +405,12 @@ class PetService{
                     $result = $this->petDAO->checkOwnerByPet($petCode,$ownerCode);
                 }
 
-            return $result;
+            
         }catch(Exception $ex)
         {
-            $ex->getMessage();
+            $result = $ex->getMessage();
         }
+        return $result;
     }
 
 
@@ -533,13 +506,14 @@ class PetService{
     {
         try{
                 //Usar regex o modificar logica strpos
-                return $this->petDAO->getPet($petCode);
+                $pet = $this->petDAO->getPet($petCode);
 
             
         }catch(Exception $ex)
         {
-            $ex->getMessage();
+            $pet = $ex->getMessage();
         }
+        return $pet;
     }
 
     public function srv_deletePet($ownerCode,$petCode)
@@ -561,6 +535,17 @@ class PetService{
             $resp = $ex->getMessage();
         }
         return $resp;
+    }
+
+    public function srv_getProfilePet($petCode)
+    {
+        try{
+            $pet = $this->petDAO->getPet($petCode);
+        }catch(Exception $ex)
+        {
+            $pet = $ex->getMessage();
+        }
+        return $pet;
     }
 }
 
