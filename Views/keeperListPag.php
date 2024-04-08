@@ -3,11 +3,11 @@ require_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php");
 ?>
 
-<div class="container mt-5" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>" style="background-color : #110257;">
-  <h2 class="text-center text-white">Keepers</h2>
+<h2 class=" bg-dark rounded text-center text-white p-2">KEEPERS</h2>
+<div class="container mt-2" id="contMain" data-baseurl="<?php echo FRONT_ROOT; ?>" style="background-color : #110257;">
   <div class="row justify-content-center">
     <?php foreach ($allKeepers as $keeper) { ?>
-      <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+      <div class="col-lg-4 col-md-6 col-sm-12 mb-4 m-2 p-2">
         <div class="card border-dark" style="background-color: #d6c9ae;">
           <div class="card-body text-center">
 

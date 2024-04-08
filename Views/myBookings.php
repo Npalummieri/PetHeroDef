@@ -12,7 +12,7 @@ require_once(VIEWS_PATH . "formBookingList.php");
     <thead class="bg-light">
       <tr>
         <th>Pet PFP & Owner name</th>
-        <th>Pet code & Pet name</th>
+        <th>Pet name</th>
         <th>Status</th>
         <th>Initial date</th>
         <th>End date</th>
@@ -31,17 +31,17 @@ require_once(VIEWS_PATH . "formBookingList.php");
         <tr>
           <td>
             <div class="d-flex align-items-center">
-              <a href="<?php echo FRONT_ROOT . 'Pet/ShowPetProfile/' . $objBook->getPetCode(); ?>" class="fw-normal mb-1">
+              <a href="<?php echo FRONT_ROOT . 'Pet/showPetProfile/' . $objBook->getPetCode(); ?>" class="fw-normal mb-1">
                 <img src="<?php echo FRONT_ROOT . 'Images/' . $value["pfp"]; ?>" alt="petPhoto" style="width: 45px; height: 45px" class="rounded-circle" />
               </a>
               <div class="ms-3">
-                <a href="<?php echo FRONT_ROOT . 'Owner/ShowOwnerProfile/' . $objBook->getOwnerCode(); ?>" class="fw-normal mb-1"><?php echo $value["ownerName"]; ?></a>
+                <a href="<?php echo FRONT_ROOT . 'Owner/showProfileOwner/' . $objBook->getOwnerCode(); ?>" class="fw-normal mb-1"><?php echo $value["ownerName"]; ?></a>
                 <p class="text-muted mb-0"></p>
               </div>
             </div>
           </td>
           <td>
-            <a href="<?php echo FRONT_ROOT . 'Pet/ShowPetProfile/' . $objBook->getPetCode(); ?>" class="fw-normal mb-1"><?php echo $value["petName"]; ?></a>
+            <a href="<?php echo FRONT_ROOT . 'Pet/showPetProfile/' . $objBook->getPetCode(); ?>" class="fw-normal mb-1"><?php echo $value["petName"]; ?></a>
             <p class="text-muted mb-0"></p>
           </td>
           <td>

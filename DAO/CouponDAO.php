@@ -73,7 +73,7 @@ class CouponDAO
     public function getFullInfoCoupon($couponCode)
     {
         try {
-            $query = "SELECT c.couponCode,c.bookCode,b.initDate,b.endDate,b.totalPrice,b.visitPerDay,p.name as namePet,p.typePet,p.breed,p.size,o.email as emailOwner,o.name as ownerName,o.lastname as olastname,k.name as kname,k.lastname as klastname,k.email as emailKeeper,k.pfp as pfpk,c.status as statusCoup
+            $query = "SELECT c.couponCode,c.bookCode,b.ownerCode as ownerCode,b.keeperCode as keeperCode,b.initDate,b.endDate,b.totalPrice,b.visitPerDay,p.name as namePet,p.typePet,p.breed,p.size,o.email as emailOwner,o.name as ownerName,o.lastname as olastname,k.name as kname,k.lastname as klastname,k.email as emailKeeper,k.pfp as pfpk,c.status as statusCoup
             FROM coupon as c
             JOIN booking as b
             ON b.bookCode = c.bookCode
@@ -97,6 +97,8 @@ class CouponDAO
             foreach ($resultSet as $value) {
                 $couponArrayInfo["couponCode"] = $value["couponCode"];
                 $couponArrayInfo["bookCode"] = $value["bookCode"];
+                $couponArrayInfo["keeperCode"] = $value["keeperCode"];
+                $couponArrayInfo["ownerCode"] = $value["ownerCode"];
                 $couponArrayInfo["initDate"] = $value["initDate"];
                 $couponArrayInfo["endDate"] = $value["endDate"];
                 $couponArrayInfo["totalPrice"] = $value["totalPrice"];
@@ -153,7 +155,7 @@ class CouponDAO
         }
     }
 
-    //Simulamos que el pago se hizo con exito por lo que el status de coupon y booking se ponen como paidup
+    //Paidup exit --> coupon & booking = paidup
     public function paidUpCoupon($couponCode)
     {
         try {
@@ -241,5 +243,28 @@ class CouponDAO
             throw $ex;
         }
         return $resp;
+    }
+
+    //check if the coupon we try to see matchs with the ownerLogged in their booking
+    public function checkCouponOwner($couponCode,$ownerCodeLogged)
+    {
+        try{
+            $query = "SELECT COUNT(*) FROM ".$this->tableName." as c
+            JOIN booking as b
+            ON c.bookCode = b.bookCode 
+            WHERE couponCode = :couponCode AND b.ownerCode = :ownerCodeLogged;";
+
+            $parameters["couponCode"] = $couponCode;
+            $parameters["ownerCodeLogged"] = $ownerCodeLogged;
+
+            $this->connection = Connection::GetInstance();
+
+            $result = $this->connection->Execute($query,$parameters);
+
+            return $result[0][0];
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
     }
 }

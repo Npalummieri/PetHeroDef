@@ -2,7 +2,7 @@
 <table>
     <thead>My Booking</thead>
     <tbody>
-         <th>Owner</th><!-- Tener en cuenta que no vale con mostrar los codigos de ownerCode,petCode,deberia traer otra referencia del mismo,por ej user/email y nombre mascota -->
+        <th>Owner</th>
         <th>Pet</th>
         <th>initDate</th>
         <th>endDate</th>

@@ -3,9 +3,10 @@
 namespace Utils;
 
 use \DateTime as DateTime;
-
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 
 class Dates{
+
 
 
     public static function validateDate($date)
@@ -16,19 +17,19 @@ class Dates{
         return $dateDT;
     }
 
-    //Valido 0 o 1 en el mejor de los casos
+
     public static function validateAndCompareDates($initDate, $endDate) {
-        // Convertir las fechas a objetos DateTime
+        // from String to DateTime objs
         $initDateTime = DateTime::createFromFormat('Y-m-d', $initDate);
         $endDateTime = DateTime::createFromFormat('Y-m-d', $endDate);
         
     
         $result = null;
-        // Verificar si las fechas son válidas
+        // Validate dates
         if (!$initDateTime || !$endDateTime) {
             $result = null;
         }
-        // Comparar las fechas
+        // Compare dates
         if ($initDateTime > $endDateTime) {
             $result = -1;
         } elseif ($initDateTime == $endDateTime) {
@@ -43,9 +44,12 @@ class Dates{
 
     public static function currentCheck($date)
     {
-        $currentDate = new DateTime();
-        $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+        $currentDateStr = date('Y-m-d');
+        $currentDate = new DateTime($currentDateStr);
         
+        $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+        var_dump($date);
+        var_dump($currentDate);
         if($dateTime < $currentDate)
         {
             $result = null;

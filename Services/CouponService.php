@@ -115,7 +115,7 @@ class CouponService{
 
     private function validateCardHolder($cardHolder)
     {
-        $pattern = "/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]{2,25}(?:\s+[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+){1,5}(?:\s+[-\sa-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+)?$/";
+        $pattern = "/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]{2,30}(?:\s+[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+){1,5}(?:\s+[-\sa-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+)?$/";
 
         return preg_match($pattern,$cardHolder);
     }
@@ -131,7 +131,7 @@ class CouponService{
 
             //transformar expDate a month/year
             $monthAndYear = explode("/",$expDate);
-            //Array ( [0] => 03 [1] => 24 ) si por ej ingresamos 03/24
+            //Array ( [0] => 03 [1] => 24 ) ex: 03/24
             $month = $monthAndYear[0];
             $year = $monthAndYear[1];
 
@@ -139,13 +139,20 @@ class CouponService{
 
 
             $checkCc = $this->validateCardNumber($ccnum);
-
+            if($checkCc == false)
+            {
+                throw new Exception("Not validate credit number!");
+            }
+            
             $checkCh = $this->validateCardHolder($cardholder);
-
+            if($checkCh == false)
+            {
+                throw new Exception("Not validate card holder!");
+            }
             if($month < 1 && $month > 12 && $month <= $today->format('m'))
             {
                 throw new Exception("Impossible this month");
-                //Medio hardcodeada lo de agregar el 20.$year pero es cierto que por param llega los ultimos 2 digitos del año
+                
             }else if("20".$year < $today->format('Y'))
             {
                 throw new Exception("Impossible this year");
@@ -183,7 +190,7 @@ class CouponService{
                         $idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(),$bookingPaidup->getOwnerCode());
 
                     }else{
-                        $flag = "We couldn't validate your pay!";
+                        throw new Exception("We couldn't validate your pay!");
                     }
                
             }
@@ -227,6 +234,21 @@ class CouponService{
             echo $ex->getMessage();
         }
         return $couponCode;
+    }
+
+    public function srv_checkCouponOwner($couponCode,$ownerCodeLogged)
+    {
+        try{
+            $result = $this->couponDAO->checkCouponOwner($couponCode,$ownerCodeLogged);
+            if($result != 1)
+            {
+                $result = "The owner doesn't has coincidence with the owner of coupon!";
+            }
+        }catch(Exception $ex)
+        {
+            $result = $ex->getMessage();
+        }
+        return $result;
     }
 }
 

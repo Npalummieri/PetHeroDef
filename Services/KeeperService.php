@@ -39,7 +39,7 @@ class KeeperService
     public function validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay) //valida los campos y retorna ya no el user sino un Keeper
     {
         try {
-            $msgeError = false;
+            $msgeError = 1;
             if (isset($typeCare)) {
                 if ($typeCare != "big") {
                     if ($typeCare != "medium") {
@@ -69,16 +69,19 @@ class KeeperService
             }
 
 
-            if (!(Dates::validateDate($initDate) && Dates::validateDate($endDate))) {
-                $msgeError = "Something wrong with the dates";
-            } else {
+            if ((Dates::validateDate($initDate) != null && Dates::validateDate($endDate) != null) && (Dates::currentCheck($initDate) && Dates::currentCheck($endDate))
+                && (Dates::validateAndCompareDates($initDate,$endDate) >= 0)) {
+
+               
                 $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
+            } else {
+                $msgeError = "Something wrong with the dates";
             }
 
 
             $keeper = new Keeper();
 
-            if (empty($msgeError)) {
+            if (is_string($msgeError)) {
                 $keeper = $msgeError;
             } else {
                 if ($userInfo["user"] instanceof User) {

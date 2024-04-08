@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,600');
 
-html, body {
-     height: 100%;
-     /* background: url("../../Images/SysImages/free-cat-and-dog-pattern-vector.png") no-repeat center center fixed; */
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 
@@ -10,7 +11,6 @@ body {
   font-family: 'Roboto', 'Open Sans', sans-serif;
   background: url("../../Images/SysImages/free-cat-and-dog-pattern-vector.png") center center fixed;
   background-repeat: repeat;
-  /* background-color: #000000; */
 }
 
 .height-100 {
@@ -29,10 +29,7 @@ body {
      border: 2px solid rgba(0, 0, 0, 0.2);
 }
 
-body{
-     margin-top:20px;
-     /* background: #eee; */
- }
+
  /* Rounded sliders */
  /*-------------------------------------------------------------------*/
  /* === Email === */
@@ -396,14 +393,6 @@ body{
   margin-right: 30px; /* Ajusta el valor según sea necesario */
 }
 
-
-/* No se si es por referenciarlo mal o que pero no aplica salvo que lo ponga explicitamente en el .php */
-/* ul #chatDef{
-  overflow-x: auto; /* Esto permite que el contenido se desborde horizontalmente y se muestre una barra de desplazamiento cuando sea necesario 
-  white-space: nowrap; /* Esto evita que los elementos dentro del ul se envuelvan a la siguiente línea 
-  max-height: 300px;
-} 
-*/
 
 /* Manejo de modal (Aunque creo que lo hace BS solo... con su clase modal)*/
 #reviewPopup {

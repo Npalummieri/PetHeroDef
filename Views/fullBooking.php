@@ -5,11 +5,11 @@
 <div class="container mt-5">
     <form action="<?php echo FRONT_ROOT.'' ?>" method="POST">
         <div class="row">
-            <!-- Columna para la foto de perfil -->
+            <!-- colpfp -->
             <div class="col-lg-3 p-3 bg-light">
                 <img src="<?php echo FRONT_ROOT . "Images/".$fullBook["pfp"] ?>" alt="Profile Picture" class="img-fluid rounded-circle ">
             </div>
-            <!-- Columna para la información de la reserva -->
+            <!-- col infobook-->
             <div class="col-lg-9 bg-light p-4 ">
                 <h2 class="mb-4">Booking Information</h2>
                 <div class="row mb-3">

@@ -27,7 +27,7 @@
       </div>
       <div class="form-group m-1">
         <label for="dni">Dni</label>
-        <input type="number" name="dni" id="dni" class="form-control form-control-lg" placeholder="Dni" min="8000000" required>
+        <input type="number" name="dni" id="dni" class="form-control form-control-lg" placeholder="Dni" required>
       </div>
       <div class="form-group m-1">
         <label for="pfp">Profile picture</label>

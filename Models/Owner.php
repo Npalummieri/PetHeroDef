@@ -5,7 +5,7 @@ namespace Models;
 class Owner extends User{
 
     private $ownerCode;
-    private $listPets;
+
     
     public function __construct()
     {
@@ -30,28 +30,6 @@ class Owner extends User{
     public function setOwnerCode($ownerCode)
     {
         $this->ownerCode = $ownerCode;
-
-        return $this;
-    }
-
-
-    /// ---Ver si tengo que usar array/list/etc
-    /**
-     * Get the value of listPets
-     */ 
-    public function getListPets()
-    {
-        return $this->listPets;
-    }
-
-    /**
-     * Set the value of listPets
-     *
-     * @return  self
-     */ 
-    public function setListPets($listPets)
-    {
-        $this->listPets = $listPets;
 
         return $this;
     }

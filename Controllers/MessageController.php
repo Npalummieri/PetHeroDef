@@ -114,12 +114,7 @@ class MessageController{
         require_once(VIEWS_PATH."messagesView.php");
     }
 
-    // public function getConversation($codeLogged)
-    // {
-    //     echo "HOLA?";
-    //     $arrayInfoConver = $this->messageService->srv_getInfoConver($codeLogged);
-    //     require_once(VIEWS_PATH."messagesView.php");
-    // }
+
     public function messageView($userAvaiArr)
     {
         require_once(VIEWS_PATH."messagesView.php");
@@ -133,16 +128,24 @@ class MessageController{
             if(is_a($loggedUser,"Models\Keeper"))
             {
                $availTalk = $this->messageService->srv_getAvailTalk($loggedUser->getKeeperCode());
-               $availTalk[0]["logged"] = "keeper";
+               if(!empty($availTalk))
+               {
+                $availTalk[0]["logged"] = "keeper";
+               }
+               
             }else if(is_a($loggedUser,"Models\Owner"))
             {
                $availTalk =  $this->messageService->srv_getAvailTalk($loggedUser->getOwnerCode());
-               $availTalk[0]["logged"] = "owner";
+               if(!empty($availTalk))
+               {
+                $availTalk[0]["logged"] = "owner";
+               }
+               
             }
         }
-        //var_dump($availTalk);
+
         $encodedContent = json_encode($availTalk);
-        //var_dump($encodedContent);
+
         echo $encodedContent;
     }
 

@@ -1,1 +1,0 @@
-<!-- La idea es que en esta view primero que nada elijas fecha/hora y si esta disponible se sigue con el form -->

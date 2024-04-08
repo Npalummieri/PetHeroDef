@@ -186,13 +186,10 @@ class  conversationDAO{
                 $conver["ownerCode"] = $row["ownerCode"];
                 $conver["timestamp"] = $row["timestamp"];
                 $conver["status"] = $row["status"];
-
                 $conver["kname"] = $row["kname"];
                 $conver["klastname"] = $row["klastname"];
                 $conver["oname"] = $row["oname"];
                 $conver["olastname"] = $row["olastname"];
-                //Medio que hardcodee la ruta completa de a donde deberia ir a buscar la imagen
-                //No se me ocurre otra cosa quiza JS tenga algo mas fácil pero bueno esto funciono
                 $conver["kpfp"] = FRONT_ROOT."Images/";
                 $conver["kpfp"] .= $row["kpfp"];
                 $conver["opfp"] = FRONT_ROOT."Images/";
@@ -203,7 +200,6 @@ class  conversationDAO{
 
                 array_push($conversationsByCode,$conver);
             }
-            //var_dump($conversationsByCode);
             return $conversationsByCode;
         }catch(Exception $ex)
         {

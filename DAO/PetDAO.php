@@ -69,7 +69,7 @@ class PetDAO {
 
             $resultSet = $this->connection->Execute($query,$parameters);
 
-            var_dump($resultSet);
+
 
             $petArray = array();
             foreach($resultSet as $petArr)

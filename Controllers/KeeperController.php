@@ -5,8 +5,6 @@ namespace Controllers;
 
 use Models\Keeper as Keeper;
 use Services\KeeperService as KeeperService;
-
-use Controllers\HomeController as HomeController;
 use Services\UserService as UserService;
 use Utils\Session as Session;
 use Services\ReviewService as ReviewService;
@@ -16,7 +14,7 @@ class KeeperController
 {
 
     private $keeperService;
-    private $homeController;
+
 
     private $userService;
     private $reviewService;
@@ -24,7 +22,6 @@ class KeeperController
     public function __construct()
     {
         $this->keeperService = new KeeperService();
-        $this->homeController = new HomeController();
         $this->userService = new UserService();
         $this->reviewService = new ReviewService();
     }
@@ -43,16 +40,15 @@ class KeeperController
         } else if (is_array($userInfo)) {
             $user = $this->keeperService->validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay);
             if (!($user instanceof Keeper)) {
-                Session::SetBadMessage($user);
-                $this->homeController->Index();
+                Session::SetBadMessage($user."Try register again!");
+                header("location: " . FRONT_ROOT . "Home/Index");
             }
 
-            if ($userInfo["user"] !== null) {
+            if ($userInfo["user"] !== null && $user instanceof Keeper) {
                 Session::SetOkMessage("Successfully registered!");
                 header("location: " . FRONT_ROOT . "Home/Index");
             } else {
-                Session::SetBadMessage("Something failed at the register.Do it again!");
-                $this->homeController->Index();
+                Session::SetBadMessage($user."Try register again!");
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
         }
@@ -69,6 +65,7 @@ class KeeperController
         $allKeepers = $this->userService->srv_GetFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, 6);
 
         require_once(VIEWS_PATH . "keeperListPag.php");
+       
     }
 
 

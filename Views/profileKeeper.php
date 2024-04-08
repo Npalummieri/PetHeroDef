@@ -5,7 +5,10 @@ include("nav.php");
 use Utils\Session as Session;
 
 ?>
-<div class="container mt-5 text-white rounded" id="contMain" style="background-color: #110257;">
+
+<?php require_once("msgeDisplay.php"); ?>
+            <h2 class="bg-dark text-white text-center rounded mt-2">KEEPER INFORMATION</h2>
+<div class="container  text-white rounded" id="contMain" style="background-color: #110257;">
     <div class="row">
         <!-- pfp col -->
         <div class="col-lg-4">
@@ -27,7 +30,7 @@ use Utils\Session as Session;
                 <p class="alert alert-success"><?php echo $_SESSION["gmsg"];
                                                 unset($_SESSION["gmsg"]); ?></p>
             <?php } ?>
-            <h2>User Information</h2>
+
             <div class="row">
                 <div class="col-md-6">
                     <p><strong>Name:</strong> <?php echo $infoKeeper->getName(); ?></p>
@@ -49,8 +52,8 @@ use Utils\Session as Session;
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">InitDate</th>
-                                        <th class="text-center">EndDate</th>
+                                        <th class="text-center">Initial date</th>
+                                        <th class="text-center">End date</th>
                                         <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
                                             <th class="text-center"></th>
                                         <?php } ?>
@@ -187,7 +190,7 @@ use Utils\Session as Session;
 
                             <div class="d-flex">
                                 <p class="font-weight-bold mb-0 rounded p-1 flex-grow-1" style="background-color: #ebf2f7;"><?php echo $review["comment"]; ?></p>
-                                <?php if (Session::GetTypeLogged() == 'Models\Owner') {
+                                <?php if (Session::GetLoggedUser() != null && Session::GetTypeLogged() == 'Models\Owner') {
                                     if (Session::GetLoggedUser()->getOwnerCode() == $review["ownerCode"]) { ?>
                                         <a class="btn btn-dis text-end rounded p-2" style="text-decoration: none;background-color: #d14d63;" href="<?php echo FRONT_ROOT . "Review/delete/" . $review["reviewCode"] ?>" data-msg="Delete the review?"><i class="fa-solid fa-trash my-2"></i></a>
                                 <?php }

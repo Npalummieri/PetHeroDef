@@ -4,9 +4,9 @@ include("nav.php");
 ?>
 
 
+<h2 class="bg-dark rounded text-white text-center mt-2 ">EDIT PET INFO</h2>
 <section class="section edit-profile-section text-white mt-2"  id="edit-profile" >
-    <div class="container" style="background-color: #364a6e;">
-        <h2 class="mb-4">Edit Profile</h2>
+    <div class="container p-2" style="background-color: #364a6e;">
         <form action="<?php echo FRONT_ROOT."Pet/updatePet" ?>" method="post" enctype="multipart/form-data">
         <input type="hidden" name="petCode" value="<?php echo $pet->getPetCode() ?>">
             <div class="form-group row m-2">

@@ -6,7 +6,7 @@ include("nav.php");
 
 
 <div class="row text-white ">
-  <h2 class="bg-dark text-center p-2">My pets</h2>
+  <h2 class="bg-dark rounded text-center mt-2 p-2">MY PETS</h2>
   <div class="container">
   <?php include("msgeDisplay.php") ?>
   </div>
@@ -19,14 +19,14 @@ include("nav.php");
       <?php
       foreach ($myPets as $pet) {
       ?>
-        <div class=" row border border-dark">
+        <div class=" row border ">
 
-          <div class="col-lg-3 col-md-3 col-sm-12 p-3" style="background-color: #110257;">
-            <img src=" <?php echo FRONT_ROOT . "Images/" . $pet->getPfp(); ?>" alt="Pfpet" class="img-thumbnail m-3" height="128px" width="256px">
+          <div class="col-lg-3 col-md-3 col-sm-12 p-3 d-flex justify-content-center align-items-center border" style="background:  #3258a6;">
+            <img src=" <?php echo FRONT_ROOT . "Images/" . $pet->getPfp(); ?>" alt="Pfpet" class="img-thumbnail m-3" height="186px" width="256px">
             <a href="<?php echo FRONT_ROOT . "Pet/showEditPet/" . $pet->getpetCode(); ?>" class="text-white"><i class="fa-solid fa-pencil text-white"></i>Upload</a>
           </div>
 
-          <div class=" col-lg-9 col-md-9 col-sm-12 text-white" style="background: linear-gradient(to right, #3258a6, #3498db);">
+          <div class=" col-lg-9 col-md-9 col-sm-12 text-white border" style="background: linear-gradient(to right, #3258a6, #3498db);">
 
             <div class=" col-lg-6 col-md-6 col-sm-12 mt-3 p-2 mx-2">
               <label class="text-truncate">Name : <span><?php echo $pet->getName(); ?><span></label>
@@ -54,7 +54,6 @@ include("nav.php");
 
             <div class="col-lg-6 col-md-6 col-sm-12 p-2 mx-2 ">
               <label class="text-truncate">Age : <span><?php echo $pet->getAge(); ?><span></label>
-              <a href="<?php echo FRONT_ROOT . "Pet/updateAge" ?>" class="text-white"> <i class="fa-solid fa-pencil"></i></a>
             </div>
 
 
