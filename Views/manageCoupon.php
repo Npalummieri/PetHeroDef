@@ -68,7 +68,7 @@ include("nav.php");
                                     <?php } ?>
 
                                     <?php if ($coupon["statusCoup"] != "finished" || $coupon["statusCoup"] != "cancelled") { ?>
-                                    <a href="<?php echo FRONT_ROOT."Coupon/declineCoupon/".$coupon["couponCode"] ?>" class="btn btn-dis btn-danger" data-msg ="Cancel the coupon? This also cancels the booking!">Cancel Coupon</a>
+                                    <a href="<?php echo FRONT_ROOT."Coupon/declineCoupon/".$coupon["couponCode"] ?>" class="btn btn-dis btn-danger" data-msg ="Cancel the coupon? This also cancels the booking! <br> YOUR ACCOUNT WILL BE SUSPENDED INDITERMINATELY">Cancel Coupon</a>
                                     <?php } ?>
                                 </div>
                             </div>

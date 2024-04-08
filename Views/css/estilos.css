@@ -11,6 +11,7 @@ body {
   font-family: 'Roboto', 'Open Sans', sans-serif;
   background: url("../../Images/SysImages/free-cat-and-dog-pattern-vector.png") center center fixed;
   background-repeat: repeat;
+  min-height: 100vh;
 }
 
 .height-100 {

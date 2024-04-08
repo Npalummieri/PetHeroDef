@@ -26,7 +26,6 @@ class BookingController{
 
     public function addBooking($initDate,$endDate,$petCode,$keeperCode,$typePet,$typeSize,$visitPerDay)
     {
-        var_dump($_POST);
         if (Session::IsLogged() && Session::GetTypeLogged() == 'Models\Owner') {
             $userLogged = $_SESSION["loggedUser"];
 
@@ -42,8 +41,7 @@ class BookingController{
         }else{
             $this->showBookCreate($keeperCode,$resp);
         }
-        var_dump($resp);
-        
+
     }
     public function showBookCreate($keeperCode,$message=" ")
     {
@@ -149,7 +147,7 @@ class BookingController{
             if (Session::GetTypeLogged() == "Models\Keeper") {
                 $loggedUser = Session::GetLoggedUser();
                 $conf = $this->bookingService->srv_confirmBooking($codeBook);
-                if($conf == 1)
+                if($conf == 1 || strpos($conf,"COU") !== false)
                 {
                     Session::SetOkMessage("Successfuly confirmed!");
                     

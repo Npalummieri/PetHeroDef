@@ -203,13 +203,15 @@ class CouponDAO
 
                 $resultqJoin = $this->connection->Execute($queryForJoin, $parameters);
 
-                $parameter["bookCode"] = $resultqJoin[0]["bookCode"];
 
                 $queryBooking = "UPDATE booking AS b
                 JOIN coupon AS c 
                 ON b.bookCode = c.bookCode
                 SET b.status = :status;
                 WHERE b.bookCode = :bookCode ;";
+                
+                $parameter["bookCode"] = $resultqJoin[0]["bookCode"];
+                $parameter["status"] = "cancelled";
 
 
                 $resultUpdate = $this->connection->ExecuteNonQuery($queryBooking, $parameter);
@@ -243,7 +245,7 @@ class CouponDAO
     {
         try {
 
-            $query = "SELECT couponCode FROM " . $this->tableName . " 
+            $query = "SELECT COUNT(*) FROM " . $this->tableName . " 
             WHERE bookCode = :bookCode;";
 
             $this->connection = Connection::GetInstance();
@@ -252,11 +254,9 @@ class CouponDAO
 
             $resultSet = $this->connection->Execute($query, $parameter);
 
-            if (empty($resultSet)) {
-                $resp = null;
-            } else {
-                $resp = $resultSet[0][0];
-            }
+
+            $resp = $resultSet[0][0];
+            
         } catch (Exception $ex) {
             throw $ex;
         }

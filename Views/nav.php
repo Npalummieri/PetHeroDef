@@ -32,7 +32,7 @@ use Utils\Session as Session;
                <ul class="navbar-nav m-0">
                     <li class="nav-item active">
                          <!-- Pendiente -->
-                         <a class="nav-link text-white" href="#">How it works</a>
+                         <a class="nav-link text-white" href="<?php echo FRONT_ROOT."Home/showHowWorks" ?>">How it works</a>
                     </li>
 
                     <?php if (!isset($_SESSION["loggedUser"])) { ?>

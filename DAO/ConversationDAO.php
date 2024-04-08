@@ -101,13 +101,9 @@ class  conversationDAO{
 
             $resultSet = $this->connection->Execute($query,$parameters);
             
-            //Si retorna array vacio == empty
-            if(empty($resultSet) || $resultSet == null)
-            {
-                $resp = null;
-            }else{
-                $resp = $resultSet[0][0];
-            }
+
+            $resp = $resultSet[0][0];
+            
            
 
             return $resp;

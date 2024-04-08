@@ -169,7 +169,6 @@ class BookingDAO{
     //poder llevar directamente la info respecto a quien reservó (nameOwner) y que mascota (namePet)
     public function getAllMyBookings($userCode)
     {
-        var_dump($userCode);
         try{
 
             $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice, o.name as ownerName,p.name as petName,p.pfp
@@ -457,7 +456,7 @@ class BookingDAO{
 
         }catch(Exception $ex)
         {
-            echo $ex->getMessage();
+            throw $ex;
         }
     }
 

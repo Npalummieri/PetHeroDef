@@ -100,6 +100,11 @@ class HomeController{
        
     }
 
+    public function showHowWorks()
+    {
+        require_once(VIEWS_PATH."howitworks.php");
+    }
+
     
 }
 

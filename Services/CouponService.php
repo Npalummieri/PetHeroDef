@@ -40,13 +40,18 @@ class CouponService{
 
             if ($booking != null) {
 
-                $coupon = new Coupon();
+                if ($this->couponDAO->getCoupCodeByBook($bookCode)!= 1) {
+                    $coupon = new Coupon();
 
-                $coupon->setPrice($booking->getTotalPrice());
-                $coupon->setBookCode($bookCode);
-                $coupon->setCouponCode($this->generateCode());
+                    $coupon->setPrice($booking->getTotalPrice());
+                    $coupon->setBookCode($bookCode);
+                    $coupon->setCouponCode($this->generateCode());
 
-                $resultInsert = $this->couponDAO->Add($coupon);
+                    $resultInsert = $this->couponDAO->Add($coupon);
+                }else{
+                    $resultInsert = "This booking already has a coupon associated";
+                }
+                
             }
         } catch (Exception $ex) {
             $resultInsert = $ex->getMessage();
@@ -121,7 +126,7 @@ class CouponService{
     }
 
 
-    //Es un poco redundante pq ya lo hago con Ajax/Jquery pero bueno,tambien se valida server-side
+    //already checked with ajax/jquery also server-side
     public function srv_validateCoup($couponCode,$ccnum,$cardholder,$expDate,$ccv)
     {
         try
