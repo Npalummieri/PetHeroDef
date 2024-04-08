@@ -107,7 +107,7 @@ class OwnerController{
             require_once(VIEWS_PATH . "myProfileOwner.php");
         }else
         {
-            require_once(VIEWS_PATH . "index.php");
+            header("location: ".FRONT_ROOT."Home/Index");
         }
         
     }
@@ -142,6 +142,13 @@ class OwnerController{
             header("location: ".FRONT_ROOT."Home/Index");
         }
     }
+
+    public function showProfileOwner($ownerCode)
+    {
+        $infoOwner = $this->ownerService->getByCode($ownerCode);
+        require_once(VIEWS_PATH . "myProfileOwner.php");
+    }
+    
 
 }
 
