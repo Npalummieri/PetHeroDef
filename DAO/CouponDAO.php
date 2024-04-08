@@ -215,7 +215,25 @@ class CouponDAO
                 $resultUpdate = $this->connection->ExecuteNonQuery($queryBooking, $parameter);
             }
 
-            return $resultUpdate;
+            if($resultUpdate == 1)
+            {
+                $bookCodeValue = $resultqJoin[0]["bookCode"];
+
+                $queryPunish = "UPDATE owner as o 
+                JOIN booking as b
+                ON b.ownerCode = o.ownerCode
+                SET o.status = :status 
+                WHERE b.bookCode = :bookCode";
+
+                $this->connection = Connection::GetInstance();
+
+                $parametersP["bookCode"] = $bookCodeValue;
+                $parametersP["status"] = "suspended";
+
+                $resultPunish = $this->connection->ExecuteNonQuery($query,$parametersP);
+                
+            }
+            return $resultPunish;
         } catch (Exception $ex) {
             throw $ex;
         }
