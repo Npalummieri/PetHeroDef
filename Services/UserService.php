@@ -5,33 +5,43 @@ namespace Services;
 
 use DAO\KeeperDAO;
 use DAO\ownerDAO as OwnerDAO;
+use DAO\notificationDAO as NotificationDAO;
 use DateTime;
 use \Exception as Exception;
 use Models\User as User;
-Use Utils\Dates as Dates;
+use Utils\Dates as Dates;
 use Utils\PHPMailer\Mailer as Mailer;
 
-class UserService {
+class UserService
+{
     private $ownerDAO;
     private $keeperDAO;
+    private $notificationDAO;
     private $mailer;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->ownerDAO = new OwnerDAO();
         $this->keeperDAO = new KeeperDAO();
+        $this->notificationDAO = new NotificationDAO();
         $this->mailer = new Mailer();
     }
 
-    
+
 
     public function searchUsernameLogin($username)
     {
-        
-        $user = $this->ownerDAO->searchByUsername($username);
 
-        if ($user === null) {
-            $user = $this->keeperDAO->searchByUsername($username);
+        try {
+            $user = $this->ownerDAO->searchByUsername($username);
+
+            if ($user === null) {
+                $user = $this->keeperDAO->searchByUsername($username);
+            }
+        } catch (Exception $ex) {
+            $user = $ex->getMessage();
         }
+
 
         return $user;
     }
@@ -40,11 +50,11 @@ class UserService {
 
     public function searchEmailLogin($email)
     {
-        
-            $user = $this->ownerDAO->searchByEmail($email);
-            if ($user === null) {
-                $user = $this->keeperDAO->searchByEmail($email);
-            }
+
+        $user = $this->ownerDAO->searchByEmail($email);
+        if ($user === null) {
+            $user = $this->keeperDAO->searchByEmail($email);
+        }
         return $user;
     }
 
@@ -60,22 +70,32 @@ class UserService {
         return $rsp;
     }
 
-    public function srv_updateStatusUser($codeUserLogged,$status)
+    public function checkDni($dni)
+    {
+        $resp = $this->ownerDAO->checkDni($dni);
+        if ($resp == 0) {
+            $resp = $this->keeperDAO->checkDni($dni);
+        }
+        if ($resp == 1) {
+            $resp = "Error already exists the DNI";
+        }
+
+        return $resp;
+    }
+
+    public function srv_updateStatusUser($codeUserLogged, $status)
     {
 
         $errorMsge = "";
-        try{
-            if(strpos($codeUserLogged,"OWN") !== false)
-        {
-            $errorMsge = $this->ownerDAO->updateStatus($codeUserLogged,$status);
-        }else if (strpos($codeUserLogged,"KEP") !== false){
-            $errorMsge = $this->keeperDAO->updateStatus($codeUserLogged,$status);
-        }else{
-            $errorMsge = "Error with the logging";
-        }
-        
-        }catch(Exception $ex)
-        {
+        try {
+            if (strpos($codeUserLogged, "OWN") !== false) {
+                $errorMsge = $this->ownerDAO->updateStatus($codeUserLogged, $status);
+            } else if (strpos($codeUserLogged, "KEP") !== false) {
+                $errorMsge = $this->keeperDAO->updateStatus($codeUserLogged, $status);
+            } else {
+                $errorMsge = "Error with the logging";
+            }
+        } catch (Exception $ex) {
             $errorMsge = $ex->getMessage();
         }
         return $errorMsge;
@@ -91,26 +111,25 @@ class UserService {
                 if ($user->getDni() == $dni) {
 
 
-                   
-                        $randomString = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)), 0, rand(8, 15));
 
-                        // Verifica si cumple con las condiciones requeridas
-                        if (preg_match($pattern, $randomString)) {
+                    $randomString = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)), 0, rand(8, 15));
 
-                            $pass = $randomString;
-                            $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+                    // Verifica si cumple con las condiciones requeridas
+                    if (preg_match($pattern, $randomString)) {
 
-                            if (is_a($user, "Models\Owner")) {
-                                echo "paso el is-a?";
-                                $resp = $this->ownerDAO->updatePassword($email, $hashedPass);
-                            } else if (is_a($user, "Models\Keeper")) {
-                                echo "paso el is-a?";
-                                $resp = $this->keeperDAO->updatePassword($email, $hashedPass);
-                            }
-                            $this->mailer->sendResetPass($email, $pass);
+                        $pass = $randomString;
+                        $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+
+                        if (is_a($user, "Models\Owner")) {
+                            
+                            $resp = $this->ownerDAO->updatePassword($email, $hashedPass);
+                        } else if (is_a($user, "Models\Keeper")) {
+
+                            $resp = $this->keeperDAO->updatePassword($email, $hashedPass);
                         }
-                    
-                }else{
+                        $this->mailer->sendResetPass($email, $pass);
+                    }
+                } else {
                     $resp = "Not valid DNI ";
                 }
             } else {
@@ -129,19 +148,19 @@ class UserService {
             $msgResult = "";
             $msgeError = "";
             $user = new User();
-           
-                        // ||||||||||||||||||||||||||||||||||||||||||||||||Filter email
+
+            // ||||||||||||||||||||||||||||||||||||||||||||||||Filter email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-               throw new Exception("Not an Email");
+                throw new Exception("Not an Email");
             } else {
-                
+
                 $searched = $this->searchEmailLogin($email);
                 if ($searched == null) {
-                    
+
                     $email = trim($email);
                     $user->setEmail($email);
                 } else {
-                    throw new Exception("email already exists!");
+                    throw new Exception("Email already exists!");
                 }
             }
             // ||||||||||||||||||||||||||||||||||||||||||||||||Filter username
@@ -179,7 +198,7 @@ class UserService {
             if ($name_alpha_spaces) {
                 $user->setName($name);
             } else {
-                throw new Exception("Something does not match with our requirements check your name");
+                throw new Exception("Something does not match with our requirements.Check your name");
             }
 
 
@@ -194,7 +213,12 @@ class UserService {
             $dni = trim($dni);
             $checkDni = ctype_digit($dni);
             if ($checkDni) {
-                $user->setDni($dni);
+                if($this->checkDni($dni) == 0)
+                {   
+                    $user->setDni($dni);
+                }else{
+                    throw new Exception("Already exists this dni! Not allowed multiusers");
+                }
             } else {
                 throw new Exception("Something does not match with our requirements. Only numbers not spaces or dots allowed");
             }
@@ -255,59 +279,51 @@ class UserService {
             } else {
 
                 if ($user->getPfp() == null) {
-                    throw new Exception("Registered user,upload your pfp later!");
+                    throw new Exception("Upload your pfp !");
                 }
             }
 
-            
-        $response = [
-            "user" => $user,
-            "pfp" => $pfp,
-            "pathToDB" => $pathToBD,
-            "pathToSave" => $pathToSave
-        ];
+
+            $response = [
+                "user" => $user,
+                "pfp" => $pfp,
+                "pathToDB" => $pathToBD,
+                "pathToSave" => $pathToSave
+            ];
         } catch (Exception $ex) {
             $response =  $ex->getMessage();
         }
         return $response;
     }
 
-    
-
-    
-
-   
-
     public function getKeepersInfoAvai()
     {
-       $arrayKeepAvai = $this->keeperDAO->getKeeperFullInfo();
-       //Estas lineas de codigo me ahorro #4555
+        $arrayKeepAvai = $this->keeperDAO->getKeeperFullInfo();
+        //Estas lineas de codigo me ahorro #4555
 
-       return $arrayKeepAvai;
+        return $arrayKeepAvai;
     }
 
     //Ahora
-    public function srv_getKeepersInfoAvaiPag($pageNumber,$resultsPerPage)
+    public function srv_getKeepersInfoAvaiPag($pageNumber, $resultsPerPage)
     {
         //Validar que lleguen ints params
-        $arrayKeeps = $this->keeperDAO->getKeepersPagination($pageNumber,$resultsPerPage);
+        $arrayKeeps = $this->keeperDAO->getKeepersPagination($pageNumber, $resultsPerPage);
         return $arrayKeeps;
     }
 
 
-    public function srv_GetFilteredKeepers($initDate,$endDate,$size,$typePet,$visitPerDay,$pageNumber,$resultsPerPage)
+    public function srv_GetFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, $resultsPerPage)
     {
-        try{
+        try {
             $actualDate = new DateTime();
 
-            $resultDates = Dates::validateAndCompareDates($initDate,$endDate);
+            $resultDates = Dates::validateAndCompareDates($initDate, $endDate);
 
-            if($resultDates == 1 || $resultDates == 0)
-            {
-                $result = $this->keeperDAO->getKeepersByDates($initDate,$endDate,$size,$typePet,$visitPerDay,$pageNumber,$resultsPerPage);
-            } 
-        }catch(Exception $ex)
-        {
+            if ($resultDates == 1 || $resultDates == 0) {
+                $result = $this->keeperDAO->getKeepersByDates($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, $resultsPerPage);
+            }
+        } catch (Exception $ex) {
             throw $ex;
         }
         return $result;
@@ -329,6 +345,33 @@ class UserService {
         return $result;
     }
 
-}
+    public function srv_getNotis($codeUserLogged)
+    {
+        try{
+            $notis = $this->notificationDAO->getAllByCode($codeUserLogged);
+            if($notis == null || empty($notis))
+            {
+                $notis = "No notifications at the moment";
+            }
+        }catch(Exception $ex)
+        {
+            $notis = $ex->getMessage();
+        }
+        return $notis;
+    }
 
-?>
+    public function srv_resetNotis($codeUserLogged)
+    {
+        try{
+            $notis = $this->notificationDAO->viewNotis($codeUserLogged);
+            if($notis >= 1)
+            {
+                $notis = "No notifications to see";
+            }
+        }catch(Exception $ex)
+        {
+            $notis = $ex->getMessage();
+        }
+        return $notis;
+    }
+}

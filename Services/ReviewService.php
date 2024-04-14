@@ -5,17 +5,18 @@ namespace Services;
 use \Exception as Exception;
 use Models\Review as Review;
 use DAO\ReviewDAO as ReviewDAO;
-
+use DAO\NotificationDAO as NotificationDAO;
 
 class ReviewService
 {
 
     private $reviewDAO;
-
+    private $notificationDAO;
 
     public function __construct()
     {
-        $this->reviewDAO = new reviewDAO();
+        $this->reviewDAO = new ReviewDAO();
+        $this->notificationDAO = new NotificationDAO();
     }
 
     public function generateCode()
@@ -31,25 +32,25 @@ class ReviewService
             if (strpos($keeperCode, "KEP") !== false) {
 
                 if (strpos($ownerCode, "OWN") !== false) {
-
+                    
                     $results = $this->reviewDAO->canReview($ownerCode, $keeperCode);
                 }
-            }
-
-
-            return $results; //null || array(results)
+            }   
         } catch (Exception $ex) {
-            $ex->getMessage();
+            $results = $ex->getMessage();
         }
+        return $results; //null || array(results)
     }
 
     public function srv_add($ownerCode, $keeperCode, $comment, $score)
     {
-        $checkPrev = $this->srv_canReview($ownerCode, $keeperCode);
+        try{
+            $checkPrev = $this->srv_canReview($ownerCode, $keeperCode);
 
         if ($checkPrev != null) {
 
             $review = new Review();
+
             $review->setCodeKeeper($keeperCode);
             $review->setCodeOwner($ownerCode);
             $review->setComment($comment);
@@ -58,7 +59,16 @@ class ReviewService
             $review->setCodeReview($this->generateCode());
 
             $resultAdd = $this->reviewDAO->Add($review);
+            if($resultAdd == 1)
+            {
+                $this->notificationDAO->generateNoti("New review on your profile!",$keeperCode);
+            }
         }
+        }catch(Exception $ex)
+        {
+            $resultAdd = $ex->getMessage();
+        }
+        
         return $resultAdd;
     }
 
@@ -71,10 +81,11 @@ class ReviewService
                 $arrayReviews = $this->reviewDAO->getAllByKeeperCode($keeperCode);
             }
 
-            return $arrayReviews;
+            
         } catch (Exception $ex) {
-            $ex->getMessage();
+            $arrayReviews = $ex->getMessage();
         }
+        return $arrayReviews;
     }
 
     public function srv_deleteReview($codeReview, $ownerCodeLog)
@@ -83,10 +94,11 @@ class ReviewService
 
             $result = $this->reviewDAO->delete($codeReview, $ownerCodeLog);
 
-            return $result;
+            
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+           $result = $ex->getMessage();
         }
+        return $result;
 
         return $result;
     }

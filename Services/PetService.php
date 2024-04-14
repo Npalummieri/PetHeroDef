@@ -7,7 +7,8 @@ use \Exception as Exception;
 use Services\OwnerService as OwnerService;
 use DAO\PetDAO as PetDAO;
 
-class PetService{
+class PetService
+{
 
     private $ownerService;
     private $petDAO;
@@ -18,24 +19,24 @@ class PetService{
         $this->ownerService = new OwnerService();
     }
 
-    public function generateCode() {
+    public function generateCode()
+    {
         // Genera un UUID único
-        $uuid = uniqid('PET', true); // Utiliza 'KEP' como prefijo
-    
+        $uuid = uniqid('PET', true);
+
         // Devuelve el ownerCode generado
         return $uuid;
     }
 
     public function getBreedsDog()
     {
-        $content = file_get_contents(FRONT_ROOT."DAOJson\dogBreeds.json");
+        $content = file_get_contents(FRONT_ROOT . "DAOJson\dogBreeds.json");
 
-        $decodedContent = json_decode($content,true);
+        $decodedContent = json_decode($content, true);
 
         $dogBreedArray = array();
-        foreach($decodedContent as $id => $breed)
-        {
-            array_push($dogBreedArray,$breed);
+        foreach ($decodedContent as $id => $breed) {
+            array_push($dogBreedArray, $breed);
         }
 
         return $dogBreedArray;
@@ -43,21 +44,19 @@ class PetService{
 
     public function getBreedsCat()
     {
-        $content = file_get_contents(FRONT_ROOT."DAOJson\catBreeds.json");
+        $content = file_get_contents(FRONT_ROOT . "DAOJson\catBreeds.json");
 
-        $decodedContent = json_decode($content,true);
+        $decodedContent = json_decode($content, true);
 
         $catBreedArray = array();
-        foreach($decodedContent as $breed)
-        {
-            array_push($catBreedArray,$breed);
+        foreach ($decodedContent as $breed) {
+            array_push($catBreedArray, $breed);
         }
 
         return $catBreedArray;
     }
 
-    //Revisar si typeFile deberia ser el tipo verdaderamente del archivo y si es necesario agregar un
-    //typeFile2 donde verifica si es una PFP,VaccPlan o Galeria
+
     private function getImgsPetRegister($typeFile, $fileInfo, $typePet)
     {
 
@@ -90,7 +89,7 @@ class PetService{
 
                 //Filter size
                 if ($fileInfo["size"] < 5242880 && $fileInfo["size"] > 0) {
-                    
+
                     if (in_array($mime, $imgTypes)) {
                         $imgSize = $fileInfo["size"];
                         $typeImg = $fileInfo["type"];
@@ -102,8 +101,7 @@ class PetService{
 
 
                         if ($typeFile == "pfp") {
-                            if(!file_exists(PFP_PETS))
-                            {
+                            if (!file_exists(PFP_PETS)) {
                                 mkdir(PFP_PETS, 0777, true); //make directory
                             }
                             $pathToSave = PFP_PETS . $hashedNameFile . '.' . $extension[1];
@@ -111,8 +109,7 @@ class PetService{
                             //move_uploaded_file($temp, $pathToSave);
 
                         } else if ($typeFile == "vaccPlan") {
-                            if(!file_exists(VACCS_PLAN))
-                            {
+                            if (!file_exists(VACCS_PLAN)) {
                                 mkdir(VACCS_PLAN, 0777, true);
                             }
                             $pathToSave = VACCS_PLAN . $hashedNameFile . '.' . $extension[1];
@@ -121,14 +118,13 @@ class PetService{
                         }
                     } else if ($typeFile == "video") {
                         if ($mime == "video/mp4" || $mime = "application/octet-stream") {
-                            
+
                             //Dir almacen temp
                             $temp = $fileInfo["tmp_name"];
                             $hashedNameFile = hash_file('sha1', $temp);
 
-                            if(!file_exists(VIDEO_PATH))
-                            {
-                                mkdir(VIDEO_PATH,0777,true);
+                            if (!file_exists(VIDEO_PATH)) {
+                                mkdir(VIDEO_PATH, 0777, true);
                             }
                             $pathToSave = VIDEO_PATH . $hashedNameFile . '.' . $extension[1];
                             $pathToBD = "Videos/" . $hashedNameFile . '.' . $extension[1];
@@ -144,7 +140,6 @@ class PetService{
                     }
                 }
             }
-            
         }
         $paths["file"] = $temp;
         $paths["pathToDB"] = $pathToBD;
@@ -168,8 +163,7 @@ class PetService{
             }
 
             //Validate type
-            if ($typePet !== "dog" && $typePet !== "cat") 
-            {
+            if ($typePet !== "dog" && $typePet !== "cat") {
                 $error .= " Error at typePet ";
             } else {
                 $pet->setTypePet($typePet);
@@ -180,14 +174,12 @@ class PetService{
                 trim($ownerCode);
                 $pet->setOwnerCode($ownerCode);
             } else {
-                $error .= " Error at ownerCode " ;
+                $error .= " Error at ownerCode ";
             }
 
 
             //Checking sizes
-            if (
-                $size != "big" && $size != "medium" && $size != "small"
-            ) {
+            if ($size != "big" && $size != "medium" && $size != "small") {
                 $error .= " Not size allowed ";
             } else {
                 $pet->setSize($size);
@@ -203,7 +195,7 @@ class PetService{
                 } else {
                     $error .= " Not valid breed ";
                 }
-            } else if($typePet == "dog") {
+            } else if ($typePet == "dog") {
                 $content = file_get_contents("DAOJson\dogBreeds.json");
                 $decodedContent = json_decode($content, true);
 
@@ -218,56 +210,58 @@ class PetService{
                 if ($pet->getBreed() == null) {
                     $error = " Error in breed ";
                 }
-            }else
-            {
+            } else {
                 $error .=  " Error in breed ";
             }
 
             //Setting age -validate if it's a number
-            $pet->setAge($age);
-
-            if($error == null)
+            if(ctype_digit($age))
             {
-                $pet->setPetCode($this->generateCode());
-                $resultInsert = $this->petDAO->Add($pet);
+                $pet->setAge($age);
             }else{
-                $error .= " <br> We cant't add your pet.Check again!";
+                $error .=  " Not valid age ";
             }
             
-            if($resultInsert != null && $resultInsert != " ")
-            {
+
+            if ($error == null) {
+                $pet->setPetCode($this->generateCode());
+                $resultInsert = $this->petDAO->Add($pet);
+            } else {
+                $error .= " <br> We cant't add your pet.Check again!";
+            }
+
+            if ($resultInsert != null && $resultInsert != " ") {
                 if (isset($pfp)) {
 
                     $arrayPaths = $this->getImgsPetRegister("pfp", $pfp, $typePet);
-                    move_uploaded_file($arrayPaths["file"],$arrayPaths["pathToSave"]);
-                    $this->petDAO->updatePfp($resultInsert,$arrayPaths["pathToDB"]);
+                    move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
+                    $this->petDAO->updatePfp($resultInsert, $arrayPaths["pathToDB"]);
                     $pet->setPfp($arrayPaths["pathToDB"]);
                 }
-    
+
                 if (isset($video)) {
 
                     $arrayPaths = $this->getImgsPetRegister("video", $video, $typePet);
-                    if($arrayPaths["file"] == null)
-                    {
+                    if ($arrayPaths["file"] == null) {
                         $error =  "Not video uploaded.Update later!";
-                    }else{
-                        $this->petDAO->updateVideo($resultInsert,$arrayPaths["pathToDB"]);
-                        move_uploaded_file($arrayPaths["file"],$arrayPaths["pathToSave"]);
+                    } else {
+                        $this->petDAO->updateVideo($resultInsert, $arrayPaths["pathToDB"]);
+                        move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
                         $pet->setVideo($arrayPaths["pathToDB"]);
                     }
                 }
                 if (isset($vaccPlan)) {
-                    
+
                     $arrayPaths = $this->getImgsPetRegister("vaccPlan", $vaccPlan, $typePet);
-                    move_uploaded_file($arrayPaths["file"],$arrayPaths["pathToSave"]);
-                    $this->petDAO->updateVacc($resultInsert,$arrayPaths["pathToDB"]);
+                    move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
+                    $this->petDAO->updateVacc($resultInsert, $arrayPaths["pathToDB"]);
                     $pet->setVaccPlan($arrayPaths["pathToDB"]);
                 }
             }
         } catch (Exception $ex) {
             $error =  $ex->getMessage();
             $petAdded = $this->petDAO->getPet($resultInsert);
-            if($petAdded->getPfp() == null || $petAdded->getVaccPlan() == null){
+            if ($petAdded->getPfp() == null || $petAdded->getVaccPlan() == null) {
                 $error = "Your pet was added.But upload as soon as you can the VaccPlan/Profile picture";
             }
         }
@@ -280,54 +274,49 @@ class PetService{
         return $this->petDAO->getAllByOwner($ownerCode);
     }
 
-    public function petsByOwnAndType($ownerCode,$typePet)
+    public function petsByOwnAndType($ownerCode, $typePet)
     {
-        $array = $this->petDAO->getAllByTypeAndOwner($ownerCode,$typePet);
+        $array = $this->petDAO->getAllByTypeAndOwner($ownerCode, $typePet);
 
 
         $arrayToEncode = array();
-        foreach($array as $pet)
-        {
+        foreach ($array as $pet) {
             $valsToEncode["petCode"] = $pet->getPetCode();
             $valsToEncode["name"] = $pet->getName();
             //$encodedObj = json_encode($valsToEncode);
-            array_push($arrayToEncode,$valsToEncode);
-            
+            array_push($arrayToEncode, $valsToEncode);
         }
         //var_dump($arrayToEncode);
         $encodedArray = json_encode($arrayToEncode);
         //Supuestamente si no existe el archivo lo crea,pero nop,lo tuve que hacer manual
-        file_put_contents("DAOJson\petsByOwnAndType.json",$encodedArray);
-        
-        
+        file_put_contents("DAOJson\petsByOwnAndType.json", $encodedArray);
+
+
         return $encodedArray;
     }
 
-    public function srv_getPetsByOwnFilters($ownerCode,$typePet,$typeSize)
+    public function srv_getPetsByOwnFilters($ownerCode, $typePet, $typeSize)
     {
-        try{
-            $array = $this->petDAO->getPetsFilteredOwner($ownerCode,$typePet,$typeSize);
+        try {
+            $array = $this->petDAO->getPetsFilteredOwner($ownerCode, $typePet, $typeSize);
 
 
-        $arrayToEncode = array();
-        foreach($array as $pet)
-        {
-            $valsToEncode["petCode"] = $pet->getPetCode();
-            $valsToEncode["name"] = $pet->getName();
-            //$encodedObj = json_encode($valsToEncode);
-            array_push($arrayToEncode,$valsToEncode);
-            
-        }
+            $arrayToEncode = array();
+            foreach ($array as $pet) {
+                $valsToEncode["petCode"] = $pet->getPetCode();
+                $valsToEncode["name"] = $pet->getName();
+                //$encodedObj = json_encode($valsToEncode);
+                array_push($arrayToEncode, $valsToEncode);
+            }
 
-        $encodedArray = json_encode($arrayToEncode);
+            $encodedArray = json_encode($arrayToEncode);
 
 
-        file_put_contents("DAOJson\petsByOwnAndType.json",$encodedArray);
-        
-        
-        return $encodedArray;
-        }catch(Exception $ex)
-        {
+            file_put_contents("DAOJson\petsByOwnAndType.json", $encodedArray);
+
+
+            return $encodedArray;
+        } catch (Exception $ex) {
             $ex->getMessage();
         }
     }
@@ -395,19 +384,15 @@ class PetService{
         }
     }
 
-    public function srv_checkOwnerPet($petCode,$ownerCode)
+    public function srv_checkOwnerPet($petCode, $ownerCode)
     {
-        try{
+        try {
             $result = null;
 
-                if(strpos($ownerCode,"OWN") !== false)
-                {
-                    $result = $this->petDAO->checkOwnerByPet($petCode,$ownerCode);
-                }
-
-            
-        }catch(Exception $ex)
-        {
+            if (strpos($ownerCode, "OWN") !== false) {
+                $result = $this->petDAO->checkOwnerByPet($petCode, $ownerCode);
+            }
+        } catch (Exception $ex) {
             $result = $ex->getMessage();
         }
         return $result;
@@ -440,10 +425,9 @@ class PetService{
                         if (unlink(IMG_PATH . $pfpToDelete)) {
                             $error = "Pfp deleted";
                         }
-                    }else{
+                    } else {
                         $error .= "Error at updating PFP";
                     }
-
                 }
 
 
@@ -457,12 +441,12 @@ class PetService{
                         if ($resultVideo == 1) {
                             move_uploaded_file($arrayPathsVideo["file"], $arrayPathsVideo["pathToSave"]);
 
-                            if (unlink(ROOT. $videoToDelete)) {
+                            if (unlink(ROOT . $videoToDelete)) {
                                 $error = "Video deleted";
-                            } 
-                        }else{
+                            }
+                        } else {
                             $error .= "Error at updating Video";
-                        }                       
+                        }
                     }
                 }
                 if (isset($vaccPlan["tmp_name"]) && $vaccPlan["size"] > 0 && !empty($vaccPlan["tmp_name"])) {
@@ -474,26 +458,23 @@ class PetService{
                         if (unlink(IMG_PATH . $vaccPlanToDelete)) {
                             $error = "Vaccplan deleted";
                         }
-                    }else{
+                    } else {
                         $error .= "Error at updating Vaccplan";
                     }
                 }
             }
 
             //If everything OK ,error takes value = 1
-            if($result == 1)
-            {
+            if ($result == 1) {
                 $error = $result;
             }
 
-            if(isset($size) && !empty($size))
-            {
-                $this->petDAO->updateSize($petCode,$size);
+            if (isset($size) && !empty($size)) {
+                $this->petDAO->updateSize($petCode, $size);
             }
 
-            if(isset($age) && !empty($age))
-            {
-                $this->petDAO->updateAge($petCode,$age);
+            if (isset($age) && !empty($age)) {
+                $this->petDAO->updateAge($petCode, $age);
             }
         } catch (Exception $ex) {
             $error =  $ex->getMessage();
@@ -504,34 +485,34 @@ class PetService{
 
     public function srv_getPet($petCode)
     {
-        try{
-                //Usar regex o modificar logica strpos
-                $pet = $this->petDAO->getPet($petCode);
-
-            
-        }catch(Exception $ex)
-        {
+        try {
+            //Usar regex o modificar logica strpos
+            $pet = $this->petDAO->getPet($petCode);
+        } catch (Exception $ex) {
             $pet = $ex->getMessage();
         }
         return $pet;
     }
 
-    public function srv_deletePet($ownerCode,$petCode)
+    public function srv_deletePet($ownerCode, $petCode)
     {
-        try{
-            if(strpos($ownerCode,"OWN") !== false)
-            {
-                if($this->srv_checkOwnerPet($petCode,$ownerCode) == 1)
-                {
-                    $result = $this->petDAO->deletePet($petCode);
-                }else{
+        try {
+            if (strpos($ownerCode, "OWN") !== false) {
+                if ($this->srv_checkOwnerPet($petCode, $ownerCode) == 1) {
+                    if($this->petDAO->checkPetBookings($petCode) == 0)
+                    {
+                        $resp = $this->petDAO->deletePet($petCode);
+                    }else{
+                        $resp = "Impossible to delete.This pet still attached to a booking in progress!";
+                    }
+                    
+                } else {
                     $resp = "This pet doesn't belong to this owner!";
                 }
-            }else{
-                $resp ="Not except to be here! Good luck!";
+            } else {
+                $resp = "Not except to be here! Good luck!";
             }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $resp = $ex->getMessage();
         }
         return $resp;
@@ -539,14 +520,21 @@ class PetService{
 
     public function srv_getProfilePet($petCode)
     {
-        try{
+        try {
             $pet = $this->petDAO->getPet($petCode);
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $pet = $ex->getMessage();
         }
         return $pet;
     }
-}
 
-?>
+    public function srv_getAllPetsPfp()
+    {
+        try {
+            $images = $this->petDAO->getAllPfps();
+        } catch (Exception $ex) {
+            $images = $ex->getMessage();
+        }
+        return $images;
+    }
+}
