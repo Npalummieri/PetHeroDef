@@ -7,8 +7,6 @@ date_default_timezone_set('America/Argentina/Buenos_Aires');
 
 class Dates{
 
-
-
     public static function validateDate($date)
     {
         $valid = null;
@@ -48,8 +46,7 @@ class Dates{
         $currentDate = new DateTime($currentDateStr);
         
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-        var_dump($date);
-        var_dump($currentDate);
+
         if($dateTime < $currentDate)
         {
             $result = null;
