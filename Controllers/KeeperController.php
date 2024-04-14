@@ -14,8 +14,6 @@ class KeeperController
 {
 
     private $keeperService;
-
-
     private $userService;
     private $reviewService;
 
@@ -29,10 +27,10 @@ class KeeperController
 
     public function registerKeeper($email, $username, $password, $name, $lastname, $dni, $pfp, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay)
     {
-        $typeUser = "keeper";
+        
         $pfpInfo = array();
         $pfpInfo = $_FILES;
-        $userInfo = $this->userService->validateRegisterUser($typeUser, $email, $username, $password, $name, $lastname, $dni, $pfpInfo);
+        $userInfo = $this->userService->validateRegisterUser("keeper", $email, $username, $password, $name, $lastname, $dni, $pfpInfo);
 
         if (is_string($userInfo)) {
             Session::SetBadMessage($userInfo);
@@ -40,7 +38,7 @@ class KeeperController
         } else if (is_array($userInfo)) {
             $user = $this->keeperService->validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay);
             if (!($user instanceof Keeper)) {
-                Session::SetBadMessage($user."Try register again!");
+                Session::SetBadMessage($user . "Try register again!");
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
 
@@ -48,7 +46,7 @@ class KeeperController
                 Session::SetOkMessage("Successfully registered!");
                 header("location: " . FRONT_ROOT . "Home/Index");
             } else {
-                Session::SetBadMessage($user."Try register again!");
+                Session::SetBadMessage($user . "Try register again!");
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
         }
@@ -65,14 +63,12 @@ class KeeperController
         $allKeepers = $this->userService->srv_GetFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, 6);
 
         require_once(VIEWS_PATH . "keeperListPag.php");
-       
     }
 
 
     public function showProfileKeeper($keeperCode = "")
     {
 
-        // $logged = null;
         $loggedKeeper = null;
         $loggedOwner = null;
 
@@ -104,21 +100,21 @@ class KeeperController
         }
     }
 
-    //¿Deberia poder cambiar typePet,typeCare?
+
     public function updateKeeper($email = " ", $pfp = " ", $bio = " ", $price = " ", $visitPerDay = " ")
     {
-        var_dump($_POST);
+
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Keeper") {
 
                 $keeperLogged = Session::GetLoggedUser();
                 $pfpInfo = $_FILES;
                 $result = $this->keeperService->srv_updateKeeper($keeperLogged, $email, $pfpInfo, $bio, $price, $visitPerDay);
-                echo "SOY RESULT";
-                var_dump($result);
+
                 if ($result == 1) {
                     $infoKeeper = $this->keeperService->srv_getKeeperByCode($keeperLogged->getKeeperCode());
                     $infoKeeper = $this->keeperService->srv_getKeeperByCode($keeperLogged->getkeeperCode());
+                    //Delet and re-create to get the updated info!
                     Session::DeleteSession();
                     Session::CreateSession($infoKeeper);
                     require_once(VIEWS_PATH . "myProfileKeeper.php");
@@ -145,7 +141,12 @@ class KeeperController
                 $loggedKeeper = Session::GetLoggedUser();
                 $keeperCode = $loggedKeeper->getKeeperCode();
                 $result = $this->keeperService->srv_updateAvailability($keeperCode, $initDate, $endDate);
+            }else{
+                Session::DeleteSession();
+                header("location: ".FRONT_ROOT."Home/showLoginView");
             }
+        }else{
+            header("location: ".FRONT_ROOT."Home/showLoginView");
         }
         $resEncode = json_encode($result);
         echo $resEncode;
