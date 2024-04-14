@@ -2,10 +2,12 @@
 
 namespace Controllers;
 
-use Models\Pet as Pet;
+
 use Services\PetService as PetService;
 use Utils\Session;
-class PetController{
+
+class PetController
+{
 
 
     private $petService;
@@ -13,7 +15,6 @@ class PetController{
     {
 
         $this->petService = new PetService();
-
     }
 
     public function add($name, $typePet, $size, $breed, $vaccPlan, $video, $pfp, $age)
@@ -24,132 +25,116 @@ class PetController{
                 $files = $_FILES;
                 $loggedUser = Session::GetLoggedUser();
                 $msge = $this->petService->validatePet($name, $typePet, $loggedUser->getOwnerCode(), $size, $breed, $files["vaccPlan"], $files["video"], $files["pfp"], $age);
-                if($msge == null)
-                {
+                if ($msge == null) {
                     Session::SetOkMessage("Pet successfully added");
-                    
-                }else{
+                } else {
                     Session::SetBadMessage($msge);
                 }
                 header("location: " . FRONT_ROOT . "Owner/showMyPets");
             }
         }
-            
     }
 
-    //Podria hacer una variable de scope general que sea $loggedUser = Session::GetLoggedUser(); ???
-    public function updateVaccPlan($petCode,$ownerCode,$vaccPlan)
+    public function updateVaccPlan($petCode, $ownerCode, $vaccPlan)
     {
         $loggedUser = Session::GetLoggedUser();
-        $this->petService->srv_updateVacc($petCode,$ownerCode,$vaccPlan);
+        $this->petService->srv_updateVacc($petCode, $ownerCode, $vaccPlan);
     }
 
-    public function updateVideo($petCode,$ownerCode,$video)
+    public function updateVideo($petCode, $ownerCode, $video)
     {
         $loggedUser = Session::GetLoggedUser();
-        $this->petService->srv_updateVideo($petCode,$ownerCode,$video);
-    } 
-
-    public function updatePfp($petCode,$ownerCode,$pfp)
-    {
-        $loggedUser = Session::GetLoggedUser();
-        $this->petService->srv_updatePfp($petCode,$ownerCode,$pfp);
+        $this->petService->srv_updateVideo($petCode, $ownerCode, $video);
     }
 
-    public function updateAge($petCode,$ownerCode,$age)
+    public function updatePfp($petCode, $ownerCode, $pfp)
     {
         $loggedUser = Session::GetLoggedUser();
-        $this->petService->srv_updateAge($petCode,$ownerCode,$age);
+        $this->petService->srv_updatePfp($petCode, $ownerCode, $pfp);
+    }
+
+    public function updateAge($petCode, $ownerCode, $age)
+    {
+        $loggedUser = Session::GetLoggedUser();
+        $this->petService->srv_updateAge($petCode, $ownerCode, $age);
     }
 
     public function showEditPet($petCode)
     {
-        
+
         $sessionOk = 1;
         if (Session::IsLogged()) {
-            
+
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $loggedOwner = Session::GetLoggedUser();
-                //Chequear que el loggedOwner sea efectivamente dueño
-                $isOwner = $this->petService->srv_checkOwnerPet($petCode,$loggedOwner->getOwnerCode());
-                if($isOwner == 1)
-                {
+
+                $isOwner = $this->petService->srv_checkOwnerPet($petCode, $loggedOwner->getOwnerCode());
+                if ($isOwner == 1) {
                     $pet = $this->petService->srv_getPet($petCode);
-                    
-                    require_once(VIEWS_PATH."editPet.php");
-                }else{
+
+                    require_once(VIEWS_PATH . "editPet.php");
+                } else {
                     Session::SetBadMessage("Not permitted editing");
-                    header("location: ".FRONT_ROOT."Home/showLoginView");
+                    header("location: " . FRONT_ROOT . "Home/showLoginView");
                 }
-            }else{
+            } else {
                 Session::SetBadMessage("You are not an owner");
-                header("location: ".FRONT_ROOT."Home/showLoginView");
+                header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
-        }else{
+        } else {
             Session::SetBadMessage("Log in please :)");
-            header("location: ".FRONT_ROOT."Home/showLoginView");
-        }        
+            header("location: " . FRONT_ROOT . "Home/showLoginView");
+        }
     }
 
-    public function updatePet($petCode,$pfp,$vaccPlan,$video,$size,$age)
+    public function updatePet($petCode, $pfp, $vaccPlan, $video, $size, $age)
     {
 
-        if(Session::IsLogged())
-        {
-            if(Session::GetTypeLogged() == "Models\Owner")
-            {
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
                 $loggedOwner = Session::GetLoggedUser();
                 $files = $_FILES;
-                $result = $this->petService->srv_updatePetInfo($petCode,$loggedOwner->getOwnerCode(),$size,$files["vaccPlan"],$files["video"],$files["pfp"],$age);
+                $result = $this->petService->srv_updatePetInfo($petCode, $loggedOwner->getOwnerCode(), $size, $files["vaccPlan"], $files["video"], $files["pfp"], $age);
 
-                if($result == 1)
-                {
+                if ($result == 1) {
                     Session::SetOkMessage("Updated pet!");
-                    header("location: ".FRONT_ROOT."Owner/showMyPets");
-                }else{
+                    header("location: " . FRONT_ROOT . "Owner/showMyPets");
+                } else {
                     Session::SetBadMessage("Cannot update your pet correctly! Try again");
                     $this->showEditPet($petCode);
                 }
             }
         }
-        
     }
 
     public function deletePet($petCode)
     {
-        if(Session::IsLogged())
-        {
-            if(Session::GetTypeLogged() == "Models\Owner")
-            {   
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
                 $ownerLogged = Session::GetLoggedUser();
-                $result = $this->petService->srv_deletePet($ownerLogged->getOwnerCode(),$petCode);
-                if($result == 1)
-                {
+                $result = $this->petService->srv_deletePet($ownerLogged->getOwnerCode(), $petCode);
+                if ($result == 1) {
                     Session::SetOkMessage("Pet deleted!");
-                    header("location: ".FRONT_ROOT."Owner/showMyPets");
-                }else{
+                    header("location: " . FRONT_ROOT . "Owner/showMyPets");
+                } else {
                     Session::SetBadMessage($result);
-                    header("location: ".FRONT_ROOT."Owner/showMyPets");
+                    header("location: " . FRONT_ROOT . "Owner/showMyPets");
                 }
-            }else{
+            } else {
                 Session::SetBadMessage("U shouldn't be here!");
-                header("location: ".FRONT_ROOT."Home/showLoginView");
+                header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
-        }else{
-            header("location: ".FRONT_ROOT."Home/showLoginView");
-        }  
+        } else {
+            header("location: " . FRONT_ROOT . "Home/showLoginView");
+        }
     }
     public function showPetProfile($petCode)
     {
-        if(Session::IsLogged())
-        {
+        if (Session::IsLogged()) {
             $pet = $this->petService->srv_getProfilePet($petCode);
-            require_once(VIEWS_PATH."profilePet.php");
-        }else{
-            header("location: ".FRONT_ROOT."Home/showLoginView");
+            require_once(VIEWS_PATH . "profilePet.php");
+        } else {
+            header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
-       
     }
 }
-
-?>
