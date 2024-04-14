@@ -10,9 +10,9 @@ const registerPetForm = {
 
             // Escuchar el evento de entrada en el campo
             age.on("input", function () {
-                // Verificar si la longitud del valor es mayor que 8
+
                 if (age.val().length > 2) {
-                    // Si es mayor, recortar el valor a 8 caracteres
+
                     age.val(age.val().slice(0, 2));
                 }
             });
@@ -23,13 +23,13 @@ const registerPetForm = {
 const registerForm = {
     limitDni: function () {
         $(document).ready(function () {
-            // Obtener referencia al campo de entrada usando jQuery
+
             var dni = $("#dni");
     
-            // Escuchar el evento de entrada en el campo
+
             dni.on("input", function () {
             
-                // Obtener el valor actual del campo
+
                 var value = dni.val();
                 
                 // Eliminar caracteres no numéricos del valor (si los hay)
@@ -57,10 +57,10 @@ const breedManage = {
     loadBreed: function (typePet) {
         // Realizar una solicitud AJAX para cargar el archivo JSON correspondiente
 
-        //Hay algo raro con el enrutamiento porque esto no deberia funcionar,pero sin embargo referencia bien a ambos...
+
         var url = typePet === 'dog' ? "../DAOJson/dogBreeds.json" : "../DAOJson/catBreeds.json";
 
-        console.log(url);
+        //console.log(url);
 
         $.ajax({
             url: url,
@@ -90,7 +90,7 @@ const breedManage = {
         // Manejar el cambio en el input de radio
         $('input[type=radio][name=typePet]').change(function () {
             var selected = $(this).val();
-            breedManage.loadBreed(selected); // Aquí utilizamos el nombre completo del objeto breedManage para acceder a la función loadBreed
+            breedManage.loadBreed(selected);
         });
     }
 };
@@ -142,7 +142,7 @@ const FormAjaxModule = {
         // Realizar la llamada AJAX para obtener el atributo visitPerDay del Keeper
         var keeperCode = $("#keeperCode").val();
         var urlMod = "../Keeper/GetVisitPerDay"
-        console.log("keeperCode" + keeperCode);
+        //console.log("keeperCode" + keeperCode);
                 var url = window.location.href;
 
                 // Obtener el código del cuidador de la URL
@@ -152,7 +152,7 @@ const FormAjaxModule = {
                     urlMod = "../../Keeper/GetVisitPerDay"
                 }
         $.ajax({
-            url: urlMod, // Especifica la URL de tu endpoint para obtener visitPerDay
+            url: urlMod, 
             method: 'POST',
             dataType: "json",
             data: {
@@ -190,7 +190,7 @@ const FormAjaxModule = {
                 value: '0',
                 text: `Seleccione su ${typeSelectedPet}`
             }))
-            //typePetCode.options[0].text = `Seleccione su ${typeSelectedPet}`;
+            
         });
     },
 
@@ -201,7 +201,7 @@ const FormAjaxModule = {
             var typeSize = document.getElementById("DivSize");
 
             var urlMod = "../Booking/getPetsByOwnFiltered"
-            console.log("keeperCode" + keeperCode);
+            //console.log("keeperCode" + keeperCode);
                 var url = window.location.href;
 
                 // Obtener el código del cuidador de la URL
@@ -215,8 +215,8 @@ const FormAjaxModule = {
 
             var dataTypePet = typePet.dataset.typepet;
             var dataTypeSize = typeSize.dataset.typesize;
-            console.log(dataTypePet);
-            console.log(dataTypeSize);
+            // console.log(dataTypePet);
+            // console.log(dataTypeSize);
             // Realiza una solicitud AJAX al servidor para obtener las mascotas del tipo seleccionado
             $.ajax({
                 url: urlMod, // Reemplaza con la URL de tu servidor  
@@ -256,12 +256,12 @@ const FormAjaxModule = {
             // Realizar la llamada AJAX para obtener el rango de fechas
             //console.log("BookCode : "+bookCode);
             $.ajax({
-                url: '../../Booking/GetIntervalBooking', // URL de tu script PHP que obtiene el rango de fechas
+                url: '../../Booking/GetIntervalBooking',
                 method: 'POST',
                 data: { bookCode: bookCode },
                 dataType: 'json',
                 success: function(response) {
-                    console.log("SUCCESS: ", response);
+                    // console.log("SUCCESS: ", response);
                     var datesInRange = response; // Suponiendo que el servidor devuelve un arreglo de fechas en el rango
     
                     // Renderizar el calendario con las fechas en el rango
@@ -290,7 +290,6 @@ const FormAjaxModule = {
 const infoModule = {
     keepersByAvail: function () {
         $(document).ready(function () {
-            //En vez de levantar cada variable por separado serializo todo si total lo necesito  y si las horas estan vacias laburo con las fechas
             $('#FilterButton').on('click', function () {
                 var formData = $('#SearchForm').serialize();
 
@@ -313,6 +312,8 @@ const infoModule = {
 
     bioEdit: function () {
         $(document).ready(function () {
+            var curUrl = $('#cururl').data('cururl');
+            var baseUrl = curUrl + "Home/doBio";
             var userCode = $('#bio').data("userlogged");
             $('#editBioBtn').click(function () {
                 $('#bio').hide();
@@ -339,7 +340,7 @@ const infoModule = {
                 }
                 $.ajax({
                     type: 'POST',
-                    url: '../Home/doBio', // Ruta del controlador para guardar la bio
+                    url: baseUrl, // Ruta del controlador para guardar la bio
                     data: { bio: bio,
                             userCode :userCode },
                     success: function(response) {
@@ -376,7 +377,7 @@ const infoModule = {
                     //console.log("RESPONSE : "+JSON.stringify(response));
 
 
-                    // Agrega las nuevas notificaciones al menú desplegable
+                    // Agrega las nuevas notis al menú desplegable
                     $.each(response, function (index, notification) {
                         var timestampFormatted = notification.timestamp;
 
@@ -393,7 +394,7 @@ const infoModule = {
                             numNotis++;
                         }
                     });
-                    console.log(numNotis);
+                    // console.log(numNotis);
                     $('#notificationCount').text(numNotis);
                 },
                 error: function (xhr, status, error) {
@@ -443,12 +444,12 @@ const chatModule = {
                     if(response && response.length > 0)
                         {
                     // Recorrer los datos recibidos y agregar enlaces al contenedor
-                    console.log("RESPONSE :" + response);
+                    // console.log("RESPONSE :" + response);
                     var userLogged = response[0].logged;
-                    console.log("userLogged :" + userLogged);
+                    // console.log("userLogged :" + userLogged);
 
                     var unreadMessages = response[0].unread_messages;
-                    console.log("unreadmsges :" + unreadMessages)
+                    // console.log("unreadmsges :" + unreadMessages);
                     $.each(response, function (index, user) {
                         
 
@@ -720,7 +721,7 @@ const chatModule = {
 
             var message = $("#msg").val();
             var chatCode = $("#sendMsg").data("convercode");
-            console.log("MESSG" + message);
+            // console.log("MESSG" + message);
 
 
             // los "xxxx" tienen que corresponder con lo que reciba el controller
@@ -729,8 +730,8 @@ const chatModule = {
                 "converCode": chatCode
             };
 
-            console.log(dataArray.message);
-            console.log(dataArray.chatCode);
+            // console.log(dataArray.message);
+            // console.log(dataArray.chatCode);
 
 
 
@@ -798,7 +799,7 @@ const KeepersInteract = {
                 urlToSend = '../../Keeper/GetIntervalDates';
             }
 
-            console.log(keeperCode);
+            // console.log(keeperCode);
             // Realizar la llamada AJAX para obtener el rango de fechas
             $.ajax({
                 url: urlToSend, // URL de tu script PHP que obtiene el rango de fechas
@@ -806,7 +807,7 @@ const KeepersInteract = {
                 data: { keeperCode: keeperCode },
                 dataType: 'json',
                 success: function(response) {
-                    console.log("SUCCESS: ", response);
+                    // console.log("SUCCESS: ", response);
                     var datesInRange = response; // Suponiendo que el servidor devuelve un arreglo de fechas en el rango
     
                     // Renderizar el calendario con las fechas en el rango
@@ -850,8 +851,8 @@ const KeepersInteract = {
             var row = $(this).closest("tr");
             var initDate = row.find(".initial-date-input").val();
             var endDate = row.find(".end-date-input").val();
-            
-            
+            var curUrl = $('#cururl').data('cururl');
+            var baseUrl = curUrl + "Keeper/updateAvailability";
             if (!initDate || !endDate) {
                 // Mostrar mensaje de error
                 $("#result-message").text("Please,complete both fields").show();
@@ -859,7 +860,7 @@ const KeepersInteract = {
             }
             
             $.ajax({
-                url: '../Keeper/updateAvailability', // Ruta al controlador
+                url: baseUrl, // Ruta al controlador
                 type: 'POST',
                 data: {
                     initDate: initDate,
@@ -867,8 +868,8 @@ const KeepersInteract = {
                 },
                 dataType: 'json',
                 success: function (response) {
-                    console.log("Actualización exitosa");
-                    console.log("response: " + response);
+                    // console.log("Actualización exitosa");
+                    // console.log("response: " + response);
                     
                     // Recarga la página automáticamente para que se muestre el cambio
                     
@@ -903,12 +904,12 @@ const KeepersInteract = {
                 var card = btn.closest('.card');
                 var additionalInfo = card.find('.additional-info');
                 var codeKeeper = btn.data('codekeeper'); // Obtener el código del guardián desde el atributo data
-                console.log("baseurl"+baseUrl);
-                console.log("CODEKEP"+ codeKeeper);
+                // console.log("baseurl"+baseUrl);
+                // console.log("CODEKEP"+ codeKeeper);
                 //     // Definir la URL base
-                var baseUrl = curUrl + 'Keeper/getAvailability';
+                var baseUrl = curUrl + "Keeper/getAvailability";
 
-                console.log("URL" + baseUrl);
+                // console.log("URL" + baseUrl);
                 $.ajax({
                     
                     url: baseUrl, // Ruta controller
@@ -919,7 +920,7 @@ const KeepersInteract = {
                     dataType: 'JSON',
                     
                     success: function (response) {
-                        console.log(response);
+                        // console.log(response);
                         var html = '<div class="container my-2 text-white ">';
                         html += '<ul class="list-unstyled text-center">';
                         html += '<div class="mx-auto">';
@@ -1114,7 +1115,7 @@ const moduleReview = {
                     url: "../../Review/doReview",
                     data: {  keeperCode : keeperCode,comment: comment, score: score , },
                     success: function(response) {
-                        console.log("REPSONSE" +response);
+                        // console.log("REPSONSE" +response);
                         // Cerrar la ventana emergente después de enviar la revisión
                         $("#reviewPopup").css("display", "none");
                         location.reload();
