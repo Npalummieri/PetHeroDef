@@ -3,31 +3,30 @@
 namespace DAO;
 
 use \Exception as Exception;
-use DAO\QueryType as QueryType;
 use DAO\Connection as Connection;
 use Models\Owner as Owner;
 
 
-class OwnerDAO {
+class OwnerDAO
+{
 
     private $tableName = "owner";
     private $connection;
-    
+
     public function Add(Owner $owner)
     {
         $ownerCode = null;
-        try{
+        try {
 
-            $query = "INSERT INTO ".$this->tableName." (ownerCode,email,username,password,status,name,lastname,dni,pfp)
+            $query = "INSERT INTO " . $this->tableName . " (ownerCode,email,username,password,status,name,lastname,dni,pfp)
             VALUES (:ownerCode,:email,:username,:password,:status,:name,:lastname,:dni,:pfp) ;";
 
             $this->connection = Connection::GetInstance();
 
-            
+
             $parameters["ownerCode"] = $owner->getOwnerCode();
             $parameters["email"] = $owner->getEmail();
             $parameters["username"] = $owner->getUserName();
-            //Averiguar como encriptar pass
             $parameters["password"] = $owner->getPassword();
             $parameters["status"] = $owner->getStatus();
             $parameters["name"] = $owner->getName();
@@ -36,25 +35,23 @@ class OwnerDAO {
             $parameters["pfp"] = null;
 
 
-            $resultInsert = $this->connection->ExecuteNonQuery($query,$parameters);
-            if($resultInsert == 1)
-            {
+            $resultInsert = $this->connection->ExecuteNonQuery($query, $parameters);
+            if ($resultInsert == 1) {
                 $ownerCode = $owner->getOwnerCode();
             }
-        }catch(Exception $ex)
-        {
-            throw $ex;   
+        } catch (Exception $ex) {
+            throw $ex;
         }
 
         //null or ownerCode generated
         return $ownerCode;
     }
 
-    public function updateStatus($code,$status)
+    public function updateStatus($code, $status)
     {
-        try{
+        try {
 
-            $query = "UPDATE ".$this->tableName." 
+            $query = "UPDATE " . $this->tableName . " 
             SET status = :status 
             WHERE ownerCode = :code ;";
 
@@ -62,29 +59,26 @@ class OwnerDAO {
 
             $parameters["status"] = $status;
             $parameters["code"] = $code;
-            
-            return $this->connection->ExecuteNonQuery($query,$parameters);
 
-        }catch(Exception $ex)
-        {
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
     public function GetAll()
     {
-        try{
+        try {
 
             $ownerList = array();
 
-            $query = "SELECT *  FROM ".$this->tableName;
+            $query = "SELECT *  FROM " . $this->tableName;
 
             $this->connection = Connection::GetInstance();
-    
+
             $resultSet = $this->connection->Execute($query);
 
-            foreach($resultSet as $value)
-            {
+            foreach ($resultSet as $value) {
                 $owner = new Owner;
 
                 $owner->setId($value["id"]);
@@ -98,53 +92,45 @@ class OwnerDAO {
                 $owner->setDni($value["dni"]);
                 $owner->setPfp($value["pfp"]);
 
-                array_push($ownerList,$owner);
-            
+                array_push($ownerList, $owner);
             }
 
             return $ownerList;
-
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function Remove($id) //Remove tambien podria pasar al estado de "bajado" y que efectivamente se borrre luego de un tiempo
+    public function Remove($id)
     {
-        try{
+        try {
 
-            $query = "DELETE FROM ".$this->tableName."
+            $query = "DELETE FROM " . $this->tableName . "
                      WHERE id = :id ;";
 
             $parameters["id"] = $id;
 
             $this->connection = Connection::GetInstance();
 
-            $this->connection->ExecuteNonQuery($query,$parameters);
-
-        }catch(Exception $ex)
-        {
+            $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
     public function searchById($id)
     {
-        try{
+        try {
 
-            $query = "SELECT * FROM ".$this->tableName."
+            $query = "SELECT * FROM " . $this->tableName . "
                     WHERE id = :id;";
 
             $this->connection = Connection::GetInstance();
 
-            //Creo que resultSet devuelve el puntero al arreglo que se forma a partir de las filas de la query
+
             $resultSet = $this->connection->Execute($query);
 
-            //Lo mejor es pasarlo a un objeto y de ahi retornamos
-            // --Probar unserialize serialize
-            foreach($resultSet as $value)
-            {
+            foreach ($resultSet as $value) {
                 $owner = new Owner;
 
                 $owner->setId($value["id"]);
@@ -160,144 +146,128 @@ class OwnerDAO {
             }
 
             return $owner;
-
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function checkUsername($username) 
+    public function checkUsername($username)
     {
-        try
-        {
-            $query = "SELECT COUNT(*) as result FROM ".$this->tableName." WHERE username = :username ;"; //Limit 1 corta la busqueda si ya encontro 1 coincidencia ta
-            
+        try {
+            $query = "SELECT COUNT(*) as result FROM " . $this->tableName . " WHERE BINARY username = :username ;"; //Limit 1 to not oversearch
+
             $parameters["username"] = $username;
-           
+
             $this->connection = Connection::GetInstance();
 
-            $result = $this->connection->Execute($query,$parameters);
-            
+            $result = $this->connection->Execute($query, $parameters);
 
-            foreach($result as $row) //Itero sobre el resultado ya que el framework utiliza fetchAll (Entiendo que podria utilizar fetchColumn para traer el resultado de count(*) y listo)
-            {
+
+            foreach ($result as $row) {
                 $finalRes = $row[0];
             }
-            
+
             return $finalRes;
-        }
-        catch(Exception $ex)
-        {
-           
+        } catch (Exception $ex) {
+
             throw $ex;
         }
     }
 
     public function searchByEmail($email)
     {
-        try{
-            $query = "SELECT * FROM ".$this->tableName."
+        try {
+            $query = "SELECT * FROM " . $this->tableName . "
             WHERE email = :email ;";
 
             $parameters["email"] = $email;
 
             $this->connection = Connection::GetInstance();
 
-            $resultSet = $this->connection->Execute($query,$parameters);
-             
-            if(empty($resultSet))
-            {
-                $owner = null;
-            }else
-            {
-                foreach($resultSet as $value)
-            {
-                $owner = new Owner();
-                $owner->setId($value["id"]);
-                $owner->setOwnerCode($value["ownerCode"]);
-                $owner->setEmail($value["email"]);
-                $owner->setUserName($value["username"]);
-                $owner->setPassword($value["password"]);
-                $owner->setStatus($value["status"]);
-                $owner->setName($value["name"]);
-                $owner->setLastname($value["lastname"]);
-                $owner->setDni($value["dni"]);
-                $owner->setPfp($value["pfp"]);
-            }
-            }
-            
-            return $owner;
+            $resultSet = $this->connection->Execute($query, $parameters);
 
-        }catch(Exception $ex)
-        {
+            if (empty($resultSet)) {
+                $owner = null;
+            } else {
+                foreach ($resultSet as $value) {
+
+                    $owner = new Owner();
+
+                    $owner->setId($value["id"]);
+                    $owner->setOwnerCode($value["ownerCode"]);
+                    $owner->setEmail($value["email"]);
+                    $owner->setUserName($value["username"]);
+                    $owner->setPassword($value["password"]);
+                    $owner->setStatus($value["status"]);
+                    $owner->setName($value["name"]);
+                    $owner->setLastname($value["lastname"]);
+                    $owner->setDni($value["dni"]);
+                    $owner->setPfp($value["pfp"]);
+                }
+            }
+
+            return $owner;
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
     public function searchByUsername($username)
     {
-        try{
-            $query = "SELECT * FROM ".$this->tableName."
-            WHERE username = :username;";
+        try {
+            //Compare the data as bytes and not as string
+            $query = "SELECT * FROM " . $this->tableName . "
+            WHERE BINARY username = :username;";
 
             $parameters["username"] = $username;
 
             $this->connection = Connection::GetInstance();
 
-            //Asumo que con Laravel+ORM te podes ahorrar todo esto de setear TODAS las variables pero bueno...
-            $resultSet = $this->connection->Execute($query,$parameters);
+            $resultSet = $this->connection->Execute($query, $parameters);
 
-            if($resultSet == null)
-            {
+            if ($resultSet == null) {
                 $owner = null;
-            }else
-            {
-                foreach($resultSet as $value)
-            {
-                $owner = new Owner();
+            } else {
+                foreach ($resultSet as $value) {
+                    
+                    $owner = new Owner();
 
-                $owner->setId($value["id"]);
-                $owner->setOwnerCode($value["ownerCode"]);
-                $owner->setEmail($value["email"]);
-                $owner->setUserName($value["username"]);
-                $owner->setPassword($value["password"]);
-                $owner->setStatus($value["status"]);
-                $owner->setName($value["name"]);
-                $owner->setLastname($value["lastname"]);
-                $owner->setDni($value["dni"]);
-                $owner->setPfp($value["pfp"]);
-            }
+                    $owner->setId($value["id"]);
+                    $owner->setOwnerCode($value["ownerCode"]);
+                    $owner->setEmail($value["email"]);
+                    $owner->setUserName($value["username"]);
+                    $owner->setPassword($value["password"]);
+                    $owner->setStatus($value["status"]);
+                    $owner->setName($value["name"]);
+                    $owner->setLastname($value["lastname"]);
+                    $owner->setDni($value["dni"]);
+                    $owner->setPfp($value["pfp"]);
+                }
             }
             return $owner;
-
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    //Podria ser un count y listo pero bueno depende lo que necesite!
+
     public function searchByCode($code)
     {
-        try{
+        try {
 
-            $query = "SELECT * FROM ".$this->tableName." 
+            $query = "SELECT * FROM " . $this->tableName . " 
             WHERE ownerCode = :ownerCode ;";
 
             $this->connection = Connection::GetInstance();
 
             $parameters["ownerCode"] = $code;
 
-            //Creo que resultSet devuelve el puntero al arreglo que se forma a partir de las filas de la query
-            $resultSet = $this->connection->Execute($query,$parameters);
 
-            //Lo mejor es pasarlo a un objeto y de ahi retornamos
-            // --Probar unserialize serialize
+            $resultSet = $this->connection->Execute($query, $parameters);
+
             $owner = new Owner();
-            foreach($resultSet as $value)
-            {
-                
+            foreach ($resultSet as $value) {
+
 
                 $owner->setId($value["id"]);
                 $owner->setOwnerCode($value["ownerCode"]);
@@ -311,11 +281,7 @@ class OwnerDAO {
                 $owner->setPfp($value["pfp"]);
                 $owner->setBio($value["bio"]);
             }
-
-           
-
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
         return $owner;
@@ -323,31 +289,30 @@ class OwnerDAO {
 
     public function getPassword($email)
     {
-        try{
-            $query = "SELECT password FROM ".$this->tableName."
+        try {
+            $query = "SELECT password FROM " . $this->tableName . "
             where email = :email;";
 
             $this->connection = Connection::GetInstance();
 
             $parameters["email"] = $email;
 
-            $resultSet = $this->connection->Execute($query,$parameters);
+            $resultSet = $this->connection->Execute($query, $parameters);
 
             $arrPwd = array_shift($resultSet);
 
             $pwd = $arrPwd["password"];
 
             return $pwd;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function updatePfp($ownerCode,$pfp)
+    public function updatePfp($ownerCode, $pfp)
     {
-        try{
-            $query = "UPDATE ".$this->tableName." 
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET pfp = :pfp
             WHERE ownerCode = :ownerCode;";
 
@@ -355,20 +320,20 @@ class OwnerDAO {
 
             $parameters["pfp"] = $pfp;
             $parameters["ownerCode"] = $ownerCode;
-            
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-        }catch(Exception $ex)
-        {   
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function updateEmail($ownerCode,$email){
-        try{
-            $query = "UPDATE ".$this->tableName." 
+    public function updateEmail($ownerCode, $email)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET email = :email 
             WHERE ownerCode = :ownerCode;";
 
@@ -377,20 +342,19 @@ class OwnerDAO {
             $parameters["ownerCode"] = $ownerCode;
             $parameters["email"] = $email;
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function updateBio($ownerCode,$bio){
-        try{
+    public function updateBio($ownerCode, $bio)
+    {
+        try {
 
-            $query = "UPDATE ".$this->tableName." 
+            $query = "UPDATE " . $this->tableName . " 
             SET bio = :bio
             WHERE ownerCode = :ownerCode;";
 
@@ -399,19 +363,18 @@ class OwnerDAO {
             $parameters["ownerCode"] = $ownerCode;
             $parameters["bio"] = $bio;
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             throw $ex;
         }
-
     }
 
-    public function updatePassword($email,$password)
+    public function updatePassword($email, $password)
     {
-        try{
-            $query = "UPDATE ".$this->tableName." 
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET password = :password 
             WHERE email = :email ;";
 
@@ -420,11 +383,28 @@ class OwnerDAO {
             $parameters["email"] = $email;
             $parameters["password"] = $password;
 
-            return $this->connection->ExecuteNonQuery($query,$parameters);
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function checkDni($dni)
+    {
+        try{
+            $query = "SELECT COUNT(*) FROM ".$this->tableName." 
+            WHERE dni = :dni;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameter["dni"] = $dni;
+
+            $result = $this->connection->Execute($query,$parameter);
+
+            return $result[0][0];
         }catch(Exception $ex)
         {
             throw $ex;
         }
     }
-
 }

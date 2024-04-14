@@ -3,9 +3,8 @@
 namespace DAO;
 
 use \Exception as Exception;
-use DAO\QueryType as QueryType;
 use DAO\Connection as Connection;
-use Models\Owner as Owner;
+
 
 use Models\Pet as Pet;
 
@@ -25,7 +24,6 @@ class PetDAO {
             VALUES (:petCode,:name,:pfp,:ownerCode,:size,:breed,:vaccPlan,:video,:typePet,:age);";
             
             $this->connection = Connection::GetInstance();            
-            //Aca va a haber un error porque si es de tipo BIRD la cantidad se limita a 99 me parece pq el codePet esta limitado a 6 caract
             $parameters["petCode"] = $pet->getPetCode();
             $parameters["name"] = $pet->getName();
             $parameters["pfp"] = $pet->getPfp();
@@ -140,7 +138,7 @@ class PetDAO {
         }
     }
 
-    //Selecciona las mascotas del owner por tipo y tamaño
+
     public function getPetsFilteredOwner($ownerCode,$typePet,$typeSize)
     {
         try{
@@ -284,7 +282,7 @@ class PetDAO {
         }
     }
 
-    //Validamos que el codigo del pet sea un owner que exista
+
     public function checkOwnerByPet($petCode,$ownerCode)
     {
         try{
@@ -338,6 +336,27 @@ class PetDAO {
         }
     }
 
+    public function checkPetBookings($petCode)
+    {
+        try{
+            $query = "SELECT COUNT(*) FROM booking 
+            WHERE petCode = :petCode AND (status = :pen OR status = :conf OR status = :paid );";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["petCode"] = $petCode;
+            $parameters["pen"] = "pending"; 
+            $parameters["conf"] = "confirmed"; 
+            $parameters["paid"] = "paidup"; 
+
+            $result = $this->connection->Execute($query,$parameters);
+
+            return $result[0][0];
+            }catch(Exception $ex)
+        {
+            throw $ex;
+        }
+    }
     public function deletePet($petCode)
     {
         try{
@@ -354,6 +373,28 @@ class PetDAO {
         {
             throw $ex;
         }
+    }
+
+    public function getAllPfps()
+    {
+        try{
+            $query = "SELECT pfp FROM ".$this->tableName;
+
+            $this->connection = Connection::GetInstance();
+
+            $resultSet = $this->connection->Execute($query);
+
+            $arrImages = array();
+            for($i = 0; $i < count($resultSet);$i++)
+            {
+                array_push($arrImages,$resultSet[$i]["pfp"]);
+            }
+           //var_dump($arrImages);
+        }catch(Exception $ex)
+        {
+            throw $ex;
+        }
+        return $arrImages;
     }
 
 }
