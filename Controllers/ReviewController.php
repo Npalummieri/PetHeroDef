@@ -12,10 +12,7 @@ use Utils\Session as Session;
 
 class ReviewController
 {
-
-
     private $reviewService;
-
 
     public function __construct()
     {
@@ -30,25 +27,26 @@ class ReviewController
                 $loggedUser = Session::GetLoggedUser();
                 $results = $this->reviewService->srv_canReview($loggedUser->getOwnerCode(), $keeperCode);
                 if ($results["result"] >= 1) {
-                    if($results["resultCountReview"] <= 2)
-                    {
+                    if ($results["resultCountReview"] <= 2) {
                         $this->reviewService->srv_add($loggedUser->getOwnerCode(), $keeperCode, $comment, $score);
                         Session::SetOkMessage("Review added successfully!");
-                    }else{
+                    } else {
                         Session::SetBadMessage("Error making the review.Can't review it more than 3 times ");
                     }
-                   // header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
+                    //The Jquery/Ajax refresh the page
+                    //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 } else {
                     Session::SetBadMessage("Error making the review.You must have a FINISHED booking with this keeper");
+                    //The Jquery/Ajax refresh the page
                     //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 }
             } else {
-                header("location: " . FRONT_ROOT . "Home/showLoginView");
                 Session::DeleteSession();
+                header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
         } else {
-            header("location: " . FRONT_ROOT . "Home/showLoginView");
             Session::DeleteSession();
+            header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
 
