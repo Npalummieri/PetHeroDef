@@ -4,7 +4,7 @@ namespace DAO;
 
 use \Exception as Exception;
 use DAO\Connection as Connection;
-
+use Models\Status as Status;
 
 use Models\Pet as Pet;
 
@@ -345,9 +345,9 @@ class PetDAO {
             $this->connection = Connection::GetInstance();
 
             $parameters["petCode"] = $petCode;
-            $parameters["pen"] = "pending"; 
-            $parameters["conf"] = "confirmed"; 
-            $parameters["paid"] = "paidup"; 
+            $parameters["pen"] = Status::PENDING; 
+            $parameters["conf"] = Status::CONFIRMED; 
+            $parameters["paid"] = Status::PAIDUP; 
 
             $result = $this->connection->Execute($query,$parameters);
 

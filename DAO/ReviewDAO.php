@@ -5,6 +5,7 @@ namespace DAO;
 use \Exception as Exception;
 use Models\Review as Review;
 use DAO\Connection as Connection;
+use Models\Status as Status;
 
 class ReviewDAO
 {
@@ -141,7 +142,7 @@ class ReviewDAO
 
             $parameters["ownerCode"] = $ownerCode;
             $parameters["keeperCode"] = $keeperCode;
-            $parameters["status"] = "finished";
+            $parameters["status"] = Status::FINISHED;
 
             //if 1 or +1 could review
             $result = $this->connection->Execute($query, $parameters);

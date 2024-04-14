@@ -11,6 +11,7 @@ use Exception;
 use DateTime as DateTime;
 use Utils\PHPMailer\Mailer as Mailer;
 use Utils\Dates as Dates;
+use Models\Status as Status;
 
 class CouponService
 {
@@ -170,7 +171,7 @@ class CouponService
             if(Dates::currentCheck($bookingToCheck->getInitDate()) == null)
             {
                 $this->bookingDAO->cancelBooking($coupon->getBookCode());
-                $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),"cancelled");
+                $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),Status::CANCELLED);
                 throw new Exception("Too late to pay this booking,is already cancelled");
             }
             if ($checkCc && $checkCh && $ccvLimitLen) {
@@ -189,7 +190,7 @@ class CouponService
 
 
                     //Update the booking to paidup
-                    $this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"], "paidup");
+                    $this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"], Status::PAIDUP);
 
 
                     $bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);

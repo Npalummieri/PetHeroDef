@@ -5,6 +5,7 @@ namespace DAO;
 use \Exception as Exception;
 use DAO\Connection as Connection;
 use Models\Booking as Booking;
+use Models\Status as Status;
 
 class BookingDAO
 {
@@ -27,7 +28,7 @@ class BookingDAO
             $parameters["petCode"] = $booking->getPetCode();
             $parameters["initDate"] = $booking->getInitDate();
             $parameters["endDate"] = $booking->getEndDate();
-            $parameters["status"] = "pending";
+            $parameters["status"] = Status::PENDING;
             $parameters["totalPrice"] = $booking->getTotalPrice();
             $parameters["totalDays"] = $booking->getTotalDays();
             $parameters["visitPerDay"] = $booking->getVisitPerDay();
@@ -473,7 +474,7 @@ class BookingDAO
             $this->connection = Connection::GetInstance();
 
             $parameters["bbookCode"] = $bookCode;
-            $parameters["status"] = "cancelled";
+            $parameters["status"] = Status::CANCELLED;
 
             $result = $this->connection->ExecuteNonQuery($query, $parameters);
 

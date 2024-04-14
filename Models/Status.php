@@ -1,5 +1,7 @@
 <?php
 
+namespace Models;
+
 class Status{
     const CONFIRMED = "confirmed";
     const CANCELLED = "cancelled";
@@ -9,6 +11,7 @@ class Status{
     const PAIDUP = "paidup";
     const ACTIVE = "active";
     const INACTIVE = "inactive";
+    const SUSPENDED = "suspended";
 }
 
 ?>

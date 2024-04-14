@@ -14,7 +14,7 @@ use Utils\Dates as Dates;
 use \DateInterval as DateInterval;
 use \DatePeriod as DatePeriod;
 use DAO\NotificationDAO as NotificationDAO;
-
+use Models\Status as Status;
 
 class BookingService
 {
@@ -158,7 +158,7 @@ class BookingService
 
 
                 if ($conf <= 1 && ($confTwo != null || $confTwo != 0) && Dates::currentCheck($booking->getInitDate()) != null) {
-                    $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), "confirmed");
+                    $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CONFIRMED);
                     if ($resp == 1) {
                         $result = $this->couponService->srv_GenerateCouponToOwner($codeBook);
                         $this->notificationDAO->generateNoti("Coupon generated,go to 'myCoupons' to check it!",$booking->getOwnerCode());
@@ -169,7 +169,7 @@ class BookingService
                     } else if ($confTwo == null || $confTwo == 0) {
                         $result = "Check your first confirmed reservation of the day.You are restricted to that breed!";
                     }else if(Dates::currentCheck($booking->getInitDate()) == null){
-                        $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), "cancelled");
+                        $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CANCELLED);
                         $result = "The booking expired,too late for confirmation";
                     }
                 }

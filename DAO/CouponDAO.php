@@ -5,6 +5,7 @@ namespace DAO;
 use DateTime;
 use Models\Coupon as Coupon;
 use Exception;
+use Models\Status;
 
 
 class CouponDAO
@@ -25,7 +26,7 @@ class CouponDAO
             $parameters["couponCode"] = $coupon->getCouponCode();
             $parameters["bookCode"] = $coupon->getBookCode();
             $parameters["price"] = $coupon->getPrice();
-            $parameters["status"] = "pending";
+            $parameters["status"] = Status::PENDING;
 
             $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
@@ -188,7 +189,7 @@ class CouponDAO
 
             $this->connection = Connection::GetInstance();
 
-            $parameters["statusCoup"] = "paidup";
+            $parameters["statusCoup"] = Status::PAIDUP;
             $parameters["couponCode"] = $couponCode;
 
             $res = $this->connection->ExecuteNonQuery($query, $parameters);
@@ -228,7 +229,7 @@ class CouponDAO
                 WHERE b.bookCode = :bookCode ;";
 
                 $parameter["bookCode"] = $resultqJoin[0]["bookCode"];
-                $parameter["status"] = "rejected";
+                $parameter["status"] = Status::REJECTED;
 
 
                 $resultUpdate = $this->connection->ExecuteNonQuery($queryBooking, $parameter);
@@ -249,7 +250,7 @@ class CouponDAO
                 $suspensionDateFormatted = $suspensionDate->format('Y-m-d H:i:s');
 
                 $parametersP["bookCode"] = $bookCodeValue;
-                $parametersP["status"] = "suspended";
+                $parametersP["status"] = Status::SUSPENDED;
                 $parametersP["suspdate"] = $suspensionDateFormatted; 
 
                 $resultPunish = $this->connection->ExecuteNonQuery($query, $parametersP);

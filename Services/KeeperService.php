@@ -10,6 +10,7 @@ use \DateTime as DateTime;
 use Models\Keeper as Keeper;
 use Models\User as User;
 use Utils\Dates as Dates;
+use Models\Size as Size;
 
 class KeeperService
 {
@@ -39,9 +40,9 @@ class KeeperService
         try {
             $msgeError = 1;
             if (isset($typeCare)) {
-                if ($typeCare != "big") {
-                    if ($typeCare != "medium") {
-                        if ($typeCare != "small") {
+                if ($typeCare != Size::BIG) {
+                    if ($typeCare != Size::MEDIUM) {
+                        if ($typeCare != Size::SMALL) {
                             $msgeError = "Not size allowed";
                         }
                     }

@@ -2,12 +2,11 @@
 
 namespace Controllers;
 
-
-
 use DAO\ownerDAO as OwnerDAO;
 use DAO\keeperDAO as KeeperDAO;
 use Utils\Session as Session;
 use Services\UserService as UserService;
+use Models\Status as Status;
 
 class AuthController
 {
@@ -16,17 +15,12 @@ class AuthController
     private $userService;
     private $keeperDAO;
 
-
-
     public function __construct()
     {
         $this->ownerDAO = new OwnerDAO();
         $this->keeperDAO = new KeeperDAO();
         $this->userService = new UserService($this->ownerDAO, $this->keeperDAO);
     }
-
-
-
 
     public function Login($userField, $password)
     {
@@ -48,11 +42,11 @@ class AuthController
                 $userLogged = Session::GetLoggedUser();
                 //"active" the status for the user
 
-                if ($userLogged->getStatus() === "inactive") {
+                if ($userLogged->getStatus() === Status::INACTIVE) {
                     if (Session::GetTypeLogged() == "Models\Owner") {
-                        $this->userService->srv_updateStatusUser($userLogged->getOwnerCode(), "active");
+                        $this->userService->srv_updateStatusUser($userLogged->getOwnerCode(),Status::ACTIVE);
                     } else {
-                        $this->userService->srv_updateStatusUser($userLogged->getKeeperCode(), "active");
+                        $this->userService->srv_updateStatusUser($userLogged->getKeeperCode(),Status::ACTIVE);
                     }
                 }
 

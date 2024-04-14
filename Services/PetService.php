@@ -6,6 +6,7 @@ use Models\Pet as Pet;
 use \Exception as Exception;
 use Services\OwnerService as OwnerService;
 use DAO\PetDAO as PetDAO;
+use Models\Size as Size;
 
 class PetService
 {
@@ -179,7 +180,7 @@ class PetService
 
 
             //Checking sizes
-            if ($size != "big" && $size != "medium" && $size != "small") {
+            if ($size != Size::BIG && $size != Size::MEDIUM && $size != Size::SMALL) {
                 $error .= " Not size allowed ";
             } else {
                 $pet->setSize($size);

@@ -9,6 +9,7 @@ use DAO\notificationDAO as NotificationDAO;
 use DateTime;
 use \Exception as Exception;
 use Models\User as User;
+use Models\Status as Status;
 use Utils\Dates as Dates;
 use Utils\PHPMailer\Mailer as Mailer;
 
@@ -191,7 +192,7 @@ class UserService
             }
 
 
-            $user->setStatus("inactive");
+            $user->setStatus(Status::INACTIVE);
 
             //Check spaces for +2 words name
             $name_alpha_spaces = ctype_alpha(str_replace(' ', '', $name));

@@ -5,7 +5,7 @@ namespace DAO;
 use \Exception as Exception;
 use Models\Conversation as Conversation;
 use DAO\Connection as Connection;
-
+use Models\Status as Status;
 
 class  conversationDAO
 {
@@ -36,7 +36,7 @@ class  conversationDAO
                 $parameters["codeConv"] = $uniqueId;
                 $parameters["keeperCode"] = $keeperCode;
                 $parameters["ownerCode"] = $ownerCode;
-                $parameters["status"] = "active";
+                $parameters["status"] = Status::ACTIVE;
 
                 $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
