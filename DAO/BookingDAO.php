@@ -57,13 +57,12 @@ class BookingDAO
             WHERE ownerCode = :ownerCode
             AND petCode = :petCode
             AND initDate >= :initDate
-            AND endDate <= :endDate;";
-            //remove this in case some owner want to make 2 exact bookings but on diff keeps
-            //            AND keeperCode = :keeperCode
+            AND endDate <= :endDate 
+            AND keeperCode = :keeperCode;";
             $this->connection = Connection::GetInstance();
 
             $parameters["ownerCode"] = $ownerCode;
-            //$parameters["keeperCode"] = $keeperCode;
+            $parameters["keeperCode"] = $keeperCode;
             $parameters["petCode"] = $petCode;
             $parameters["initDate"] = $initDate;
             $parameters["endDate"] = $endDate;
@@ -563,6 +562,36 @@ class BookingDAO
 
             return $result[0][0];
         } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function actionPostConfirm($bookCode,$petCode,$initDate,$endDate)
+    {
+        try{
+            $query = "UPDATE ".$this->tableName." 
+            SET status = 'cancelled'
+            WHERE petCode = :petCode
+            AND bookCode != :bookCode
+            AND (
+                (initDate <= :p_initDate AND endDate >= :p_initDate) OR
+                (initDate <= :p_endDate AND endDate >= :p_endDate) OR
+                (initDate >= :p_initDate AND endDate <= :p_endDate) OR
+                (initDate >= :p_initDate AND endDate <= :p_initDate)
+            );";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["bookCode"] = $bookCode;
+            $parameters["petCode"] = $petCode;
+            $parameters["p_initDate"] = $initDate;
+            $parameters["p_endDate"] = $endDate;
+
+            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+
+            return $result;
+        }catch(Exception $ex)
+        {
             throw $ex;
         }
     }

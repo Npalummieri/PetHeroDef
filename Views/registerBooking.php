@@ -2,7 +2,7 @@
 include_once("nav.php"); ?>
 
 <div class="container col-sm-12 col-md-8 col-lg-4">
-  <h1 class="bg-dark text-white text-center">MAKE YOUR BOOKING</h1>
+  <h1 class="bg-dark text-white text-center rounded">MAKE YOUR BOOKING</h1>
     <div class="card text-white" style="background-color: #110257;" >
       <div class="card-body">
         

@@ -265,7 +265,7 @@ class CouponDAO
     {
         try {
 
-            $query = "SELECT COUNT(*) FROM " . $this->tableName . " 
+            $query = "SELECT couponCode FROM " . $this->tableName . " 
             WHERE bookCode = :bookCode;";
 
             $this->connection = Connection::GetInstance();
@@ -273,13 +273,11 @@ class CouponDAO
             $parameter["bookCode"] = $bookCode;
 
             $resultSet = $this->connection->Execute($query, $parameter);
-
-
-            $resp = $resultSet[0][0];
+            
         } catch (Exception $ex) {
             throw $ex;
         }
-        return $resp;
+        return $resultSet[0][0];
     }
 
     //check if the coupon we try to see matchs with the ownerLogged in their booking

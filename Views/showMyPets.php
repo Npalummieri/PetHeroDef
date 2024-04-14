@@ -14,7 +14,7 @@ include("nav.php");
     <form action="" method="">
     <?php if($myPets == null || empty($myPets))
                 {?>
-                   <p class=' text-center' style='background-color: #110257;'>No pets registered! Go to <a class='text-white' href="<?php echo FRONT_ROOT.'Owner/showAddPet' ?>">AddPet</a></p>;
+                   <p class=' text-center text-white' style='background-color: #110257;'>No pets registered! Go to <a class='text-white' href="<?php echo FRONT_ROOT.'Owner/showAddPet' ?>">AddPet</a></p>;
               <?php  } ?>
       <?php
       foreach ($myPets as $pet) {

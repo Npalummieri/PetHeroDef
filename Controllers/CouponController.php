@@ -47,10 +47,12 @@ class CouponController
     {
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
-
+                
                 $result = $this->couponService->srv_checkCouponOwner($couponCode, Session::GetLoggedUser()->getOwnerCode());
                 if ($result >= 1) {
+                    var_dump($couponCode);
                     $coupon = $this->couponService->srv_getInfoFullCoup($couponCode);
+                    var_dump($coupon);
                     require_once(VIEWS_PATH . "manageCoupon.php");
                 } else {
                     Session::DeleteSession();
@@ -72,7 +74,6 @@ class CouponController
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $couponCode = $this->couponService->srv_getCoupCodeByBook($bookCode);
-
                 $this->myCouponView($couponCode);
             }
         } else {

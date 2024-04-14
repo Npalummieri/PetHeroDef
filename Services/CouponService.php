@@ -47,7 +47,7 @@ class CouponService
 
             if ($booking != null) {
 
-                if ($this->couponDAO->getCoupCodeByBook($bookCode) != 1) {
+                if (($this->couponDAO->getCoupCodeByBook($bookCode)) == " " || ($this->couponDAO->getCoupCodeByBook($bookCode)) == null ) {
                     $coupon = new Coupon();
 
                     $coupon->setPrice($booking->getTotalPrice());

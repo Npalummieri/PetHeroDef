@@ -87,6 +87,7 @@ class BookingService
                     if ($this->bookingDAO->checkOverBooking($booking) == 1) {
                         if ($initDate >= $keeper->getInitDate() && $endDate <= $keeper->getEndDate()) {
                             $resp = $this->bookingDAO->Add($booking);
+                            
                         } else {
                             $resp = "Your dates doesn't match withe the ones specified by the Keeper!";
                         }
@@ -160,6 +161,7 @@ class BookingService
                 if ($conf <= 1 && ($confTwo != null || $confTwo != 0) && Dates::currentCheck($booking->getInitDate()) != null) {
                     $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CONFIRMED);
                     if ($resp == 1) {
+                        $this->bookingDAO->actionPostConfirm($booking->getBookCode(),$booking->getPetCode(),$booking->getInitDate(),$booking->getEndDate());
                         $result = $this->couponService->srv_GenerateCouponToOwner($codeBook);
                         $this->notificationDAO->generateNoti("Coupon generated,go to 'myCoupons' to check it!",$booking->getOwnerCode());
                     }
