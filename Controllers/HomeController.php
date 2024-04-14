@@ -2,39 +2,30 @@
 
 namespace Controllers;
 
-use Services\KeeperService as KeeperService;
-use Services\OwnerService as OwnerService;
+use Services\PetService as PetService;
 use Services\UserService as UserService;
 use Utils\Session as Session;
 
-class HomeController{
+class HomeController
+{
 
     private $userService;
-    private $ownerService;
-    private $keeperService;
-    private $ownerController;
+    private $petService;
 
     public function __construct()
     {
-        $this->ownerService = new OwnerService();
-        $this->keeperService = new KeeperService();
         $this->userService = new UserService();
-        //$this->ownerController = new OwnerController();
+        $this->petService = new PetService();
     }
 
     public function Index($msgResult = " ")
     {
-
-        //Es exactamente lo mismo que Owner/showKeeperListPag pero ya seteamos en 1 para que al requerir el doc keeperListPag ya venga la 1pag
-        //Quiza usar un header sea mejor? Quizá
-        //Sin ceil la cuenta resulta en 1.5 y nunca redondea para dar paso a la sig pagina
         $totalPages = ceil(count($allKeepers = $this->userService->getKeepersInfoAvai()) / 6);
 
         $allKeepers = $this->userService->srv_getKeepersInfoAvaiPag(1, 6);
         require_once(VIEWS_PATH . "index.php");
     }
 
-    //Ahora
     public function showKeeperListPag($pageNumber)
     {
 
@@ -46,66 +37,98 @@ class HomeController{
 
         require_once(VIEWS_PATH . "keeperListPag.php");
     }
+
     public function showOwnerRegisterView($msgResult = " ")
     {
-        require_once(VIEWS_PATH."registerOwner.php");
+        require_once(VIEWS_PATH . "registerOwner.php");
     }
 
     public function showKeeperRegisterView($msgResult = " ")
     {
-        require_once(VIEWS_PATH."registerKeeper.php");
+        require_once(VIEWS_PATH . "registerKeeper.php");
     }
 
     public function showLoginView($message = " ")
     {
-        require_once(VIEWS_PATH."login.php");
+        require_once(VIEWS_PATH . "login.php");
     }
 
     public function showChooseRegister()
     {
-        require_once(VIEWS_PATH."chooseRegister.php");
+        require_once(VIEWS_PATH . "chooseRegister.php");
     }
 
     public function showKeeperListView($keeperListParam)
     {
-        echo "keeperListParam :";
-        var_dump($keeperListParam);
         $newArray = array();
-        array_push($newArray,$keeperListParam);
-        // echo "keeperListParam :";
-        // var_dump($keeperListParam);
+        array_push($newArray, $keeperListParam);
         $allKeepers = $newArray;
-        require_once(VIEWS_PATH."keeperListPag.php");
+        require_once(VIEWS_PATH . "keeperListPag.php");
     }
 
     public function Logout()
     {
         Session::DeleteSession();
-        header("Location: ../index.php");
+        header("location: ".FRONT_ROOT."Home/Index");
         exit();
     }
 
-    public function doBio($bio,$userCode)
+    public function doBio($bio, $userCode)
     {
-        var_dump($bio);
-        var_dump($userCode);
-        echo "POST";
-        var_dump($_POST);
-        if(Session::IsLogged())
-        {
-            $result = $this->userService->srv_updateBio($bio,$userCode);
-        }else{
-            header("location: ".FRONT_ROOT."Home/Index");
+        if (Session::IsLogged()) {
+            $result = $this->userService->srv_updateBio($bio, $userCode);
+        } else {
+            header("location: " . FRONT_ROOT . "Home/Index");
         }
-       
     }
 
     public function showHowWorks()
     {
-        require_once(VIEWS_PATH."howitworks.php");
+        $images = $this->petService->srv_getAllPetsPfp();
+        require_once(VIEWS_PATH . "howitworks.php");
     }
 
-    
-}
+    public function getNotis()
+    {
+        if(Session::IsLogged())
+        {
+            //$user = Session::GetLoggedUser();
 
-?>
+            if(Session::GetTypeLogged() == "Models\Owner")
+            {
+                $notis = $this->userService->srv_getNotis(Session::GetLoggedUser()->getOwnerCode());
+                $notisencoded = json_encode($notis);
+            }else if(Session::GetTypeLogged() == "Models\Keeper")
+            {
+                $notis = $this->userService->srv_getNotis(Session::GetLoggedUser()->getKeeperCode());
+                $notisencoded = json_encode($notis);
+            }else{
+                Session::DeleteSession();
+                header("location: ".FRONT_ROOT."Home/showLoginView");
+            }
+        }
+
+        echo $notisencoded;
+    }
+    
+    public function resetNotis()
+    {
+        if(Session::IsLogged())
+        {
+            //$user = Session::GetLoggedUser();
+
+            if(Session::GetTypeLogged() == "Models\Owner")
+            {
+                $notis = $this->userService->srv_resetNotis(Session::GetLoggedUser()->getOwnerCode());
+                
+            }else if(Session::GetTypeLogged() == "Models\Keeper")
+            {
+                $notis = $this->userService->srv_resetNotis(Session::GetLoggedUser()->getKeeperCode());
+                
+            }else{
+                Session::DeleteSession();
+                header("location: ".FRONT_ROOT."Home/showLoginView");
+            }
+        }
+    }
+}

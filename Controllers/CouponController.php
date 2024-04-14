@@ -5,9 +5,8 @@ namespace Controllers;
 use Services\CouponService as CouponService;
 use Utils\Session as Session;
 
-class CouponController{
-
-
+class CouponController
+{
     private $couponService;
 
     public function __construct()
@@ -39,7 +38,7 @@ class CouponController{
                 $myCoupons = $this->couponService->srv_getCouponsByOwn($codeOwnerLogged);
                 require_once(VIEWS_PATH . "myCoupons.php");
             }
-        }else{
+        } else {
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
@@ -48,23 +47,22 @@ class CouponController{
     {
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
-                
-                $result = $this->couponService->srv_checkCouponOwner($couponCode,Session::GetLoggedUser()->getOwnerCode());
-                if($result >= 1)
-                {
+
+                $result = $this->couponService->srv_checkCouponOwner($couponCode, Session::GetLoggedUser()->getOwnerCode());
+                if ($result >= 1) {
                     $coupon = $this->couponService->srv_getInfoFullCoup($couponCode);
                     require_once(VIEWS_PATH . "manageCoupon.php");
-                }else{
+                } else {
                     Session::DeleteSession();
                     Session::SetBadMessage("Not your coupon");
-                    header("location: ".FRONT_ROOT."Home/showLoginView");
+                    header("location: " . FRONT_ROOT . "Home/showLoginView");
                 }
-                
-            }else{
+            } else {
+                Session::DeleteSession();
                 Session::SetBadMessage("Back to log");
-                header("location: ".FRONT_ROOT."Home/showLoginView");
+                header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
-        }else{
+        } else {
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
@@ -73,11 +71,11 @@ class CouponController{
     {
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
-        $couponCode = $this->couponService->srv_getCoupCodeByBook($bookCode);
+                $couponCode = $this->couponService->srv_getCoupCodeByBook($bookCode);
 
-        $this->myCouponView($couponCode);
+                $this->myCouponView($couponCode);
             }
-        }else{
+        } else {
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
@@ -93,7 +91,7 @@ class CouponController{
                     setcookie('couponcode', $couponCode, time() + (600), "/"); //10min
                     require_once(VIEWS_PATH . "payCoup.php");
                 } else {
-
+                    Session::DeleteSession();
                     Session::SetBadMessage("Not your coupon");
                     header("location: " . FRONT_ROOT . "Home/showLoginView");
                 }
@@ -101,7 +99,7 @@ class CouponController{
                 Session::DeleteSession();
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
-        }else{
+        } else {
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
@@ -114,43 +112,38 @@ class CouponController{
                 $response = $this->couponService->srv_validateCoup($couponCode, $ccnum, $cardholder, $expdate, $ccv);
                 if ($response != 1) {
                     Session::SetBadMessage($response);
-                    header("location: ".FRONT_ROOT."Coupon/payCouponView/".$couponCode);
+                    header("location: " . FRONT_ROOT . "Coupon/payCouponView/" . $couponCode);
                 } else {
                     Session::SetOkMessage("Payment aproved!");
-                    header("location: ".FRONT_ROOT."Coupon/showMyCoupons");
+                    header("location: " . FRONT_ROOT . "Coupon/showMyCoupons");
                 }
-            }else{
+            } else {
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
-        }else{
+        } else {
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
-    
+
     public function declineCoupon($couponCode)
     {
-        if(Session::IsLogged())
-        {
-            if(Session::GetTypeLogged() == "Models\Owner")
-            {
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
                 $result = $this->couponService->srv_checkCouponOwner($couponCode, Session::GetLoggedUser()->getOwnerCode());
                 if ($result >= 1) {
-                $resp = $this->couponService->srv_declineCoupon($couponCode);
-                if($resp == 1)
-                {
-                    Session::SetOkMessage("Coupon cancelled successfully");
-                }else{
-                    Session::SetBadMessage($resp);
-                }
-                }else{
+                    $resp = $this->couponService->srv_declineCoupon($couponCode);
+                    if ($resp == 1) {
+                        Session::SetOkMessage("Coupon cancelled successfully");
+                    } else {
+                        Session::SetBadMessage($resp);
+                    }
+                } else {
                     Session::SetBadMessage($result);
                 }
-                header("location: ".FRONT_ROOT."Coupon/showMyCoupons");
+                header("location: " . FRONT_ROOT . "Coupon/showMyCoupons");
             }
-        }else{
+        } else {
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
-        
     }
 }
-?>
