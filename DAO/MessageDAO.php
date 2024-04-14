@@ -248,10 +248,6 @@ class MessageDAO
             name,
             ";
 
-            //hice where b.status = 'confirmed' pero en realidad deberia hacer el join con los coupons = 'paidup'
-            //En teoria si es own voy a buscar sus respectivos keepers con los que tenga reserva confirmed y si es keepers al reves
-
-            //verifica que la cadena comience con "OWN" o "KEP" y le sigan 3 digitos
             if (strpos($codeLogged, "OWN") !== false) {
                 $query .= "k.lastname,k.keeperCode as codeUser,k.pfp,
                 m.seen,
@@ -345,6 +341,26 @@ class MessageDAO
 
             return $codes;
         } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function getUnseen($converCode,$codeUser)
+    {
+        try{
+            $query = "SELECT COUNT(*) FROM ".$this->tableName." 
+            WHERE seen = 0 AND chatCode = :converCode AND codeReceiver = :codeUser ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["converCode"] = $converCode;
+            $parameters["codeUser"] = $codeUser;
+
+            $result = $this->connection->Execute($query,$parameters);
+            
+            return $result[0][0];
+        }catch(Exception $ex)
+        {
             throw $ex;
         }
     }

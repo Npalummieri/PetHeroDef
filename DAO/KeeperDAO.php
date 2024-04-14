@@ -8,7 +8,7 @@ use DAO\Connection as Connection;
 use Models\Keeper as Keeper;
 
 
-class KeeperDAO 
+class KeeperDAO
 {
 
     private $tableName = "keeper";
@@ -54,16 +54,15 @@ class KeeperDAO
 
             return $keeperCode;
         } catch (Exception $ex) {
-            echo $ex->getMessage();
             throw $ex;
         }
     }
 
-    public function updateStatus($code,$status)
+    public function updateStatus($code, $status)
     {
-        try{
+        try {
 
-            $query = "UPDATE ".$this->tableName." 
+            $query = "UPDATE " . $this->tableName . " 
             SET status = :status  
             WHERE keeperCode = :code ;";
 
@@ -72,10 +71,8 @@ class KeeperDAO
             $parameters["code"] = $code;
             $parameters["status"] = $status;
 
-            return $this->connection->ExecuteNonQuery($query,$parameters);
-
-        }catch(Exception $ex)
-        {
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
@@ -163,8 +160,6 @@ class KeeperDAO
                     $keeper->setVisitPerDay($value["visitPerDay"]);
                 }
             }
-
-            
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -252,8 +247,6 @@ class KeeperDAO
                     $keeper->setBio($value["bio"]);
                 }
             }
-
-            
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -266,40 +259,36 @@ class KeeperDAO
 
             $arrayFullInfo = array();
 
-            $query = "SELECT * FROM " . $this->tableName .";";
+            $query = "SELECT * FROM " . $this->tableName . ";";
 
             $this->connection = Connection::GetInstance();
 
             $resultSet = $this->connection->Execute($query);
 
-            foreach ($resultSet as $row){
-                    $keeper = new Keeper();
+            foreach ($resultSet as $row) {
+                $keeper = new Keeper();
 
-                    $keeper->setId($row["id"]);
-                    $keeper->setkeeperCode($row["keeperCode"]);
-                    $keeper->setEmail($row["email"]);
-                    $keeper->setUserName($row["username"]);
-                    $keeper->setPassword($row["password"]);
-                    $keeper->setStatus($row["status"]);
-                    $keeper->setName($row["name"]);
-                    $keeper->setLastname($row["lastname"]);
-                    $keeper->setDni($row["dni"]);
-                    $keeper->setPfp($row["pfp"]);
-                    $keeper->setTypeCare($row["typeCare"]);
-                    $keeper->setPrice($row["price"]);
-                    $keeper->setTypePet($row["typePet"]);
-                    $keeper->setScore($row["score"]);
-                    $keeper->setInitDate($row["initDate"]);
-                    $keeper->setEndDate($row["endDate"]);
-                    $keeper->setVisitPerDay($row["visitPerDay"]);
-
-
-                    array_push($arrayFullInfo, $keeper);
-                } 
-            
-           
+                $keeper->setId($row["id"]);
+                $keeper->setkeeperCode($row["keeperCode"]);
+                $keeper->setEmail($row["email"]);
+                $keeper->setUserName($row["username"]);
+                $keeper->setPassword($row["password"]);
+                $keeper->setStatus($row["status"]);
+                $keeper->setName($row["name"]);
+                $keeper->setLastname($row["lastname"]);
+                $keeper->setDni($row["dni"]);
+                $keeper->setPfp($row["pfp"]);
+                $keeper->setTypeCare($row["typeCare"]);
+                $keeper->setPrice($row["price"]);
+                $keeper->setTypePet($row["typePet"]);
+                $keeper->setScore($row["score"]);
+                $keeper->setInitDate($row["initDate"]);
+                $keeper->setEndDate($row["endDate"]);
+                $keeper->setVisitPerDay($row["visitPerDay"]);
 
 
+                array_push($arrayFullInfo, $keeper);
+            }
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -325,29 +314,29 @@ class KeeperDAO
             $arrayKeepers = array();
             foreach ($resultSet as $row) {
 
-    
-                    $keeper = new Keeper();
 
-                    $keeper->setId($row["id"]);
-                    $keeper->setkeeperCode($row["keeperCode"]);
-                    $keeper->setEmail($row["email"]);
-                    $keeper->setUserName($row["username"]);
-                    $keeper->setPassword($row["password"]);
-                    $keeper->setStatus($row["status"]);
-                    $keeper->setName($row["name"]);
-                    $keeper->setLastname($row["lastname"]);
-                    $keeper->setDni($row["dni"]);
-                    $keeper->setPfp($row["pfp"]);
-                    $keeper->setTypeCare($row["typeCare"]);
-                    $keeper->setPrice($row["price"]);
-                    $keeper->setTypePet($row["typePet"]);
-                    $keeper->setScore($row["score"]);
-                    $keeper->setInitDate($row["initDate"]);
-                    $keeper->setEndDate($row["endDate"]);
-                    $keeper->setVisitPerDay($row["visitPerDay"]);
+                $keeper = new Keeper();
+
+                $keeper->setId($row["id"]);
+                $keeper->setkeeperCode($row["keeperCode"]);
+                $keeper->setEmail($row["email"]);
+                $keeper->setUserName($row["username"]);
+                $keeper->setPassword($row["password"]);
+                $keeper->setStatus($row["status"]);
+                $keeper->setName($row["name"]);
+                $keeper->setLastname($row["lastname"]);
+                $keeper->setDni($row["dni"]);
+                $keeper->setPfp($row["pfp"]);
+                $keeper->setTypeCare($row["typeCare"]);
+                $keeper->setPrice($row["price"]);
+                $keeper->setTypePet($row["typePet"]);
+                $keeper->setScore($row["score"]);
+                $keeper->setInitDate($row["initDate"]);
+                $keeper->setEndDate($row["endDate"]);
+                $keeper->setVisitPerDay($row["visitPerDay"]);
 
 
-                    array_push($arrayKeepers, $keeper);
+                array_push($arrayKeepers, $keeper);
             }
 
             return $arrayKeepers;
@@ -356,7 +345,7 @@ class KeeperDAO
         }
     }
 
-    public function getKeepersByDates($initDate, $endDate,$size, $typePet,$visitPerDay,$pageNumber, $resultsPerPage)
+    public function getKeepersByDates($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, $resultsPerPage)
     {
         try {
 
@@ -364,7 +353,7 @@ class KeeperDAO
             $offset = ($pageNumber - 1) * $resultsPerPage;
 
             $query = "CALL GetFilteredKeepers(?,?,?,?,?,?,?);";
-            
+
 
             $parameters["p_initDate"] = $initDate;
             $parameters["p_endDate"] = $endDate;
@@ -375,39 +364,38 @@ class KeeperDAO
             $parameters["p_resultsPerPage"] = $resultsPerPage;
 
             $this->connection = Connection::GetInstance();
-            var_dump($parameters);
             $resultSet = $this->connection->Execute($query, $parameters, QueryType::StoredProccedure);
             $arrayFullInfo = array();
             foreach ($resultSet as $row) {
 
-                    $keeper = new Keeper();
+                $keeper = new Keeper();
 
-                    $keeper->setId($row["id"]);
-                    $keeper->setkeeperCode($row["keeperCode"]);
-                    $keeper->setEmail($row["email"]);
-                    $keeper->setUserName($row["username"]);
-                    $keeper->setPassword($row["password"]);
-                    $keeper->setStatus($row["status"]);
-                    $keeper->setName($row["name"]);
-                    $keeper->setLastname($row["lastname"]);
-                    $keeper->setDni($row["dni"]);
-                    $keeper->setPfp($row["pfp"]);
-                    $keeper->setTypeCare($row["typeCare"]);
-                    $keeper->setPrice($row["price"]);
-                    $keeper->setTypePet($row["typePet"]);
-                    $keeper->setScore($row["score"]);
-                    $keeper->setInitDate($row["initDate"]);
-                    $keeper->setEndDate($row["endDate"]);
-                    $keeper->setVisitPerDay($row["visitPerDay"]);
+                $keeper->setId($row["id"]);
+                $keeper->setkeeperCode($row["keeperCode"]);
+                $keeper->setEmail($row["email"]);
+                $keeper->setUserName($row["username"]);
+                $keeper->setPassword($row["password"]);
+                $keeper->setStatus($row["status"]);
+                $keeper->setName($row["name"]);
+                $keeper->setLastname($row["lastname"]);
+                $keeper->setDni($row["dni"]);
+                $keeper->setPfp($row["pfp"]);
+                $keeper->setTypeCare($row["typeCare"]);
+                $keeper->setPrice($row["price"]);
+                $keeper->setTypePet($row["typePet"]);
+                $keeper->setScore($row["score"]);
+                $keeper->setInitDate($row["initDate"]);
+                $keeper->setEndDate($row["endDate"]);
+                $keeper->setVisitPerDay($row["visitPerDay"]);
 
 
-                    array_push($arrayFullInfo, $keeper);
-                } 
-            
-            var_dump($arrayFullInfo);
+                array_push($arrayFullInfo, $keeper);
+            }
+
+
             return $arrayFullInfo;
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            throw $ex;
         }
     }
 
@@ -467,10 +455,10 @@ class KeeperDAO
         }
     }
 
-    public function updateAvailability($keeperCode,$initDate,$endDate)
+    public function updateAvailability($keeperCode, $initDate, $endDate)
     {
-        try{
-            $query = "UPDATE ".$this->tableName." 
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET initDate = :initDate,endDate = :endDate 
             WHERE keeperCode = :keeperCode;";
 
@@ -480,11 +468,8 @@ class KeeperDAO
             $parameters["initDate"] = $initDate;
             $parameters["endDate"] = $endDate;
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
-
-            
-        }catch(Exception $ex)
-        {
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
             throw $ex;
         }
         return $result;
@@ -506,9 +491,10 @@ class KeeperDAO
         }
     }
 
-    public function updateEmail($keeperCode,$email){
-        try{
-            $query = "UPDATE ".$this->tableName." 
+    public function updateEmail($keeperCode, $email)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET email = :email 
             WHERE keeperCode = :keeperCode;";
 
@@ -517,19 +503,18 @@ class KeeperDAO
             $parameters["keeperCode"] = $keeperCode;
             $parameters["email"] = $email;
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function updateBio($keeperCode,$bio){
-        try{
-            $query = "UPDATE ".$this->tableName." 
+    public function updateBio($keeperCode, $bio)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET bio = :bio
             WHERE keeperCode = :keeperCode;";
 
@@ -538,18 +523,18 @@ class KeeperDAO
             $parameters["keeperCode"] = $keeperCode;
             $parameters["bio"] = $bio;
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function updatePrice($keeperCode,$price)
+    public function updatePrice($keeperCode, $price)
     {
-        try{
-            $query = "UPDATE ".$this->tableName." 
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET price = :price
             WHERE keeperCode = :keeperCode;";
 
@@ -558,44 +543,43 @@ class KeeperDAO
             $parameters["keeperCode"] = $keeperCode;
             $parameters["price"] = $price;
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
     public function getDatesByCode($keeperCode)
     {
-        try{
+        try {
 
-            $query = "SELECT initDate,endDate FROM ".$this->tableName." 
+            $query = "SELECT initDate,endDate FROM " . $this->tableName . " 
             WHERE keeperCode = :keeperCode;";
 
             $this->connection = Connection::GetInstance();
 
             $parameter["keeperCode"] = $keeperCode;
 
-            $resultSet = $this->connection->Execute($query,$parameter);
+            $resultSet = $this->connection->Execute($query, $parameter);
 
             $arrayDates = array();
-            foreach($resultSet as $row)
-            {
+            foreach ($resultSet as $row) {
                 $arrayDates["initDate"] = $row["initDate"];
                 $arrayDates["endDate"] = $row["endDate"];
             }
 
             return $arrayDates;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function updateVisitDay($keeperCode,$visit){
-        try{
-            $query = "UPDATE ".$this->tableName." 
+    public function updateVisitDay($keeperCode, $visit)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET visitPerDay = :visit 
             WHERE keeperCode = :keeperCode";
 
@@ -603,20 +587,18 @@ class KeeperDAO
             $parameters["visit"] = $visit;
             $this->connection = Connection::GetInstance();
 
-            $result = $this->connection->ExecuteNonQuery($query,$parameters);
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
             return $result;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
-
     }
 
-    public function updatePassword($email,$password)
+    public function updatePassword($email, $password)
     {
-        try{
-            $query = "UPDATE ".$this->tableName." 
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET password = :password 
             WHERE email = :email ;";
 
@@ -625,7 +607,25 @@ class KeeperDAO
             $parameters["email"] = $email;
             $parameters["password"] = $password;
 
-            return $this->connection->ExecuteNonQuery($query,$parameters);
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function checkDni($dni)
+    {
+        try{
+            $query = "SELECT COUNT(*) FROM ".$this->tableName." 
+            WHERE dni = :dni;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameter["dni"] = $dni;
+
+            $result = $this->connection->Execute($query,$parameter);
+
+            return $result[0][0];
         }catch(Exception $ex)
         {
             throw $ex;
