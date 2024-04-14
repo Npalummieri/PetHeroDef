@@ -6,15 +6,19 @@ use Models\Coupon as Coupon;
 use DAO\CouponDAO as CouponDAO;
 use DAO\BookingDAO as BookingDAO;
 use DAO\conversationDAO as ConversationDAO;
+use DAO\NotificationDAO as NotificationDAO;
 use Exception;
 use DateTime as DateTime;
 use Utils\PHPMailer\Mailer as Mailer;
+use Utils\Dates as Dates;
 
-class CouponService{
+class CouponService
+{
 
     private $couponDAO;
     private $bookingDAO;
     private $conversationDAO;
+    private $notificationDAO;
     private $mailer;
 
     public function __construct()
@@ -22,10 +26,12 @@ class CouponService{
         $this->couponDAO = new CouponDAO();
         $this->bookingDAO = new BookingDAO();
         $this->conversationDAO = new ConversationDAO();
+        $this->notificationDAO = new NotificationDAO();
         $this->mailer = new Mailer();
     }
 
-    public function generateCode() {
+    public function generateCode()
+    {
 
         $uuid = uniqid('COU', true);
 
@@ -40,7 +46,7 @@ class CouponService{
 
             if ($booking != null) {
 
-                if ($this->couponDAO->getCoupCodeByBook($bookCode)!= 1) {
+                if ($this->couponDAO->getCoupCodeByBook($bookCode) != 1) {
                     $coupon = new Coupon();
 
                     $coupon->setPrice($booking->getTotalPrice());
@@ -48,10 +54,9 @@ class CouponService{
                     $coupon->setCouponCode($this->generateCode());
 
                     $resultInsert = $this->couponDAO->Add($coupon);
-                }else{
+                } else {
                     $resultInsert = "This booking already has a coupon associated";
                 }
-                
             }
         } catch (Exception $ex) {
             $resultInsert = $ex->getMessage();
@@ -64,7 +69,6 @@ class CouponService{
         try {
             $couponsArr = array();
             $couponsArr = $this->couponDAO->getAllCouponsByOwner($ownerCode);
-            
         } catch (Exception $ex) {
             $couponsArr = $ex->getMessage();
         }
@@ -87,34 +91,34 @@ class CouponService{
     {
         // Delete blankspaces
         $cardNumberFormatted = str_replace(" ", "", $cardnumber);
-        
+
         //Reverse cardnumber
         $reversedCardNumber = strrev($cardNumberFormatted);
-        
+
         $sum = 0;
-        
+
         // Iterate each digit
         for ($i = 0; $i < strlen($reversedCardNumber); $i++) {
 
             $digit = (int)$reversedCardNumber[$i];
-            
+
             // odd or even
             $isEvenIndex = ($i % 2 == 0);
-            
+
             // if is odd *2
             if (!$isEvenIndex) {
                 $digit *= 2;
-                
-                
+
+
                 if ($digit > 9) {
                     $digit -= 9;
                 }
             }
-            
+
 
             $sum += $digit;
         }
-        
+
         return ($sum % 10 == 0);
     }
 
@@ -122,109 +126,106 @@ class CouponService{
     {
         $pattern = "/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]{2,30}(?:\s+[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+){1,5}(?:\s+[-\sa-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+)?$/";
 
-        return preg_match($pattern,$cardHolder);
+        return preg_match($pattern, $cardHolder);
     }
 
 
     //already checked with ajax/jquery also server-side
-    public function srv_validateCoup($couponCode,$ccnum,$cardholder,$expDate,$ccv)
+    public function srv_validateCoup($couponCode, $ccnum, $cardholder, $expDate, $ccv)
     {
-        try
-        {
+        try {
             $today = new DateTime();
             $today->format('Y-m-d H:i:s');
 
-            //transformar expDate a month/year
-            $monthAndYear = explode("/",$expDate);
+            // expDate to month/year
+            $monthAndYear = explode("/", $expDate);
             //Array ( [0] => 03 [1] => 24 ) ex: 03/24
             $month = $monthAndYear[0];
             $year = $monthAndYear[1];
 
             $flag = false;
 
-
             $checkCc = $this->validateCardNumber($ccnum);
-            if($checkCc == false)
-            {
+            if ($checkCc == false) {
                 throw new Exception("Not validate credit number!");
             }
-            
+
             $checkCh = $this->validateCardHolder($cardholder);
-            if($checkCh == false)
-            {
+            if ($checkCh == false) {
                 throw new Exception("Not validate card holder!");
             }
-            if($month < 1 && $month > 12 && $month <= $today->format('m'))
-            {
+            if ($month < 1 && $month > 12 && $month <= $today->format('m')) {
                 throw new Exception("Impossible this month");
-                
-            }else if("20".$year < $today->format('Y'))
-            {
+            } else if ("20" . $year < $today->format('Y')) {
                 throw new Exception("Impossible this year");
             }
 
-            $ccvStr = sprintf('%03d',$ccv); //3 digits 
+            $ccvStr = sprintf('%03d', $ccv); //3 digits 
 
             $ccvLimitLen = substr($ccvStr, 0, 3);
 
-
-            if($checkCc && $checkCh && $ccvLimitLen)
+            $coupon = $this->couponDAO->getCouponByCode($couponCode);
+            $bookingToCheck = $this->bookingDAO->GetByCode($coupon->getBookCode());
+            // echo "booking to check ".var_dump($bookingToCheck);
+            if(Dates::currentCheck($bookingToCheck->getInitDate()) == null)
             {
+                $this->bookingDAO->cancelBooking($coupon->getBookCode());
+                $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),"cancelled");
+                throw new Exception("Too late to pay this booking,is already cancelled");
+            }
+            if ($checkCc && $checkCh && $ccvLimitLen) {
                 //Return 1,1 row modified to paidup
                 $flag = $this->couponDAO->paidUpCoupon($couponCode);
-               
+
                 $fullCoup = $this->couponDAO->getFullInfoCoupon($couponCode);
-                   
-
-                    if($flag == 1){
 
 
-                        //Sending email
-
-                        $sended = $this->mailer->sendingEmail("nicoop910@gmail.com",$fullCoup,VIEWS_PATH."couponMail.php");
-                        
-                        
-                        //Update the booking to paidup
-                        $this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"],"paidup");
+                if ($flag == 1) {
 
 
-                        $bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
+                    //Sending email
+
+                    $sended = $this->mailer->sendingEmail("nicoop910@gmail.com", $fullCoup, VIEWS_PATH . "couponMail.php");
 
 
-                        //get the idConver between keeper/owner or generate a new one from both 'parts'
-                        $idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(),$bookingPaidup->getOwnerCode());
+                    //Update the booking to paidup
+                    $this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"], "paidup");
 
-                    }else{
-                        throw new Exception("We couldn't validate your pay!");
-                    }
-               
+
+                    $bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
+
+
+                    //get the idConver between keeper/owner or generate a new one from both 'parts'
+                    $idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(), $bookingPaidup->getOwnerCode());
+                } else {
+                    throw new Exception("We couldn't validate your pay!");
+                }
             }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $flag =  $ex->getMessage();
         }
-            
-            return $flag;
+
+        return $flag;
     }
 
 
-    //Validar lo de 24hs
+
     public function srv_declineCoupon($couponCode)
     {
-        try{
+        try {
             $coupon = $this->couponDAO->getCouponByCode($couponCode);
             $datesBooking = $this->bookingDAO->getDatesByCode($coupon->getBookCode());
-            $initDateFormat = DateTime::createFromFormat("Y-m-d",$datesBooking["initDate"]);
+            $booking = $this->bookingDAO->GetByCode($coupon->getBookCode());
+            $initDateFormat = DateTime::createFromFormat("Y-m-d", $datesBooking["initDate"]);
             $currentDateTime = new DateTime();
-            if($initDateFormat > $currentDateTime )
-            {
-                //este decline coupon deberia medio en cascada cancelar el booking a cancelled too
+            if ($initDateFormat > $currentDateTime) {
+
                 $result = $this->couponDAO->declineCoupon($couponCode);
-            }else{
+                $this->notificationDAO->generateNoti("Your account will be suspended for 48hs.Your active bookings/coupon will stay but cannot generate new ones",$booking->getOwnerCode());
+            } else {
                 $result = "Not possible cancel.Too late (minimum 24hs)";
             }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $result = $ex->getMessage();
         }
         return $result;
@@ -236,27 +237,21 @@ class CouponService{
 
             $couponCode = $this->couponDAO->getCoupCodeByBook($bookCode);
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+           $couponCode = $ex->getMessage();
         }
         return $couponCode;
     }
 
-    public function srv_checkCouponOwner($couponCode,$ownerCodeLogged)
+    public function srv_checkCouponOwner($couponCode, $ownerCodeLogged)
     {
-        try{
-            $result = $this->couponDAO->checkCouponOwner($couponCode,$ownerCodeLogged);
-            if($result != 1)
-            {
+        try {
+            $result = $this->couponDAO->checkCouponOwner($couponCode, $ownerCodeLogged);
+            if ($result != 1) {
                 $result = "The owner doesn't has coincidence with the owner of coupon!";
             }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $result = $ex->getMessage();
         }
         return $result;
     }
 }
-
-
-
-?>

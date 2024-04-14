@@ -15,23 +15,21 @@ class KeeperService
 {
 
     private $keeperDAO;
-
     private $userService;
 
     public function __construct()
     {
         $this->keeperDAO = new KeeperDAO();
-
         $this->userService = new UserService(null, $this->keeperDAO);
     }
 
 
     public function generateCode()
     {
-        // Genera un UUID único
-        $uuid = uniqid('KEP', true); // Utiliza 'KEP' como prefijo
 
-        // Devuelve el ownerCode generado
+        $uuid = uniqid('KEP', true);
+
+
         return $uuid;
     }
 
@@ -70,9 +68,10 @@ class KeeperService
 
 
             if ((Dates::validateDate($initDate) != null && Dates::validateDate($endDate) != null) && (Dates::currentCheck($initDate) && Dates::currentCheck($endDate))
-                && (Dates::validateAndCompareDates($initDate,$endDate) >= 0)) {
+                && (Dates::validateAndCompareDates($initDate, $endDate) >= 0)
+            ) {
 
-               
+
                 $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
             } else {
                 $msgeError = "Something wrong with the dates";
@@ -108,8 +107,7 @@ class KeeperService
     {
         try {
             $error = 1;
-            echo "SOY PFPINFO service";
-            var_dump($pfpInfo);
+
             $keeperSearched = $this->keeperDAO->searchByKeeperCode($keeperLogged->getKeeperCode());
             $pfpToDelete = $keeperSearched->getPfp();
             if (isset($pfpInfo["pfp"]["tmp_name"]) && !empty($pfpInfo["pfp"]["tmp_name"])) {
@@ -123,10 +121,9 @@ class KeeperService
                 $extension = explode(".", $nameFile);
 
 
-                //Deberia verificar la integridad de la img/archivo que no contenga nada raro
                 $admittedTypes = ["image/jpg", "image/png", "image/jpeg", "image/bmp", "image/gif"];
 
-                //El MIME es un id que valida que lo que se sube es una imagen como tal y no por ejemplo un archivo.exe con extension cambiada
+                //MIME : ID format
                 $mime = mime_content_type($pfpInfo["pfp"]["tmp_name"]);
 
                 if (!in_array($mime, $admittedTypes)) {
@@ -134,67 +131,60 @@ class KeeperService
                 } else if ($imgSize > 3 * 1024 * 1024) {
                     $error = "Not supported size";
                 } else {
-                    //Tomo el nombre del archivo del lado del cliente
+                    //(filename client-side)
                     $name_pfp = $pfpInfo["pfp"]["name"];
 
-                    //Tomo el archivo como tal (Donde esta almacenado temporalmente)
+                    //temporal path (file)
                     $pfp = $pfpInfo["pfp"]["tmp_name"];
 
 
-                    //hasheo el archivo
+                    //hash
                     $hashedNameFile = hash_file('sha1', $pfp);
                     $pathToSave =  PFP_KEEPERS . $hashedNameFile . '.' . $extension[1];
-                    //Ruta guardada en BD de la ruta 
+                    //path en BD 
                     $pathToBD = "PFPKeepers/" . $hashedNameFile . '.' . $extension[1];
-                    echo "PATH TO SAVE PATH TO BD PFP";
-                    var_dump($pathToSave);
-                    var_dump($pathToBD);
-                    var_dump($pfp);
                     $result = $this->keeperDAO->updatePfp($keeperLogged->getKeeperCode(), $pathToBD);
                     if ($result == 1) {
                         move_uploaded_file($pfp, $pathToSave);
                         if (unlink(IMG_PATH . $pfpToDelete)) {
-                            $error = "El archivo se borró correctamente.";
-                        } // else { Pq si el archivo no se pudo borrar es pq probablemente no existe
-                        //     $error = "No se pudo borrar el archivo.";
-                        // }
+                            $error = "File deleted successfully.";
+                        }
                     }
                 }
-            }
 
 
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $msgeError = "Not an Email";
-            } else {
-                $email = trim($email);
-                $this->keeperDAO->updateEmail($keeperLogged->getKeeperCode(), $email);
-            }
-
-            if (isset($bio) && !empty($bio) && $bio != null) {
-                if (preg_match('/[^a-z0-9!.,?=$]/i', $bio)) {
-                    // Si la expresión regular encuentra algún caracter que no sea letra, dígito o signo de puntuación básico, la función devuelve false
-                    $error = "error at bio";
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $msgeError = "Not an Email";
                 } else {
-                    $this->keeperDAO->updateBio($keeperLogged->getKeeperCode(), $bio);
+                    $email = trim($email);
+                    $this->keeperDAO->updateEmail($keeperLogged->getKeeperCode(), $email);
                 }
-            }
 
-            if ($price != "") {
-                if ($price > 0) {
-                    $this->keeperDAO->updatePrice($keeperLogged->getKeeperCode(), $price);
+                if (isset($bio) && !empty($bio) && $bio != null) {
+                    if (preg_match('/[^a-z0-9!.,?=$]/i', $bio)) {
+                        // Si la expresión regular encuentra algún caracter que no sea letra, dígito o signo de puntuación básico, la función devuelve false
+                        $error = "Error at bio";
+                    } else {
+                        $this->keeperDAO->updateBio($keeperLogged->getKeeperCode(), $bio);
+                    }
+                }
+
+                if ($price != "") {
+                    if ($price > 0) {
+                        $this->keeperDAO->updatePrice($keeperLogged->getKeeperCode(), $price);
+                    } else {
+                        $error  = "Something's wrong with price";
+                    }
+                }
+
+                if ($visitPerDay == 1 || $visitPerDay == 2) {
+                    $this->keeperDAO->updateVisitDay($keeperLogged->getKeeperCode(), $visitPerDay);
                 } else {
-                    $error  = "Something's wrong with price";
+                    $error = "Not valid amount of day to visit";
                 }
-            }
-
-            if ($visitPerDay == 1 || $visitPerDay == 2) {
-                $this->keeperDAO->updateVisitDay($keeperLogged->getKeeperCode(),$visitPerDay);
-            } else {
-                $error = "Not valid amount of day to visit";
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $error =  $ex->getMessage();
         }
         return $error;
     }
@@ -204,7 +194,7 @@ class KeeperService
         try {
             $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $keeper =  $ex->getMessage();
         }
 
         return $keeper;
@@ -242,13 +232,11 @@ class KeeperService
         try {
             $result = Dates::validateAndCompareDates($initDate, $endDate);
             if ($result == 1 || $result == 0) {
-                if(Dates::currentCheck($initDate) != null &&  Dates::currentCheck($endDate) != null)
-                {
+                if (Dates::currentCheck($initDate) != null &&  Dates::currentCheck($endDate) != null) {
                     $result = $this->keeperDAO->updateAvailability($keeperCode, $initDate, $endDate);
-                }else{
-                    $result ="Not possible this date at this time";
+                } else {
+                    $result = "Not possible this date at this time";
                 }
-                
             } else {
                 $result = "Not valid dates";
             }

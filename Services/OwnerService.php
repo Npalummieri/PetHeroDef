@@ -9,7 +9,8 @@ use DAO\OwnerDAO as OwnerDAO;
 use DAO\KeeperDAO as KeeperDAO;
 
 
-class OwnerService{
+class OwnerService
+{
 
     private $ownerDAO;
     private $keeperDAO;
@@ -21,37 +22,36 @@ class OwnerService{
         $this->keeperDAO = new KeeperDAO();
     }
 
-    public function generateCode() {
+    public function generateCode()
+    {
         $uuid = uniqid('OWN', true);
 
         return $uuid;
     }
 
-    public function srv_add(Owner $owner,$userInfo)
+    public function srv_add(Owner $owner, $userInfo)
     {
         $errorMsge = 1;
-        
-        try{
+
+        try {
             $ownerCode = $this->generateCode();
             $owner->setOwnerCode($ownerCode);
 
             $resultCode = $this->ownerDAO->Add($owner);
 
-            
-        if($resultCode  != null)
-        {
-            $updatepfp = $this->ownerDAO->updatePfp($resultCode,$userInfo["pathToDB"]);
 
-            if($updatepfp == 1){
-                move_uploaded_file($userInfo["pfp"],$userInfo["pathToSave"]);
-            }else{
-                $errorMsge = "Something's wrong with the pfp,already register";
+            if ($resultCode  != null) {
+                $updatepfp = $this->ownerDAO->updatePfp($resultCode, $userInfo["pathToDB"]);
+
+                if ($updatepfp == 1) {
+                    move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
+                } else {
+                    $errorMsge = "Something's wrong with the pfp,already register";
+                }
+            } else {
+                $errorMsge = "Failed register error in DB.Contact support";
             }
-            
-        }else{
-            $errorMsge = "Failed register error in DB.Contact support";
-        }
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             $errorMsge .=  $ex->getMessage();
         }
         return $errorMsge;
@@ -66,27 +66,25 @@ class OwnerService{
 
     public function getAllKeepers()
     {
-        try{
+        try {
             $arrayKeepers = $this->keeperDAO->GetAll();
-        }catch(Exception $ex)
-        {
-            $ex->getMessage();
+        } catch (Exception $ex) {
+            $arrayKeepers = $ex->getMessage();
         }
         return $arrayKeepers;
     }
 
     public function getAllInfoKeepers()
     {
-        try{
+        try {
             $arrayKeepers = $this->keeperDAO->getKeeperFullInfo();
-        }catch(Exception $ex)
-        {
-            $ex->getMessage();
+        } catch (Exception $ex) {
+            $arrayKeepers = $ex->getMessage();
         }
         return $arrayKeepers;
     }
 
-    public function srv_updateOwner($ownerLogged,$pfpInfo, $bio)
+    public function srv_updateOwner($ownerLogged, $pfpInfo, $bio)
     {
         try {
             $error = 1;
@@ -106,7 +104,7 @@ class OwnerService{
 
                 $admittedTypes = ["image/jpg", "image/png", "image/jpeg", "image/bmp", "image/gif"];
 
-                //El MIME es un id que valida que lo que se sube es una imagen como tal y no por ejemplo un archivo.exe con extension cambiada
+                
                 $mime = mime_content_type($pfpInfo["pfp"]["tmp_name"]);
 
                 if (!in_array($mime, $admittedTypes)) {
@@ -114,10 +112,9 @@ class OwnerService{
                 } else if ($imgSize > 3 * 1024 * 1024) {
                     $error = "Not supported size";
                 } else {
-                    //Tomo el nombre del archivo del lado del cliente
-                    $name_pfp = $pfpInfo["pfp"]["name"];
 
-                    //Tomo el archivo como tal (Donde esta almacenado temporalmente)
+                    $name_pfp = $pfpInfo["pfp"]["name"];
+                   
                     $pfp = $pfpInfo["pfp"]["tmp_name"];
 
 

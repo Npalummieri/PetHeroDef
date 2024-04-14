@@ -5,169 +5,172 @@ namespace Services;
 
 use \Exception as Exception;
 use DAO\MessageDAO as MessageDAO;
-use Models\Message as Message;
-use DAO\BookingDAO as BookingDAO;
 use DAO\conversationDAO as ConversationDAO;
+use Models\Keeper;
 
-class MessageService{
-    
+class MessageService
+{
+
     private $messageDAO;
-    private $bookingDAO;
     private $conversationDAO;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->messageDAO = new MessageDAO();
-        $this->bookingDAO = new BookingDAO();
         $this->conversationDAO = new ConversationDAO();
     }
 
 
     public function srv_UsersAvaiToText($codeUser)
     {
-        try
-        {
-            
+        try {
+
             $arrayUsersAvai = $this->messageDAO->getUsersFromBook($codeUser);
-            
-        }catch(Exception $ex)
-        {
-            
-            echo $ex->getMessage();
+        } catch (Exception $ex) {
+
+            $arrayUsersAvai = $ex->getMessage();
         }
         return $arrayUsersAvai;
     }
 
     public function srv_getInfoConver($chatCode)
     {
-        try{
-            
+        try {
+
             $arrayConver =  $this->conversationDAO->getUsersFromConver($chatCode);
 
-            return $arrayConver;
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
+            
+        } catch (Exception $ex) {
+            $arrayConver = $ex->getMessage();
         }
+        return $arrayConver;
     }
 
-    public function srv_sendMessage($senderCode,$msgText,$chatCode)
+    public function srv_sendMessage($senderCode, $msgText, $chatCode)
     {
-        //echo "HOLA SOY CHATCODE".$chatCode;
-        //validar:
-            //Que existan los codigos // Que ambos usuarios tengan un booking = paidup o Coupon = paidup
-        try{
-           
-            //Si el chat efectivamente posee un id,existe por ende ya contiene ambos usuarios de la conver
-            if($chatCode != 0 && $chatCode != "")
-            {
-                
+
+        try {
+
+
+            if ($chatCode != 0 && $chatCode != "") {
+
                 $codes = $this->conversationDAO->getUsersFromConver($chatCode);
 
-                    if($senderCode === $codes["ownerCode"])
-                    {
-                        $receiverCode = $codes["keeperCode"];
-                        $senderCode = $codes["ownerCode"];
-                    }else if ($senderCode === $codes["keeperCode"]){
-                        $receiverCode = $codes["ownerCode"];
-                        $senderCode = $codes["keeperCode"];
-                    }
-                       
-                    //Guardo el codigo obtenido directamente de la BD para compararlo con el que llega del controller originado de la sesion
-                    // $senderCode = $codes["ownerCode"];
-                
-            }
-            
-            //Se llama el dao para la insercion del msje
-            $result  = $this->messageDAO->sendMessage($senderCode,$receiverCode,$msgText,$chatCode,0);
-            return $result;
+                if ($senderCode === $codes["ownerCode"]) {
+                    $receiverCode = $codes["keeperCode"];
+                    $senderCode = $codes["ownerCode"];
+                } else if ($senderCode === $codes["keeperCode"]) {
+                    $receiverCode = $codes["ownerCode"];
+                    $senderCode = $codes["keeperCode"];
+                }
 
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
+                //Guardo el codigo obtenido directamente de la BD para compararlo con el que llega del controller originado de la sesion
+                // $senderCode = $codes["ownerCode"];
+
+            }
+
+
+            $result  = $this->messageDAO->sendMessage($senderCode, $receiverCode, $msgText, $chatCode, 0);
+            
+        } catch (Exception $ex) {
+            $result = $ex->getMessage();
         }
+        return $result;
     }
-    public function srv_GetMessages($codeSender,$chatCode)
+    public function srv_GetMessages($codeSender, $chatCode)
     {
-        try{
-            //Habria que validar:
-            //Que existan los codigos // Que ambos usuarios tengan un booking = paidup o Coupon = paidup
+        try {
+
             $checkCodes = $this->conversationDAO->getUsersFromConver($chatCode);
-            
-            
-            if($checkCodes["keeperCode"] == $codeSender)
-            {
+
+
+            if ($checkCodes["keeperCode"] == $codeSender) {
                 $receiverCode = $checkCodes["ownerCode"];
-            }else if($checkCodes["ownerCode"] == $codeSender)
-            {
+            } else if ($checkCodes["ownerCode"] == $codeSender) {
                 $receiverCode = $checkCodes["keeperCode"];
             }
-            $arrayMsges = $this->messageDAO->receiveMessage($codeSender,$receiverCode,$chatCode);
-            
+            $arrayMsges = $this->messageDAO->receiveMessage($codeSender, $receiverCode, $chatCode);
+
             return $arrayMsges;
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
+        } catch (Exception $ex) {
+            $arrayMsges = $ex->getMessage();
         }
         return $arrayMsges;
     }
 
     public function srv_getAvailTalk($codeLogged)
     {
-        try{
+        try {
             //$availTalk = $this->messageDAO->getBothBookingsUsers($codeLogged);
             $availTalk = $this->conversationDAO->getConverByUserCode($codeLogged);
-            return $availTalk;
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
+            $newAvailTalk = array();
+            foreach($availTalk as $conver)
+            {
+                $unreadMsges = $this->messageDAO->getUnseen($conver["codeConv"],$codeLogged);
+                $conver["unread_messages"] = $unreadMsges;
+                array_push($newAvailTalk,$conver);
+            }
+            
+        } catch (Exception $ex) {
+            $newAvailTalk =  $ex->getMessage();
         }
+        return $newAvailTalk;
     }
 
-    public function srv_checkPrevConv($receiverCode,$senderCode){
-        try{
+    public function srv_checkPrevConv($receiverCode, $senderCode)
+    {
+        try {
 
-            //Si devuelve 0 es que no hay conversacion entre esos 2
-            $result = $this->messageDAO->getChatCode($senderCode,$receiverCode);
+            //0 == prevConver
+            $result = $this->messageDAO->getChatCode($senderCode, $receiverCode);
 
-            if($result == 0)
-            {
+            if ($result == 0) {
                 $numbs = range(100000, 999999);
                 shuffle($numbs);
                 $uniqNum = implode('', array_slice($numbs, 0, 6));
-                //Buscamos codigo 
-                $checkConv = $this->messageDAO->getUsersFromChat($uniqNum);
-                echo "CHECKCONV :";
-                var_dump($checkConv);
 
-                if($checkConv == null)
-                {
+                $checkConv = $this->messageDAO->getUsersFromChat($uniqNum);
+
+
+                if ($checkConv == null) {
                     $result = $uniqNum;
                 }
             }
-            
-            //Ya sea un codigo nuevo o una conversacion existente devuelve el codigo de la misma
+
+            //return newCode or a code from an older conversation
             return $result;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             echo $ex->getMessage();
         }
     }
 
     public function srv_getUsersConver($chatCode)
     {
-        try{
+        try {
             $codes = $this->conversationDAO->getUsersFromConver($chatCode);
-            if($codes["receiverCode"] == null && $codes["senderCode"] == null)
-            {
+            if ($codes["receiverCode"] == null && $codes["senderCode"] == null) {
                 return null;
-            }else{
+            } else {
                 return $codes;
             }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $ex->getMessage();
         }
     }
-}
 
-?>
+    public function srv_getUnreadMsg($converCode,$userLogged)
+    {
+        try{
+            if($userLogged instanceof Keeper)
+            {   
+                $result = $this->messageDAO->getUnseen($converCode,$userLogged->getKeeperCode());
+            }else{
+                $result = $this->messageDAO->getUnseen($converCode,$userLogged->getOwnerCode());
+            }
+            return $result;
+        }catch(Exception $ex)
+        {
+            $result = $ex->getMessage();
+        }
+    }
+}
