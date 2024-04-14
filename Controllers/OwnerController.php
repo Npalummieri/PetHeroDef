@@ -2,16 +2,16 @@
 
 namespace Controllers;
 
-use \Exception as Exception;
-use Models\Owner as Owner;
 
+use Models\Owner as Owner;
 use Services\PetService as PetService;
 use Utils\Session as Session;
 use Services\OwnerService as OwnerService;
 use Services\UserService as UserService;
 
 
-class OwnerController{
+class OwnerController
+{
 
 
     private $petService;
@@ -25,7 +25,6 @@ class OwnerController{
         $this->petService = new PetService();
         $this->ownerService = new OwnerService();
         $this->userService = new UserService();
-
     }
 
     public function registerOwner($email, $username, $password, $name, $lastname, $dni, $pfp)
@@ -46,8 +45,7 @@ class OwnerController{
                 Session::SetBadMessage($result);
                 header("location: " . FRONT_ROOT . "Home/showOwnerRegisterView");
             }
-        }else if(is_string($userInfo))
-        {
+        } else if (is_string($userInfo)) {
             Session::SetBadMessage($userInfo);
             header("location: " . FRONT_ROOT . "Home/showOwnerRegisterView");
         }
@@ -55,71 +53,72 @@ class OwnerController{
 
     public function showAddPet()
     {
-        if(Session::IsLogged() && Session::GetTypeLogged() == 'Models\Owner')
-        {
+        if (Session::IsLogged() && Session::GetTypeLogged() == 'Models\Owner') {
 
-                $user = Session::GetLoggedUser();
-                $ownerCode = $user->getOwnerCode();
-                require_once(VIEWS_PATH."addPet.php");
-            
-        }else{
+            $user = Session::GetLoggedUser();
+            $ownerCode = $user->getOwnerCode();
+            require_once(VIEWS_PATH . "addPet.php");
+        } else {
             Session::DeleteSession();
-            require_once(VIEWS_PATH."index.php");
+            require_once(VIEWS_PATH . "index.php");
         }
     }
 
     public function showMyPets($msge = " ")
     {
-        if(Session::IsLogged())
-        {
-            
-            $logged = $_SESSION["loggedUser"];
-            
-            $myPets = $this->petService->getAllByOwner($logged->getOwnerCode());
-            // $dir = (__DIR__);
-            // echo $dir;
-            require_once(VIEWS_PATH."showMyPets.php");
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
+                $logged = $_SESSION["loggedUser"];
+                $myPets = $this->petService->getAllByOwner($logged->getOwnerCode());
+                require_once(VIEWS_PATH . "showMyPets.php");
+            }else{
+                Session::DeleteSession();
+                header("location: ".FRONT_ROOT."Home/showLoginView");
+            }
+        } else {
+            header("location: ".FRONT_ROOT."Home/showLoginView");
         }
-        
     }
 
-    public function showKeepersList()
-    {
-        try
-        {
-            $allKeepers = $this->userService->getKeepersInfoAvai();
-        }catch(Exception $ex)
-        {
-            echo $ex->getMessage();
-        }
-        require_once(VIEWS_PATH."keeperListPag.php");
-    }
+    // public function showKeepersList()
+    // {
+
+    //         $allKeepers = $this->userService->getKeepersInfoAvai();
+
+    //     require_once(VIEWS_PATH . "keeperListPag.php");
+    // }
 
 
 
     public function showMyProfile()
     {
         if (Session::IsLogged()) {
-            $ownerLogged = Session::GetLoggedUser();
+            if (Session::GetTypeLogged() == "Models\Owner") {
+                $ownerLogged = Session::GetLoggedUser();
 
-            $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
+                $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
 
-            require_once(VIEWS_PATH . "myProfileOwner.php");
-        }else
-        {
-            header("location: ".FRONT_ROOT."Home/Index");
+                require_once(VIEWS_PATH . "myProfileOwner.php");
+            } else {
+                Session::DeleteSession();
+                header("location: " . FRONT_ROOT . "Home/showLoginView");
+            }
+        } else {
+            header("location: " . FRONT_ROOT . "Home/Index");
         }
-        
     }
 
-    public function editProfile(){
+    public function editProfile()
+    {
 
-        if(Session::IsLogged()){
-            if(Session::GetTypeLogged() == "Models\Owner"){
+        if (Session::IsLogged()) {
+            if (Session::GetTypeLogged() == "Models\Owner") {
                 $ownerLogged = Session::GetLoggedUser();
                 $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
-                require_once(VIEWS_PATH."editProfileOwn.php");
+                require_once(VIEWS_PATH . "editProfileOwn.php");
             }
+        }else{
+            header("location: ".FRONT_ROOT."Home/showLoginView");
         }
     }
 
@@ -129,17 +128,16 @@ class OwnerController{
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $ownerLogged = Session::GetLoggedUser();
                 $pfpInfo = $_FILES;
-                $result = $this->ownerService->srv_updateOwner($ownerLogged->getOwnerCode(),$pfpInfo,$bio);
-                if($result == 1)
-                {
-                    //Info actualizada
+                $result = $this->ownerService->srv_updateOwner($ownerLogged->getOwnerCode(), $pfpInfo, $bio);
+                if ($result == 1) {
+                    //Updated info
                     $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
                     Session::CreateSession($infoOwner);
-                    header("location: ".FRONT_ROOT."Owner/showMyProfile");
+                    header("location: " . FRONT_ROOT . "Owner/showMyProfile");
                 }
             }
-        }else{
-            header("location: ".FRONT_ROOT."Home/Index");
+        } else {
+            header("location: " . FRONT_ROOT . "Home/Index");
         }
     }
 
@@ -148,8 +146,4 @@ class OwnerController{
         $infoOwner = $this->ownerService->getByCode($ownerCode);
         require_once(VIEWS_PATH . "myProfileOwner.php");
     }
-    
-
 }
-
-?>
