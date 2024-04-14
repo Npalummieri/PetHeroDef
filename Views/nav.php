@@ -6,7 +6,7 @@ use Utils\Session as Session;
 ?>
 <!-- Title -->
 <div style="margin-top : 0;">
-     <nav class="navbar navbar-expand" style="background-color: #110257;">
+     <nav class="navbar navbar-expand " style="background-color: #110257;">
           <div class="container d-flex justify-content-center">
                <a class="navbar-brand text-white" href="<?php echo FRONT_ROOT . "Home/Index"; ?>">
                     <strong>PET HERO</strong>
@@ -16,7 +16,7 @@ use Utils\Session as Session;
      </nav>
 </div>
 <!-- main navbar -->
-<div class="d-flex justify-content-end bd-navbar " style="background-color: #0a0130; " >
+<div class="d-flex justify-content-end " style="background-color: #0a0130;">
 
      <nav class="navbar navbar-expand-lg text-white">
           <a class="navbar-brand" href="#"></a>
@@ -31,8 +31,7 @@ use Utils\Session as Session;
           <div class="collapse navbar-collapse text-white" id="navbarSupportedContent">
                <ul class="navbar-nav m-0">
                     <li class="nav-item active">
-                         <!-- Pendiente -->
-                         <a class="nav-link text-white" href="<?php echo FRONT_ROOT."Home/showHowWorks" ?>">How it works</a>
+                         <a class="nav-link text-white" href="<?php echo FRONT_ROOT . "Home/showHowWorks" ?>">How it works</a>
                     </li>
 
                     <?php if (!isset($_SESSION["loggedUser"])) { ?>
@@ -41,7 +40,18 @@ use Utils\Session as Session;
                          </li>
                     <?php } ?>
                     <?php if (isset($_SESSION["loggedUser"])) {
-                         if (is_a($_SESSION["loggedUser"], 'Models\Owner')) { ?>
+                    ?>
+                         <li class="nav-item active" id="notis">
+                              <div id="baseurl" data-urlcur = "<?php echo FRONT_ROOT ?>" hidden></div>
+                              <div class="notification-area" id="areanoti">
+                                   <a class="nav-link" id="notificationDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa-solid fa-bell text-white"></i>
+                                        <span class="badge badge-danger" id="notificationCount"></span>
+                                   </a>
+                                   <div class="dropdown-menu dropdown-menu-right" id="notificationMenu" aria-labelledby="notificationDropdown"></div>
+                              </div>
+                         </li>
+                         <?php if (is_a($_SESSION["loggedUser"], 'Models\Owner')) { ?>
                               <li class="nav-item active">
                                    <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Owner/ShowMyProfile">My profile</a>
                               </li>
@@ -75,9 +85,9 @@ use Utils\Session as Session;
                     }
                     ?>
                     <?php if (Session::IsLogged()) {  ?>
-                    <li class="nav-item active">
-                         <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Booking/showMyBookings">My Bookings</a>
-                    </li>
+                         <li class="nav-item active">
+                              <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Booking/showMyBookings">My Bookings</a>
+                         </li>
                     <?php } ?>
                     <?php if (Session::IsLogged()) {
                     ?><li class="nav-item active">
@@ -98,3 +108,8 @@ use Utils\Session as Session;
 
      </nav>
 </div>
+<script src="<?php echo JS_PATH . 'formScripts.js'; ?>"></script>
+<script>
+     infoModule.getNotis();
+     infoModule.resetNotis();
+</script>

@@ -13,7 +13,7 @@ use Utils\Session as Session;
         <!-- pfp col -->
         <div class="col-lg-4">
             <div class="about-avatar text-center">
-                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="mt-3 mx-auto img-rounded rounded-circle" width="384px" height="384px">
+                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="mt-3 mx-auto img-rounded rounded-circle" width="354px" height="354px">
                 <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
                     <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Edit Profile</a>
                 <?php } ?>
@@ -163,10 +163,10 @@ use Utils\Session as Session;
 
 
 <h2 class="text-white m-3 p-2" style="background-color: #110257;">Reviews</h2>
-<div id="reviews" class="row row-cols-1 row-cols-md-2 g-4" style="background-color: #110257;">
+<div id="reviews" class="row row-cols-1 row-cols-md-2 row-cols-sm-3 col-12-lg col-6-md col-3-sm  m-2" style="max-width: 100%;" >
     <?php foreach ($reviews as $review) { ?>
-        <div class="col">
-            <div class="card h-100">
+        <div class="col ">
+            <div class="card h-100 ">
                 <div class="card-body">
                     <div class="d-flex">
                         <img class="rounded-circle shadow-1-strong me-3" src="<?php echo FRONT_ROOT . "Images/" . $review["pfp"]; ?>" alt="avatar" width="65" height="65" />

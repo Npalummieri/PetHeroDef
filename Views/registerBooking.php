@@ -1,15 +1,13 @@
 <?php include_once("header.php");
 include_once("nav.php"); ?>
 
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card mt-5">
+<div class="container col-sm-12 col-md-8 col-lg-4">
+  <h1 class="bg-dark text-white text-center">MAKE YOUR BOOKING</h1>
+    <div class="card text-white" style="background-color: #110257;" >
       <div class="card-body">
         
-        <?php if($message != null && !empty($message) && $message != " "){ ?>
-        <p class="alert alert-danger" ><?php  echo $message; ?></p>  
-        <?php } ?>
-        <h1 class="card-title text-center">MAKE YOUR BOOKING</h1>
+        <?php include("msgeDisplay.php"); ?>
+        
         <form action="<?php echo FRONT_ROOT . "Booking/addBooking" ?>" method="POST" id="BookForm">
           <div class="form-group row m-2">
             <label for="InitDate">INITIAL DATE</label>
@@ -22,15 +20,15 @@ include_once("nav.php"); ?>
           <div>
             <p id="AvailMsge" class="text-lg text-uppercase"><strong></strong></p>
           </div>
-          <p class="text-dark">REMEMBER! This keeper only takes care of <strong><?php echo $typePet ?></strong> with this specific size: <strong><?php echo $typeSize ?></strong></p>
+          <p class="text-center">REMEMBER! This keeper only takes care of <strong><?php echo $typePet ?></strong> with this specific size: <strong><?php echo $typeSize ?></strong></p>
           <div id="DivType" data-typepet="<?php echo $typePet ?>"></div>
           <div id="DivSize" data-typesize="<?php echo $typeSize ?>"></div>
           <div class="form-group row m-2">
-            <label for="PetCode">Pet to keep</label>
+            <label for="PetCode">Pet to keep :</label>
             <select name="petCode" id="PetCode" class="form-control" required>
-              <option value="">Select your Pet</option>
+              <option value="">Select your Pet : </option>
             </select>
-            <p class="text-danger">Note: If you don't see any pets displayed to select, most probably you don't have the type of Pet that Keeper attends</p>
+            <p class="text-danger m-1">Note: If you don't see any pets displayed to select, most probably you don't have the type of Pet that Keeper attends</p>
           </div>
           <div class="form-group row m-2">
             <label for="visitPerDaySelect" class="">Visit per day :</label>
@@ -54,8 +52,7 @@ include_once("nav.php"); ?>
         </form>
       </div>
     </div>
-  </div>
-</div>
+    </div>
 <script src="<?php echo JS_PATH . "formScripts.js" ?>"></script>
 <script>
     FormAjaxModule.getSpecificPets();

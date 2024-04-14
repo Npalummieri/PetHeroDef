@@ -6,7 +6,7 @@
                 <div class="form-group">
                     <input type="date" name="initDate" class="form-control mb-3" id="InitDate" placeholder="Start Date">
                     <input type="date" name="endDate" class="form-control mb-3" id="EndDate" placeholder="End Date">
-                    <select name="status" id="Status" class="form-control mb-3" required>
+                    <select name="status" id="Status" class="form-control mb-3" >
                         <option value="">Select type</option>
                         <option value="confirmed">confirmed</option>
                         <option value="pending">pending</option>

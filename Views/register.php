@@ -1,6 +1,7 @@
 <div class="container" style="background-color: #110257;">
   <div class="row justify-content-center mt-3 " >
-    <div class="row-lg-6">
+    <div class="col-sm-6 col-md-8 col-lg-12">
+    <div class="">
       <p class="text-center mt-lg-0 mt-3"><strong>ACCOUNT RELATED INFO</strong></p>
       <div class="form-group m-1">
         <label for="email">Email</label>
@@ -34,6 +35,7 @@
         <input type="file" name="pfp" id="pfp" class="form-control form-control-lg" placeholder="Profile picture">
       </div>
     </div>
+  </div>
   </div>
 </div>
 <script src="<?php echo JS_PATH."formScripts.js"; ?>"></script>

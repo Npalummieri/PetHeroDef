@@ -4,10 +4,10 @@
 <div class="wrapper row4 ">
     <main class="container clear d-flex justify-content-center" >
         <div class="content mt-3 ">
-            <h2 class="text-center text-white">REGISTER KEEPER</h2>
+            <h2 class="text-center bg-dark text-white rounded">REGISTER KEEPER</h2>
 
             <?php include("msgeDisplay.php"); ?>
-            <form action="<?php echo FRONT_ROOT . "Keeper/registerKeeper"; ?>" method="POST" enctype="multipart/form-data" class="login-form rounded p-5 text-white" style="background-color :  #110257;">
+            <form action="<?php echo FRONT_ROOT . "Keeper/registerKeeper"; ?>" method="POST" enctype="multipart/form-data" class="rounded p-5 text-white" style="background-color :  #110257;">
 
                 <?php require_once("register.php"); ?>
 

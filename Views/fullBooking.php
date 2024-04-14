@@ -2,16 +2,17 @@
     include("header.php");
     include("nav.php");
 ?>
-<div class="container mt-5">
+<h2 class="bg-dark text-lg text-white text-center rounded p-2 mt-2">BOOKING INFORMATION</h2>
+<div class="container  " >
     <form action="<?php echo FRONT_ROOT.'' ?>" method="POST">
-        <div class="row">
+        <div class="row text-white" style="background-color: #110257;">
             <!-- colpfp -->
-            <div class="col-lg-3 p-3 bg-light">
-                <img src="<?php echo FRONT_ROOT . "Images/".$fullBook["pfp"] ?>" alt="Profile Picture" class="img-fluid rounded-circle ">
+            <div class="col-lg-3 p-3 ">
+                <img src="<?php echo FRONT_ROOT . "Images/".$fullBook["pfp"] ?>" alt="Profile Picture" class="img-fluid rounded-circle " width="354px" height="354px">
             </div>
             <!-- col infobook-->
-            <div class="col-lg-9 bg-light p-4 ">
-                <h2 class="mb-4">Booking Information</h2>
+            <div class="col-lg-9  p-4 ">
+                
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <p><strong>Name pet :</strong> <?php echo $fullBook["petName"] ?></p>
@@ -45,7 +46,7 @@
                     </div>
                 </div>
                 <div class="table-responsive mt-4">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered text-center">
                         <thead>
                             <tr>
                                 <th>Initial Date</th>
@@ -61,7 +62,7 @@
                     </table>
                 </div>
                 <button type="button" style="display: none;" id="btnprof" data-codebook="<?php echo $fullBook["bookCode"] ?>"></button>
-                <div id="calendar"></div>
+                <div id="calendar" class="bg-light"> </div>
                 <div class="d-flex justify-content-between">
                     <?php if($loggedUser instanceof Models\Keeper && $fullBook["status"] == "pending") { ?>
                         <a href="<?php echo FRONT_ROOT . 'Booking/manageBooking/' . $fullBook["bookCode"] ?>" class="btn btn-dis btn-success" data-msg="Confirm the booking?">Confirm</a>

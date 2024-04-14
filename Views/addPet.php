@@ -6,7 +6,7 @@ include("nav.php") ?>
   <div class="row justify-content-center" >
     <div class="col-md-6">
       <div class="p-4">
-        <h2 class="bg-dark rounded text-center">ADD YOUR PET</h2>
+        <h2 class="bg-dark text-lg rounded text-center p-2">ADD YOUR PET</h2>
         <div class="form-container border border-dark rounded p-5 m-auto mt-2" style="background-color:  #110257;">
         <form >
           <div class="mb-3 ">
@@ -79,3 +79,4 @@ include("nav.php") ?>
   breedManage.preloadBreed();
   registerPetForm.limitage();
 </script>
+<?php include("footer.php") ?>

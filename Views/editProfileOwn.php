@@ -4,9 +4,10 @@ include("nav.php");
 ?>
 
 
-<section class="section edit-profile-section text-white  mt-5 m-3"  id="edit-profile">
-    <div class="container rounded" style="background-color: #110257;">
-        <h2 class="text-center">Edit Profile</h2>
+
+
+    <h2 class="bg-dark rounded text-white text-center m-2">Edit Profile</h2>
+    <div class="container rounded p-2 text-white" style="background-color: #110257;">
         <form action="<?php echo FRONT_ROOT."Owner/updateOwner" ?>" method="post" enctype="multipart/form-data">
         <div class="form-group m-3">
                 <label for="profile-picture">Profile Picture:</label>
@@ -21,7 +22,7 @@ include("nav.php");
             </div>
         </form>
     </div>
-</section>
+
 
 
 <?php include("footer.php"); ?>

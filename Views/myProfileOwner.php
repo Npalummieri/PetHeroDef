@@ -5,9 +5,9 @@ use Utils\Session as Session;
 ?>
 
 <?php require_once("msgeDisplay.php"); ?>
-<div class="row align-items-center">
+<div class="align-items-center">
         <div class="col-lg-12">
-            <h2 class="bg-dark rounded text-center mt-2 w-50 mx-auto text-white">My Profile</h2>
+            <h2 class="bg-dark rounded text-white text-center">My Profile</h2>
         </div>
     </div>
 <section class="section about-section text-white" id="about">
@@ -15,7 +15,7 @@ use Utils\Session as Session;
         <div class="row align-items-center">
             <div class="col-lg-4">
                 <div class="about-avatar text-center">
-                    <img class="mt-3 mx-auto img-rounded rounded-circle p-3" src="<?php echo FRONT_ROOT . "Images/" . $infoOwner->getPfp() ?>" title="" alt="" width="384px" height="384px">
+                    <img class="mt-3 mx-auto img-rounded rounded-circle p-3" src="<?php echo FRONT_ROOT . "Images/" . $infoOwner->getPfp() ?>" title="" alt="" width="354px" height="354px">
                     <?php if(Session::GetTypeLogged() == "Models\Owner")
                     { 
                         if(Session::GetLoggedUser()->getOwnerCode() == $infoOwner->getOwnerCode())
@@ -61,7 +61,7 @@ use Utils\Session as Session;
                     { 
                         if(Session::GetLoggedUser()->getOwnerCode() == $infoOwner->getOwnerCode())
                         { ?>
-                            <button class="btn btn-primary" id="editBioBtn">Edit bio</button>
+                            <button class="btn btn-primary m-2" id="editBioBtn">Edit bio</button>
                        <?php }
                     } ?>
                     

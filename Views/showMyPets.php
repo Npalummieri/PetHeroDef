@@ -5,8 +5,8 @@ include("nav.php");
 ?>
 
 
-<div class="row text-white ">
-  <h2 class="bg-dark rounded text-center mt-2 p-2">MY PETS</h2>
+
+  <h2 class="bg-dark rounded text-white text-center mt-2 p-2">MY PETS</h2>
   <div class="container">
   <?php include("msgeDisplay.php") ?>
   </div>
@@ -19,9 +19,9 @@ include("nav.php");
       <?php
       foreach ($myPets as $pet) {
       ?>
-        <div class=" row border ">
+        <div class=" row border m-2" style="max-width: 100%;">
 
-          <div class="col-lg-3 col-md-3 col-sm-12 p-3 d-flex justify-content-center align-items-center border" style="background:  #3258a6;">
+          <div class="col-lg-3 col-md-3 col-sm-12 d-flex justify-content-center align-items-center border" style="background:  #3258a6;">
             <img src=" <?php echo FRONT_ROOT . "Images/" . $pet->getPfp(); ?>" alt="Pfpet" class="img-thumbnail m-3" height="186px" width="256px">
             <a href="<?php echo FRONT_ROOT . "Pet/showEditPet/" . $pet->getpetCode(); ?>" class="text-white"><i class="fa-solid fa-pencil text-white"></i>Upload</a>
           </div>
@@ -61,7 +61,7 @@ include("nav.php");
             <div class="col-lg-12 col-md-12 col-sm-12 mt-auto">
               <div class="text-end">
                 <a class="btn bg-light m-1" href="<?php echo FRONT_ROOT . "Pet/showEditPet/" . $pet->getpetCode(); ?>">Update</a>
-                <a class="btn btn-danger m-1" href="<?php echo FRONT_ROOT . "Pet/deletePet/" . $pet->getpetCode(); ?>">Delete</a>
+                <a class="btn btn-dis btn-danger m-1" href="<?php echo FRONT_ROOT . "Pet/deletePet/" . $pet->getpetCode(); ?>" data-msg="Delete this pet?">Delete</a>
               </div>
               
             </div>
@@ -70,8 +70,9 @@ include("nav.php");
       <?php } ?>
     </form>
   </div>
-</div>
 
+<script src="<?php echo JS_PATH."formScripts.js" ?>"></script>
+<script>KeepersInteract.reConfirm();</script>
 
 <?php
 include_once("footer.php");
