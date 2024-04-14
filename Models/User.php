@@ -4,18 +4,18 @@ namespace Models;
 
 class User{
 
-    private $id; //Autoincrement
-    private $email; //Unico si quiere tener 2 perfiles debe recurrir a otro email (ser Keeper/Owner)
-    private $userName; //Unico
+    private $id;
+    private $email; 
+    private $userName;
     private $password;
-    private $status;  //O sea si el usuario esta disponible o no
+    private $status;
     private $name;
     private $lastname;
     private $dni;
-    private $pfp; //Opcional sino default 
+    private $pfp; 
     private $bio;
     
-    public function __construct()//Ver si es necesario tenerlo
+    public function __construct()
     {
         
     }

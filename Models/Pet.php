@@ -8,12 +8,12 @@ class Pet{
     private $petCode;
     private $name;
     private $pfp;
-    private $ownerCode; //Puede ser el obj owner como tal o su ownerCode;
+    private $ownerCode; 
     private $size;
-    private $breed; //La raza la idea es tomarla de una API
-    private $vaccPlan; //Imagen
+    private $breed;
+    private $vaccPlan;
     private $video;
-    private $typePet; //Se podria una API de mascotas permitidas o alguna instancia de la misma
+    private $typePet;
     private $age;
     
 

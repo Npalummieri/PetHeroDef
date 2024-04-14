@@ -4,8 +4,8 @@ namespace Models;
 
 class Review{
 
-    private $codeKeeper; //El que recibe la review
-    private $codeOwner; //El que hace la review
+    private $codeKeeper;
+    private $codeOwner; 
     private $comment;
     private $score;
     private $timeStamp;

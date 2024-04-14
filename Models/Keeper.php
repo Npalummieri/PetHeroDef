@@ -7,7 +7,7 @@ use ReflectionProperty;
 
 class Keeper extends User{
 
-    private $keeperCode; //unico - PK
+    private $keeperCode;
     private $typeCare;
     private $price;
     private $typePet;
@@ -15,14 +15,12 @@ class Keeper extends User{
     private $initDate;
     private $endDate;
     private $visitPerDay;
-    //Tengo que agregar puntaje!!
+
 
     public function __construct()
     {
         parent::__construct();
     }
-
-    
 
     /**
      * Get the value of keeperCode
@@ -85,10 +83,7 @@ class Keeper extends User{
         return $this;
     }
 
-    //Automatizacion del pasaje de info de un objeto a otro
-    //Visto un par de semanas despues,esta bueno esto de Reflection pero no se si es el proposito...
-    //Quizá deberia tener una funcion dentro de la clases hijas (Own,Keep) que reciban el objeto padre y de ahi copiar sus datos direcemtante sin el uso de Reflection
-    //Voy a probarlo en owner
+    //Testing reflection class
     public function fromUserToKeeper(User $user,$typePet,$typeCare,$initDate,$endDate,$price,$visitPerDay)
     {
         $reflexUser = new ReflectionClass($user);
@@ -108,7 +103,7 @@ class Keeper extends User{
             {
                 $getterName = 'get' . ucfirst($propertyName);
 
-                // Obtener el valor desde User y establecerlo en Keeper usando getters y setters
+                
                 $value = $userProperty->getValue($user);
                 $this->$setterName($value);
             }
@@ -121,13 +116,10 @@ class Keeper extends User{
         $this->setPrice($price);
         $this->setVisitPerDay($visitPerDay);
 
-        echo "VALOR REFLEX";
-        var_dump($this);
+
         return $this;
     }
     
-
-
     /**
      * Get the value of typePet
      */ 
