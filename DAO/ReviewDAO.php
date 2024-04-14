@@ -90,8 +90,7 @@ class ReviewDAO
         }
     }
 
-    //Podria hacer todo en una funcion que verifique el codigo recibido y en base a eso busque todas las review de un usuario
-    //GetAllByCode con un WHERE si codeOwner = :code OR codeKeeper = :code,total es unico...
+
     public function getAllByOwnerCode($ownerCode)
     {
         try {
@@ -182,31 +181,25 @@ class ReviewDAO
                 $review->setScore($row["score"]);
                 $review->setTimeStamp($row["timeStamp"]);
                 $review->setCodeReview($row["reviewCode"]);
-                
             }
             //Using ownerCode make it safer
             $queryDelete = "DELETE FROM " . $this->tableName . " 
             WHERE reviewCode = :reviewCode AND ownerCode = :ownerCode ;";
 
-            
+
 
             $result = $this->connection->ExecuteNonQuery($queryDelete, $parameters);
 
-            if($result == 1)
-            {
-                $queryTwo = "SELECT updateKeepScoreFunc(:p_keeperCode);"; 
+            if ($result == 1) {
+                $queryTwo = "SELECT updateKeepScoreFunc(:p_keeperCode);";
                 $this->connection = Connection::GetInstance();
                 $paramTwo["p_keeperCode"] = $review->getCodeKeeper();
-                $this->connection->ExecuteNonQuery($queryTwo,$paramTwo);
+                $this->connection->ExecuteNonQuery($queryTwo, $paramTwo);
             }
-            
-
-            
 
             $arrayResult["review"] = $review;
             $arrayResult["deleted"] = $result;
 
-           
             return $arrayResult;
         } catch (Exception $ex) {
             throw $ex;

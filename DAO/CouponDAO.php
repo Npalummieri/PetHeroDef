@@ -188,14 +188,10 @@ class CouponDAO
 
             $this->connection = Connection::GetInstance();
 
-
             $parameters["statusCoup"] = "paidup";
             $parameters["couponCode"] = $couponCode;
 
-
             $res = $this->connection->ExecuteNonQuery($query, $parameters);
-
-
 
             return $res;
         } catch (Exception $ex) {
