@@ -2,6 +2,7 @@
 
 namespace DAO;
 
+use DateTime;
 use Models\Coupon as Coupon;
 use Exception;
 
@@ -69,7 +70,7 @@ class CouponDAO
         }
     }
 
-    //Retorna 1 array con la info del cupon especificado por couponCode
+
     public function getFullInfoCoupon($couponCode)
     {
         try {
@@ -155,6 +156,26 @@ class CouponDAO
         }
     }
 
+    public function updateStatusCoup($couponCode,$status){
+        try {
+
+            $query = "UPDATE " . $this->tableName . " as c
+            SET c.status = :statusCoup
+            WHERE c.couponCode = :couponCode;"; /*JOIN booking as b
+            ON b.bookCode = c.bookCode AND c.bookCode = :bookCode ;*/
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["statusCoup"] = $status;
+            $parameters["couponCode"] = $couponCode;
+
+            $res = $this->connection->ExecuteNonQuery($query, $parameters);
+
+            return $res;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
     //Paidup exit --> coupon & booking = paidup
     public function paidUpCoupon($couponCode)
     {
@@ -209,31 +230,33 @@ class CouponDAO
                 ON b.bookCode = c.bookCode
                 SET b.status = :status;
                 WHERE b.bookCode = :bookCode ;";
-                
+
                 $parameter["bookCode"] = $resultqJoin[0]["bookCode"];
-                $parameter["status"] = "cancelled";
+                $parameter["status"] = "rejected";
 
 
                 $resultUpdate = $this->connection->ExecuteNonQuery($queryBooking, $parameter);
             }
 
-            if($resultUpdate == 1)
-            {
+            if ($resultUpdate == 1) {
                 $bookCodeValue = $resultqJoin[0]["bookCode"];
 
                 $queryPunish = "UPDATE owner as o 
                 JOIN booking as b
                 ON b.ownerCode = o.ownerCode
-                SET o.status = :status 
+                SET o.status = :status , suspensiondate = :suspdate
                 WHERE b.bookCode = :bookCode";
 
                 $this->connection = Connection::GetInstance();
 
+                $suspensionDate = new DateTime();
+                $suspensionDateFormatted = $suspensionDate->format('Y-m-d H:i:s');
+
                 $parametersP["bookCode"] = $bookCodeValue;
                 $parametersP["status"] = "suspended";
+                $parametersP["suspdate"] = $suspensionDateFormatted; 
 
-                $resultPunish = $this->connection->ExecuteNonQuery($query,$parametersP);
-                
+                $resultPunish = $this->connection->ExecuteNonQuery($query, $parametersP);
             }
             return $resultPunish;
         } catch (Exception $ex) {
@@ -256,7 +279,6 @@ class CouponDAO
 
 
             $resp = $resultSet[0][0];
-            
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -264,10 +286,10 @@ class CouponDAO
     }
 
     //check if the coupon we try to see matchs with the ownerLogged in their booking
-    public function checkCouponOwner($couponCode,$ownerCodeLogged)
+    public function checkCouponOwner($couponCode, $ownerCodeLogged)
     {
-        try{
-            $query = "SELECT COUNT(*) FROM ".$this->tableName." as c
+        try {
+            $query = "SELECT COUNT(*) FROM " . $this->tableName . " as c
             JOIN booking as b
             ON c.bookCode = b.bookCode 
             WHERE couponCode = :couponCode AND b.ownerCode = :ownerCodeLogged;";
@@ -277,11 +299,10 @@ class CouponDAO
 
             $this->connection = Connection::GetInstance();
 
-            $result = $this->connection->Execute($query,$parameters);
+            $result = $this->connection->Execute($query, $parameters);
 
             return $result[0][0];
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }

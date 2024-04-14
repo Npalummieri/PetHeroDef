@@ -7,16 +7,17 @@ use Models\Conversation as Conversation;
 use DAO\Connection as Connection;
 
 
-class  conversationDAO{
+class  conversationDAO
+{
 
     private $tableName = "conversation";
     private $connection;
 
-    public function generateConver($keeperCode,$ownerCode)
+    public function generateConver($keeperCode, $ownerCode)
     {
-        try{
+        try {
 
-            $checkConverPrev = $this->checkPrevConver($keeperCode,$ownerCode);
+            $checkConverPrev = $this->checkPrevConver($keeperCode, $ownerCode);
 
             if ($checkConverPrev == ' ' || $checkConverPrev == null) {
 
@@ -42,24 +43,23 @@ class  conversationDAO{
                 if ($result == 1) {
                     $result = $uniqueId;
                 }
-            }else{
+            } else {
                 $result = $checkConverPrev;
             }
 
-            
+
 
             //Success insert $result = uniqueId else $result = 0 (error)
             return $result;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function getConverCode($keeperCode,$ownerCode)
+    public function getConverCode($keeperCode, $ownerCode)
     {
-        try{
-            $query = "SELECT * FROM ".$this->tableName."
+        try {
+            $query = "SELECT * FROM " . $this->tableName . "
             WHERE keeperCode = :keeperCode AND ownerCode = :ownerCode";
 
             $this->connection = Connection::GetInstance();
@@ -67,11 +67,10 @@ class  conversationDAO{
             $parameters["keeperCode"] = $keeperCode;
             $parameters["ownerCode"] = $ownerCode;
 
-            $resultSet = $this->connection->Execute($query,$parameters);
+            $resultSet = $this->connection->Execute($query, $parameters);
 
             $conver = new Conversation();
-            foreach($resultSet as $row)
-            {
+            foreach ($resultSet as $row) {
                 $conver->setidCon($row["idCon"]);
                 $conver->setCodeConv($row["codeConv"]);
                 $conver->setKeeperCode($row["keeperCode"]);
@@ -81,17 +80,17 @@ class  conversationDAO{
             }
 
 
-            //if empty :( else object fullfilled :)
+            //if empty :( else object filled :)
             return $conver;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function checkPrevConver($codeKeeper,$codeOwner){
-        try{
-            $query = "SELECT codeConv FROM ".$this->tableName." 
+    public function checkPrevConver($codeKeeper, $codeOwner)
+    {
+        try {
+            $query = "SELECT codeConv FROM " . $this->tableName . " 
             WHERE keeperCode = :codeKeeper AND ownerCode = :codeOwner;";
 
             $this->connection = Connection::GetInstance();
@@ -99,16 +98,12 @@ class  conversationDAO{
             $parameters["codeKeeper"] = $codeKeeper;
             $parameters["codeOwner"] = $codeOwner;
 
-            $resultSet = $this->connection->Execute($query,$parameters);
-            
+            $resultSet = $this->connection->Execute($query, $parameters);
 
             $resp = $resultSet[0][0];
-            
-           
 
             return $resp;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
@@ -116,13 +111,9 @@ class  conversationDAO{
 
     public function getConverByUserCode($userCode)
     {
-        
-        //El left fue la clave para ahorrarme 3 funciones creo
-        //Me permite ejecutar el choclo de query y aún sabiendo que no va a haber registros de la tabla msg me devuelve el resto igual
-        try{
-            //Return info for the conversation
-            $query ="SELECT c.codeConv,c.keeperCode,c.idCon,c.timestamp,c.status,c.ownerCode,k.name AS kname,k.lastname AS klastname, o.name AS oname,o.lastname AS olastname,k.pfp AS kpfp,o.pfp AS opfp,m.msgText AS lastMsgText,m.timestamp AS msgTimeStamp,SUM(CASE WHEN m.seen = 0 THEN 1 ELSE 0 END) AS unread_messages
-                    FROM ".$this->tableName." as c
+        try {
+            $query = "SELECT c.codeConv,c.keeperCode,c.idCon,c.timestamp,c.status,c.ownerCode,k.name AS kname,k.lastname AS klastname, o.name AS oname,o.lastname AS olastname,k.pfp AS kpfp,o.pfp AS opfp,m.msgText AS lastMsgText,m.timestamp AS msgTimeStamp,SUM(CASE WHEN m.seen = 0 THEN 1 ELSE 0 END) AS unread_messages
+                    FROM " . $this->tableName . " as c
                     JOIN keeper AS k 
                     ON k.keeperCode = c.keeperCode
                     JOIN owner AS o 
@@ -139,12 +130,11 @@ class  conversationDAO{
                                     GROUP BY chatCode
                                 )
                          ) AS m ON m.chatCode = c.codeConv ";
-            if(strpos($userCode,"OWN") !== false) { ///Hay que hacer !== false, pq ==true no retorna,retorna un int de la pos
+            if (strpos($userCode, "OWN") !== false) {
                 $query .= " WHERE c.ownerCode = :userCode";
-            }else if(strpos($userCode,"KEP") !== false) 
-            {
+            } else if (strpos($userCode, "KEP") !== false) {
                 $query .= " WHERE c.keeperCode = :userCode";
-            }else{
+            } else {
                 throw new Exception("Something is bad with the userCode");
             }
 
@@ -168,11 +158,10 @@ class  conversationDAO{
 
             $parameters["userCode"] = $userCode;
 
-            $resultSet = $this->connection->Execute($query,$parameters);
+            $resultSet = $this->connection->Execute($query, $parameters);
 
             $conversationsByCode = array();
-            foreach($resultSet as $row)
-            {
+            foreach ($resultSet as $row) {
                 //paso directamente un array asociativo para no deserializar y serializar los objs y pasarlos a json
                 //$conver = new Conversation();
 
@@ -186,59 +175,52 @@ class  conversationDAO{
                 $conver["klastname"] = $row["klastname"];
                 $conver["oname"] = $row["oname"];
                 $conver["olastname"] = $row["olastname"];
-                $conver["kpfp"] = FRONT_ROOT."Images/";
+                $conver["kpfp"] = FRONT_ROOT . "Images/";
                 $conver["kpfp"] .= $row["kpfp"];
-                $conver["opfp"] = FRONT_ROOT."Images/";
+                $conver["opfp"] = FRONT_ROOT . "Images/";
                 $conver["opfp"] .= $row["opfp"];
                 $conver["lastMsgText"] = $row["lastMsgText"];
                 $conver["msgTimeStamp"] = $row["msgTimeStamp"];
                 $conver["unread_messages"] = $row["unread_messages"];
 
-                array_push($conversationsByCode,$conver);
+                array_push($conversationsByCode, $conver);
             }
             return $conversationsByCode;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
     public function getUsersFromConver($converCode)
     {
-        try
-        {
-            $query = "SELECT keeperCode,ownerCode FROM ".$this->tableName."
+        try {
+            $query = "SELECT keeperCode,ownerCode FROM " . $this->tableName . "
             WHERE codeConv = :codeConv;";
 
             $this->connection = Connection::GetInstance();
 
             $parameters["codeConv"] = $converCode;
 
-            $resultSet = $this->connection->Execute($query,$parameters);
-            
+            $resultSet = $this->connection->Execute($query, $parameters);
+
             $codes = array();
-            foreach($resultSet as $row)
-            {
+            foreach ($resultSet as $row) {
                 $codes["keeperCode"] = $row["keeperCode"];
                 $codes["ownerCode"] = $row["ownerCode"];
             }
 
             return $codes;
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
+
     public function getFullNamesFromConver($chatCode)
     {
-        try{
-            
-        }catch(Exception $ex)
-        {
+        try {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
-    
 }
-?>
