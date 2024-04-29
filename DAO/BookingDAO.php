@@ -152,7 +152,7 @@ class BookingDAO
     {
         try {
 
-            $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice, o.name as ownerName,p.name as petName,p.pfp
+            $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice, o.name as ownerName,k.name as keeperName,p.name as petName,p.pfp
             FROM " . $this->tableName . " as b
             JOIN pet as p
             ON  b.petCode = p.petCode ";
@@ -194,6 +194,7 @@ class BookingDAO
 
                 $arrayTmp = [
                     "booking" => $booking,
+					"keeperName" => $bookingInfo["keeperName"],
                     "ownerName" => $bookingInfo["ownerName"],
                     "petName" => $bookingInfo["petName"],
                     "pfp" => $bookingInfo["pfp"]
@@ -273,7 +274,7 @@ class BookingDAO
     public function getMyBookings($initDate, $endDate, $status, $userCode)
     {
         try {
-            $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice,o.name as ownerName,p.name as petName,p.pfp
+            $query = "SELECT b.id,b.bookCode,b.ownerCode,b.keeperCode,b.petCode,b.initDate,b.endDate,b.status,b.totalPrice,o.name as ownerName,k.name as keeperName,p.name as petName,p.pfp
             FROM " . $this->tableName . " as b
             JOIN pet as p
             ON  b.petCode = p.petCode ";
@@ -327,12 +328,14 @@ class BookingDAO
                 $arrayTmp = [
                     "booking" => $booking,
                     "ownerName" => $bookingInfo["ownerName"],
+                    "keeperName" => $bookingInfo["keeperName"],
                     "petName" => $bookingInfo["petName"],
                     "pfp" => $bookingInfo["pfp"]
                 ];
                 $megArray[$bookingInfo["bookCode"]] = $arrayTmp;
             }
 
+            //var_dump($megArray);
             return $megArray;
         } catch (Exception $ex) {
             throw $ex;
@@ -401,7 +404,7 @@ class BookingDAO
     public function modifyBookingStatus($codeBook, $status)
     {
         try {
-
+			echo "STATUS DAO".$status;
             $query = "UPDATE " . $this->tableName . " 
             SET status = :status
             WHERE bookCode = :codeBook;";
@@ -419,8 +422,10 @@ class BookingDAO
         }
     }
 
+    //1 avail 0 not
     public function checkFirstBreed(Booking $booking)
     {
+		
         try {
             $query = "SELECT checkPetBreedAvailability(:p_initDate,:p_endDate,:p_keeperCode,:p_petCode);";
 
@@ -537,20 +542,32 @@ class BookingDAO
         }
     }
 
-
+	//Must be used with firstbreed also to check overbook problems related with breed
     public function checkOverBookingConfirm(Booking $booking)
     {
         try {
+			
+
             $query = "SELECT COUNT(*) FROM " . $this->tableName . " AS b
                 WHERE (b.keeperCode = :p_keeperCode AND b.petCode = :p_petCode)
-                    AND (b.status = 'confirmed' OR b.status = 'pending' OR b.status = 'paidup' OR b.status = 'finished')
+                    AND (b.status = 'confirmed' OR b.status = 'paidup')
                     AND (
                         (:p_initDate BETWEEN b.initDate AND b.endDate)  
                         OR (:p_endDate BETWEEN b.initDate AND b.endDate) 
                         OR (b.initDate BETWEEN :p_initDate AND :p_endDate) 
                         OR (b.endDate BETWEEN :p_initDate AND :p_endDate)
                     );";
-
+			//check if the pet is already with another keeper
+			$queryTwo = "SELECT COUNT(*) FROM " . $this->tableName . " AS b 
+                    WHERE b.petCode = :p_petCode
+                        AND b.keeperCode <> :p_keeperCode
+                        AND (b.status = 'confirmed' OR b.status = 'paidup')
+                        AND (
+                            (:p_initDate BETWEEN b.initDate AND b.endDate)  
+                            OR (:p_endDate BETWEEN b.initDate AND b.endDate) 
+                            OR (b.initDate BETWEEN :p_initDate AND :p_endDate) 
+                            OR (b.endDate BETWEEN :p_initDate AND :p_endDate)
+                        );";
             $this->connection = Connection::GetInstance();
 
             $parameters["p_keeperCode"] = $booking->getKeeperCode();
@@ -559,8 +576,17 @@ class BookingDAO
             $parameters["p_endDate"] = $booking->getEndDate();
 
             $result = $this->connection->Execute($query, $parameters);
+			$resultTwo = $this->connection->Execute($queryTwo,$parameters);
 
-            return $result[0][0];
+			if($result[0][0] == 0 && $resultTwo[0][0] ==  0)
+			{
+				$finalResult = 0;
+			}else{
+				$finalResult = 1;
+			}
+			// echo "FINALRESULT : ";
+			// var_dump($finalResult);
+            return $finalResult;
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -571,8 +597,19 @@ class BookingDAO
         try{
             $query = "UPDATE ".$this->tableName." 
             SET status = 'cancelled'
-            WHERE petCode = :petCode
+            WHERE petCode = :petCode 
+            AND status = :status
             AND bookCode != :bookCode
+            AND (
+                (initDate <= :p_initDate AND endDate >= :p_initDate) OR
+                (initDate <= :p_endDate AND endDate >= :p_endDate) OR
+                (initDate >= :p_initDate AND endDate <= :p_endDate) OR
+                (initDate >= :p_initDate AND endDate <= :p_initDate)
+            );";
+
+            $queryTwo = "SELECT bookCode,ownerCode,keeperCode FROM ".$this->tableName." 
+            WHERE petCode = :petCode 
+            AND status = :status
             AND (
                 (initDate <= :p_initDate AND endDate >= :p_initDate) OR
                 (initDate <= :p_endDate AND endDate >= :p_endDate) OR
@@ -584,15 +621,142 @@ class BookingDAO
 
             $parameters["bookCode"] = $bookCode;
             $parameters["petCode"] = $petCode;
+            $parameters["status"] = Status::PENDING;
             $parameters["p_initDate"] = $initDate;
             $parameters["p_endDate"] = $endDate;
 
+            $parametersTwo["petCode"] = $petCode;
+            $parametersTwo["status"] = Status::CANCELLED;
+            $parametersTwo["p_initDate"] = $initDate;
+            $parametersTwo["p_endDate"] = $endDate;
+
             $result = $this->connection->ExecuteNonQuery($query,$parameters);
 
-            return $result;
+            $resultSetTwo = $this->connection->Execute($queryTwo,$parametersTwo);
+
+            $usersToNotify = array();
+            foreach($resultSetTwo as $row)
+            {
+                $key = $row["bookCode"];
+                $usersToNotify[$key]["ownerCode"] = $row["ownerCode"];
+                $usersToNotify[$key]["keeperCode"] = $row["keeperCode"];
+            }
+
+            //var_dump($usersToNotify);
+            return $usersToNotify;
         }catch(Exception $ex)
         {
             throw $ex;
         }
     }
+	
+	public function getAll()
+	{
+		try{
+			$bookList = array();
+
+            $query = "SELECT * FROM " . $this->tableName;
+
+            $this->connection = Connection::GetInstance();
+
+            $resultSet = $this->connection->Execute($query);
+
+            foreach($resultSet as $bookingInfo) {
+				
+                $booking = new Booking();
+
+                $booking->setId($bookingInfo["id"]);
+                $booking->setBookCode($bookingInfo["bookCode"]);
+                $booking->setOwnerCode($bookingInfo["ownerCode"]);
+                $booking->setKeeperCode($bookingInfo["keeperCode"]);
+                $booking->setPetCode($bookingInfo["petCode"]);
+                $booking->setInitDate($bookingInfo["initDate"]);
+                $booking->setEndDate($bookingInfo["endDate"]);
+                $booking->setStatus($bookingInfo["status"]);
+				$booking->setTotalPrice($bookingInfo["totalPrice"]);
+				$booking->setTotalDays($bookingInfo["totalDays"]);
+				$booking->setVisitPerDay($bookingInfo["visitPerDay"]);
+				$booking->setTimeStamp($bookingInfo["timeStamp"]);
+
+
+                array_push($bookList, $booking);
+			}
+            
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+		
+		return $bookList;
+	}
+	
+	//Only modify bookings = pending / confirmed
+	public function modifyPrice($bookCode,$price)
+	{
+		try{
+			$query = "UPDATE ".$this->tableName." 
+			SET totalPrice = :price
+			WHERE bookCode = :bookCode AND (status = :pending AND status = :confirmed);";
+			
+			$this->connection = Connection::GetInstance();
+			
+			$parameters["bookCode"] = $bookCode;
+			$parameters["price"] = $price;
+			$parameters["pending"] = Status::PENDING ;
+			$parameters["confirmed"] = Status::CONFIRMED;
+			
+			return $this->connection->ExecuteNonQuery($query,$parameters);
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
+	
+	public function getFilteredBooksAdm($code)
+	{
+		try{
+			$query ="SELECT * FROM ".$this->tableName;
+			if (strpos($code, "BOOK") !== false) {
+            $query .= " WHERE bookCode LIKE CONCAT(:code, '%')";
+        } elseif (strpos($code, "OWN") !== false) {
+            $query .= " WHERE ownerCode LIKE CONCAT(:code, '%')";
+        } elseif (strpos($code, "PET") !== false) {
+            $query .= " WHERE petCode LIKE CONCAT(:code, '%')";
+        } elseif (strpos($code, "KEP") !== false) {
+            $query .= " WHERE keeperCode LIKE CONCAT(:code, '%')";
+        }
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["code"] = $code;
+			
+			$resultSet = $this->connection->Execute($query,$parameter);
+			
+			$bookingsFiltered = array();
+			foreach($resultSet as $booking)
+			{
+				$book = new Booking();
+				
+				$book->setId($booking["id"]);
+                $book->setBookCode($booking["bookCode"]);
+                $book->setOwnerCode($booking["ownerCode"]);
+                $book->setKeeperCode($booking["keeperCode"]);
+                $book->setPetCode($booking["petCode"]);
+                $book->setInitDate($booking["initDate"]);
+                $book->setEndDate($booking["endDate"]);
+                $book->setStatus($booking["status"]);
+				$book->setTotalPrice($booking["totalPrice"]);
+				$book->setTotalDays($booking["totalDays"]);
+				$book->setVisitPerDay($booking["visitPerDay"]);
+				$book->setTimeStamp($booking["timeStamp"]);
+				
+				array_push($bookingsFiltered,$book);
+				
+			}
+			
+			return $bookingsFiltered;
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
 }

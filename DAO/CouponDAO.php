@@ -274,6 +274,7 @@ class CouponDAO
 
             $resultSet = $this->connection->Execute($query, $parameter);
             
+            
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -301,4 +302,96 @@ class CouponDAO
             throw $ex;
         }
     }
+	
+	public function getAll()
+	{
+		try {
+
+            $query = "SELECT * FROM " . $this->tableName;
+
+            $this->connection = Connection::GetInstance();
+
+            $resultSet = $this->connection->Execute($query);
+
+            
+			$arrayCoups = array();
+			
+            foreach ($resultSet as $value) {
+				
+				$coupon = new Coupon();
+				
+                $coupon->setId($value["id"]);
+                $coupon->setCouponCode($value["couponCode"]);
+                $coupon->setBookCode($value["bookCode"]);
+                $coupon->setPrice($value["price"]);
+                $coupon->setstatus($value["status"]);
+				
+				array_push($arrayCoups,$coupon);
+            }
+
+            
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+		return $arrayCoups;
+	}
+	
+	//Only modify bookings = finished / paidup
+	public function modifyPrice($coupCode,$price)
+	{
+		try{
+			$query = "UPDATE ".$this->tableName." 
+			SET price = :price
+			WHERE couponCode = :coupCode AND (status != :finished AND status != :paidup);";
+			
+			$this->connection = Connection::GetInstance();
+			
+			$parameters["coupCode"] = $coupCode;
+			$parameters["price"] = $price;
+			$parameters["finished"] = Status::FINISHED ;
+			$parameters["paidup"] = Status::PAIDUP;
+			
+			return $this->connection->ExecuteNonQuery($query,$parameters);
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
+	
+	public function getFilteredCoupsAdm($code)
+	{
+		try{
+			$query ="SELECT * FROM ".$this->tableName;
+			if (strpos($code, "BOOK") !== false) {
+            $query .= " WHERE bookCode LIKE CONCAT(:code, '%')";
+        } elseif (strpos($code, "COU") !== false) {
+            $query .= " WHERE coupCode LIKE CONCAT(:code, '%')";
+		}
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["code"] = $code;
+			
+			$resultSet = $this->connection->Execute($query,$parameter);
+			
+			$couponsFiltered = array();
+			foreach($resultSet as $coupon)
+			{
+				$coup = new Coupon();
+				
+				$coup->setId($coupon["id"]);
+                $coup->setBookCode($coupon["bookCode"]);
+                $coup->setCouponCode($coupon["couponCode"]);
+                $coup->setPrice($coupon["price"]);
+                $coup->setStatus($coupon["status"]);
+       	
+				array_push($couponsFiltered,$coup);
+				
+			}
+			
+			return $couponsFiltered;
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
 }

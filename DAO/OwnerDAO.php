@@ -388,6 +388,25 @@ class OwnerDAO
             throw $ex;
         }
     }
+	
+	public function updateUsername($ownerCode,$username)
+	{
+		try{
+			
+		$query = "UPDATE " . $this->tableName . " 
+            SET username = :username 
+            WHERE ownerCode = :ownerCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["username"] = $username;
+            $parameters["ownerCode"] = $ownerCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
 
     public function checkDni($dni)
     {
@@ -407,4 +426,123 @@ class OwnerDAO
             throw $ex;
         }
     }
+	
+	public function updatename($ownerCode,$name)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET name = :name 
+            WHERE ownerCode = :ownerCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["name"] = $name;
+            $parameters["ownerCode"] = $ownerCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updatelastname($ownerCode,$lastname)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET lastname = :lastname 
+            WHERE ownerCode = :ownerCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["lastname"] = $lastname;
+            $parameters["ownerCode"] = $ownerCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updateSuspDate($ownerCode,$suspensionDate)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET suspensionDate = :suspensionDate 
+            WHERE ownerCode = :ownerCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["suspensionDate"] = $suspensionDate;
+            $parameters["ownerCode"] = $ownerCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function getFilteredOwnsAdm($code)
+	{
+		try{
+			$query ="SELECT * FROM ".$this->tableName;
+			if (strpos($code, "OWN") !== false) {
+            $query .= " WHERE ownerCode LIKE CONCAT(:code, '%')";
+        } elseif (filter_var($code, FILTER_VALIDATE_EMAIL)) {
+            $query .= " WHERE email LIKE CONCAT(:code, '%')";
+        } elseif ((preg_match("/^\d{8}$/",$code) == 1)) {
+            $query .= " WHERE dni LIKE CONCAT(:code, '%')";
+        } 
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["code"] = $code;
+			
+			$resultSet = $this->connection->Execute($query,$parameter);
+			
+			$ownersFiltered = array();
+			foreach($resultSet as $owner)
+			{
+				$own = new Owner();
+
+                $own->setId($owner["id"]);
+                $own->setOwnerCode($owner["ownerCode"]);
+                $own->setEmail($owner["email"]);
+                $own->setUserName($owner["username"]);
+                $own->setPassword($owner["password"]);
+                $own->setStatus($owner["status"]);
+                $own->setName($owner["name"]);
+                $own->setLastname($owner["lastname"]);
+                $own->setDni($owner["dni"]);
+                $own->setPfp($owner["pfp"]);
+                $own->setBio($owner["bio"]);
+				
+				array_push($ownersFiltered,$own);
+				
+			}
+			
+			return $ownersFiltered;
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
+	
+	public function deleteOwner($ownerCode)
+	{
+		try{
+			
+			$query = "DELETE FROM ".$this->tableName." 
+			WHERE ownerCode = :ownerCode;";
+			
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["ownerCode"] = $ownerCode;
+			
+			return $this->connection->ExecuteNonQuery($query,$parameter);
+			
+			
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
 }

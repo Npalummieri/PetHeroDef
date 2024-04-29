@@ -39,7 +39,7 @@ use Utils\Session as Session;
                               <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Home/showLoginView">Login</a>
                          </li>
                     <?php } ?>
-                    <?php if (isset($_SESSION["loggedUser"])) {
+                    <?php if (Session::isLogged()) {
                     ?>
                          <li class="nav-item active" id="notis">
                               <div id="baseurl" data-urlcur = "<?php echo FRONT_ROOT ?>" hidden></div>

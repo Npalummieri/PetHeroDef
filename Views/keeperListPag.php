@@ -1,14 +1,16 @@
 <?php require_once("header.php");
 require_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php");
+
+var_dump(date_default_timezone_get());
 ?>
 
 <h2 class=" bg-dark rounded text-center text-white p-2">KEEPERS</h2>
 <div id="cururl" data-cururl="<?php echo FRONT_ROOT ?>" hidden></div>
-<div class="container mt-2" id="contMain"  style="background-color : #110257;">
-  <div class="row justify-content-center">
+<div class="container mt-2" id="contMain">
+  <div class="row justify-content-center" style="background-color : #110257;">
     <?php foreach ($allKeepers as $keeper) { ?>
-      <div class="col-lg-4 col-md-6 col-sm-12 mb-4 m-2 p-2">
+      <div class="col-lg-4 col-md-6 col-sm-12 p-2">
         <div class="card border-dark" style="background-color: #d6c9ae;">
           <div class="card-body text-center">
 
@@ -21,7 +23,9 @@ require_once(VIEWS_PATH . "formKeepersList.php");
             </div>
 
             <div class="mt-3 mb-2">
-            <a  href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $keeper->getKeeperCode() ?>"><img src="<?php echo ($keeper->getPfp() == 0) ? FRONT_ROOT . 'Images/SysImages/default-avatar-icon-of-social-media-user-vector.jpg' : FRONT_ROOT . 'Images/' . $keeper->getPfp(); ?>" onerror="this.onerror=null;this.src='<?php echo FRONT_ROOT . 'Images/SysImages/default-avatar-icon-of-social-media-user-vector.jpg' ?>'" class="rounded-circle" width="120" height="120" alt="pfpKeeper"></a>
+            <a  href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $keeper->getKeeperCode() ?>">
+            <img src="<?php echo ($keeper->getPfp() == 0) ? FRONT_ROOT . 'Images/SysImages/default-avatar-icon-of-social-media-user-vector.jpg' : FRONT_ROOT . 'Images/' . $keeper->getPfp(); ?>" onerror="this.onerror=null;this.src='<?php echo FRONT_ROOT . 'Images/SysImages/default-avatar-icon-of-social-media-user-vector.jpg' ?>'" class="rounded-circle" width="120" height="120" alt="pfpKeeper">
+          </a>
             </div>
             <p>Score : <?php if ($keeper->getScore() == 0) {
                           echo "Not reviewed";

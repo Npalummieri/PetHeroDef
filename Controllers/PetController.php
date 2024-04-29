@@ -4,6 +4,7 @@ namespace Controllers;
 
 
 use Services\PetService as PetService;
+
 use Utils\Session;
 
 class PetController
@@ -11,8 +12,9 @@ class PetController
 
 
     private $petService;
-    public function __construct()
-    {
+
+
+    public function __construct(){
 
         $this->petService = new PetService();
     }
@@ -137,4 +139,98 @@ class PetController
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
+	
+		public function showListPets()
+	{
+		if(Session::IsLogged())
+		{
+			$checkAdmin = Session::GetLoggedUser();
+			
+			if($checkAdmin != null)
+			{
+				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				{
+					$listPets = $this->petService->srv_getAllPets();
+					require_once(VIEWS_PATH."listPets.php");
+				}else{
+					Session::DeleteSession();
+					header("location: ".FRONT_ROOT."Home/showLoginView");
+				}
+			}else{
+				Session::DeleteSession();
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+			
+			}else{
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+	}
+	
+	public function showAdminEditPet($petCode)
+	{
+		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		{
+			$pet = $this->petService->srv_getPet($petCode);
+			require_once(VIEWS_PATH."adminEditPet.php");
+		}
+	}
+	
+	public function adminEditPet($petCode,$name = "",$breed = "",$age = "")
+	{
+		$edits = array(
+			"name" => $name,
+			"breed" => $breed,
+			"age" => $age
+		);
+
+		foreach ($edits as $field => $value) {
+			if (!empty($value)) {
+				$methodName = "srv_edit" . ucfirst($field);
+				$result = $this->petService->$methodName($petCode, $value);
+				if($result == 1){
+                    $resultOkFinal = "";
+					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					Session::SetOkMessage($resultOkFinal);
+				}
+				if($result != 1)
+				{
+                    $resultFinal = "";
+					$resultFinal .= " || ".$result;
+					Session::SetBadMessage($resultFinal);
+					
+				}
+			}
+		}
+		header("location: " . FRONT_ROOT . "Pet/showListPet");
+	}
+	
+	public function listPetsFiltered($code ="")
+	{
+		
+		if($code == "")
+		{
+			header("location: " . FRONT_ROOT . "Pet/showListPets");
+		}
+		$listPets = $this->petService->listPetFiltered($code);
+		if(is_array($listPets)){
+			require_once(VIEWS_PATH."listPets.php");
+		}else if($code != ""){
+			Session::SetBadMessage($listPets);
+			header("location: " . FRONT_ROOT . "Pet/showListPets");
+		}			
+	}
+	
+	public function deletePetAdm($petCode)
+	{
+		$pet = $this->petService->srv_getPet($petCode);
+		$result = $this->petService->srv_deletePet($pet->getOwnerCode(), $pet->getPetCode());
+		if($result == 1)
+		{
+			Session::SetOkMessage("Successfully deleted");
+			header("location: " . FRONT_ROOT . "Pet/showListPets");
+		}else{
+			Session::SetBadMessage($result);
+			header("location: " . FRONT_ROOT . "Pet/showListPets");
+		}
+	}
 }

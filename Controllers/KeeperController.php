@@ -101,7 +101,7 @@ class KeeperController
     }
 
 
-    public function updateKeeper($email = " ", $pfp = " ", $bio = " ", $price = " ", $visitPerDay = " ")
+    public function updateKeeper($email = " ", $pfp = " ", $bio = " ",$price = " ", $visitPerDay = " ")
     {
 
         if (Session::IsLogged()) {
@@ -169,4 +169,95 @@ class KeeperController
 
         echo $datesEncoded;
     }
+	
+		//|||||||||||||||||||||||| Keeper edits
+	
+		public function showListKeepers()
+	{
+		if(Session::IsLogged())
+		{
+			$checkAdmin = Session::GetLoggedUser();
+			
+			if($checkAdmin != null)
+			{
+				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				{
+					$listKeeps = $this->keeperService->srv_getAllKeepers();
+					require_once(VIEWS_PATH."listKeepers.php");
+				}else{
+					Session::DeleteSession();
+					header("location: ".FRONT_ROOT."Home/showLoginView");
+				}
+			}else{
+				Session::DeleteSession();
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+			
+			}else{
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+	}
+	
+
+	
+	public function showEditKeeper($keeperCode)
+	{
+		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		{
+			$keeper = $this->keeperService->srv_getKeeperByCode($keeperCode);
+			require_once(VIEWS_PATH."adminEditKeep.php");
+		}
+	}
+	
+	public function adminEditKeeper($keeperCode, $email = "", $username = "", $status = "", $name = "", $lastname = "",$typeCare = "",$typePet = "",$score = "",$price = "")
+	{
+		$edits = array(
+			"email" => $email,
+			"username" => $username,
+			"status" => $status,
+			"name" => $name,
+			"lastname" => $lastname,
+			"typeCare" => $typeCare,
+			"typePet" => $typePet,
+			"score" => $score,
+			"price" => $price
+			
+		);
+
+		foreach ($edits as $field => $value) {
+			if (!empty($value)) {
+				$methodName = "srv_edit" . ucfirst($field);
+				$result = $this->keeperService->$methodName($keeperCode, $value);
+				if($result == 1){
+                    $resultOkFinal = "";
+					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					Session::SetOkMessage($resultOkFinal);
+				}
+				if($result != 1)
+				{
+                    $resultFinal = "";
+					$resultFinal .= " || ".$result;
+					Session::SetBadMessage($resultFinal);
+					
+				}
+			}
+		}
+		header("location: " . FRONT_ROOT . "Home/showListKeepers");
+	}
+	
+		public function listKeepersFiltered($code ="")
+	{
+		
+		if($code == "")
+		{
+			header("location: " . FRONT_ROOT . "Home/showListKeepers");
+		}
+		$listKeeps = $this->keeperService->listKeeperFiltered($code);
+		if(is_array($listKeeps)){
+			require_once(VIEWS_PATH."listKeepers.php");
+		}else if($code != ""){
+			Session::SetBadMessage($listKeeps);
+			header("location: " . FRONT_ROOT . "Home/showListKeepers");
+		}			
+	}
 }

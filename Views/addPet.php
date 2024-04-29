@@ -1,7 +1,7 @@
 <?php include("header.php");
 include("nav.php") ?>
 <form action="<?php echo FRONT_ROOT . "Pet/add" ?>" method="POST" enctype="multipart/form-data">
- 
+ <div  id="baseUrl" data-baseurl="<?php echo FRONT_ROOT ?>" hidden> </div>
 <div class="container text-white">
   <div class="row justify-content-center" >
     <div class="col-md-6">

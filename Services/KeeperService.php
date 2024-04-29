@@ -11,17 +11,17 @@ use Models\Keeper as Keeper;
 use Models\User as User;
 use Utils\Dates as Dates;
 use Models\Size as Size;
+use Models\Status as Status;
 
 class KeeperService
 {
 
     private $keeperDAO;
-    private $userService;
+
 
     public function __construct()
     {
         $this->keeperDAO = new KeeperDAO();
-        $this->userService = new UserService(null, $this->keeperDAO);
     }
 
 
@@ -253,4 +253,220 @@ class KeeperService
 
         return $dates;
     }
+	
+	public function srv_getAllKeepers()
+	{
+		try{
+			$keepList = $this->keeperDAO->GetAll();
+		}catch(Exception $ex)
+		{
+			$keepList = $ex->getMessage();
+		}
+		return $keepList;
+		
+	}
+	
+		public function srv_editEmail($keeperCode,$email)
+	{
+		try{
+			if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
+				$resp = "This type not allowed";
+			}else{
+				$resp = $this->keeperDAO->updateEmail($keeperCode,$email);
+			}
+			
+			if($resp != 1)
+			{
+				$resp = "Not allowed email,try another one";
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editUsername($keeperCode,$username)
+	{
+		try{
+			$regexUsername = "/^(?=.*[A-Za-z])(?!.*[\s!@])(?:\D*\d){0,4}[A-Za-z\d]{6,20}$/";
+			if (preg_match($regexUsername, $username)) {
+
+                    $username = trim($username);
+					$resp = $this->keeperDAO->updateUsername($keeperCode,$username);
+			}else{
+				$resp = "Username doesn't match the requirements!!";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not allowed username"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+public function srv_editStatus($keeperCode, $status)
+{
+    try {
+
+        if ($status != Status::ACTIVE && $status != Status::INACTIVE && $status != Status::SUSPENDED) {
+            $resp = "Not permitted status";
+        } else {
+            
+            $resp = $this->keeperDAO->updateStatus($keeperCode, $status);
+            
+            
+            if ($resp !== 1) {
+                $resp = "Not modified status";
+            } 
+        }
+    } catch (Exception $ex) {
+
+        $resp = $ex->getMessage();
+    }
+    
+    return $resp;
+}
+
+	
+	public function srv_editName($keeperCode,$name)
+	{
+		try{
+			$name_alpha_spaces = ctype_alpha(str_replace(' ', '', $name));
+            if ($name_alpha_spaces) {
+                $resp = $this->keeperDAO->updateName($keeperCode,$name);
+			}else{
+				$resp = "name doesn't match the requirements!!";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not allowed name"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editLastname($keeperCode,$lastname)
+	{
+		try{
+			$name_alpha_spaces = ctype_alpha(str_replace(' ', '', $lastname));
+            if ($name_alpha_spaces) {
+                $resp = $this->keeperDAO->updatelastname($keeperCode,$lastname);
+			}else{
+				$resp = "Lastname doesn't match the requirements!!";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not modified lastname"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editTypeCare($keeperCode,$typeCare)
+	{
+		try{
+			
+            if ($typeCare != Size::BIG && $typeCare != Size::MEDIUM && $typeCare != Size::SMALL) {
+                $resp = $this->keeperDAO->updateTypeCare($keeperCode,$typeCare);
+			}else{
+				$resp = "Typecare doesn't match!";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not modified type care"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editTypePet($keeperCode,$typePet)
+	{
+		try{
+			
+            if ($typePet != "cat" && $typePet != "dog") {
+                $resp = $this->keeperDAO->updateTypePet($keeperCode,$typePet);
+			}else{
+				$resp = "Typepet doesn't match!";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not modified type pet"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editScore($keeperCode,$score)
+	{
+		try{
+			
+            if (ctype_digit($score) && $score >= 1 && $score <= 5) {
+                $resp = $this->keeperDAO->updateScore($keeperCode,$score);
+			}else{
+				$resp = "Score doesn't match has to be between 1 - 5!";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not allowed score"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editPrice($keeperCode,$price)
+	{
+		try{
+			
+            if (ctype_digit($price)) {
+                $resp = $this->keeperDAO->updatePrice($keeperCode,$price);
+			}else{
+				$resp = "Price must be a number";
+			}
+			if($resp != 1)
+			{
+				$resp = "Not allowed price"; 
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function listKeeperFiltered($code)
+	{
+        try {
+        if (strpos($code, "KEP") !== false || 
+            filter_var($code, FILTER_VALIDATE_EMAIL) || 
+            (preg_match("/^\d{8}$/",$code) == 1))
+			{
+				$keepList = $this->keeperDAO->getFilteredKeepsAdm($code);
+			}else {
+				$keepList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				}
+        }catch(Exception $ex)
+		{
+			$keepList = $ex->getMessage();
+		}
+		return $keepList;
+	}
 }

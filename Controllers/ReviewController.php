@@ -33,11 +33,11 @@ class ReviewController
                     } else {
                         Session::SetBadMessage("Error making the review.Can't review it more than 3 times ");
                     }
-                    //The Jquery/Ajax refresh the page
+                    //Script refresh the page
                     //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 } else {
-                    Session::SetBadMessage("Error making the review.You must have a FINISHED booking with this keeper");
-                    //The Jquery/Ajax refresh the page
+                    Session::SetBadMessage("Error making the review.You must have a previous booking with this keeper");
+                    //Script refresh the page
                     //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 }
             } else {

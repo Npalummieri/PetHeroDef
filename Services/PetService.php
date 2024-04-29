@@ -186,11 +186,11 @@ class PetService
                 $pet->setSize($size);
             }
 
-            //Revalidate breed's name (depends typePet)
+            //Revalidate breed's name (depends by typePet)
             if ($typePet == "cat") {
                 $content = file_get_contents("DAOJson\catBreeds.json");
                 $decodedContent = json_decode($content, true);
-                //var_dump($decodedContent);
+
                 if (in_array($breed, $decodedContent)) {
                     $pet->setBreed($breed);
                 } else {
@@ -287,7 +287,7 @@ class PetService
             //$encodedObj = json_encode($valsToEncode);
             array_push($arrayToEncode, $valsToEncode);
         }
-        //var_dump($arrayToEncode);
+
         $encodedArray = json_encode($arrayToEncode);
         //Supuestamente si no existe el archivo lo crea,pero nop,lo tuve que hacer manual
         file_put_contents("DAOJson\petsByOwnAndType.json", $encodedArray);
@@ -487,7 +487,6 @@ class PetService
     public function srv_getPet($petCode)
     {
         try {
-            //Usar regex o modificar logica strpos
             $pet = $this->petDAO->getPet($petCode);
         } catch (Exception $ex) {
             $pet = $ex->getMessage();
@@ -511,7 +510,7 @@ class PetService
                     $resp = "This pet doesn't belong to this owner!";
                 }
             } else {
-                $resp = "Not except to be here! Good luck!";
+                $resp = "Failed related with the owner code.Contact support";
             }
         } catch (Exception $ex) {
             $resp = $ex->getMessage();
@@ -538,4 +537,33 @@ class PetService
         }
         return $images;
     }
+	
+	public function srv_getAllPets()
+	{
+		try{
+			$petList = $this->petDAO->GetAll();
+		}catch(Exception $ex)
+		{
+			$petList = $ex->getMessage();
+		}
+		return $petList;
+		
+	}
+	
+	public function listPetFiltered($code)
+	{
+        try {
+        if (strpos($code, "PET") !== false || 
+			strpos($code, "OWN") !== false)
+			{
+				$petList = $this->petDAO->getFilteredPetsAdm($code);
+			}else {
+				$petList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				}
+        }catch(Exception $ex)
+		{
+			$petList = $ex->getMessage();
+		}
+		return $petList;
+	}
 }

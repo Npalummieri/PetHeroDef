@@ -2,6 +2,7 @@
 include_once("header.php");
 include_once("nav.php");
 require_once(VIEWS_PATH . "formBookingList.php");
+use Utils\Session as Session;
 ?>
 
 <?php require_once("msgeDisplay.php"); ?>
@@ -11,7 +12,7 @@ require_once(VIEWS_PATH . "formBookingList.php");
   <table class="table table-striped table-bordered align-middle mb-0">
     <thead class="bg-light">
       <tr>
-        <th>Pet PFP & Owner name</th>
+        <th><?php if(Session::IsLogged()){echo (Session::GetTypeLogged() == "Models\Keeper") ? "PetPFP / Owner name" : "PetPFP / Keeper name" ;}  ?></th>
         <th>Pet name</th>
         <th>Status</th>
         <th>Initial date</th>
@@ -35,7 +36,12 @@ require_once(VIEWS_PATH . "formBookingList.php");
                 <img src="<?php echo FRONT_ROOT . 'Images/' . $value["pfp"]; ?>" alt="petPhoto" style="width: 45px; height: 45px" class="rounded-circle" />
               </a>
               <div class="ms-3">
-                <a href="<?php echo FRONT_ROOT . 'Owner/showProfileOwner/' . $objBook->getOwnerCode(); ?>" class="fw-normal mb-1"><?php echo $value["ownerName"]; ?></a>
+			  <?php if(Session::GetTypeLogged() == "Models\Keeper")
+			  { ?>
+				 <a href="<?php echo FRONT_ROOT . 'Owner/showProfileOwner/' . $objBook->getOwnerCode(); ?>" class="fw-normal mb-1"><?php echo $value["ownerName"]; ?></a> 
+			  <?php }else{ ?>
+				<a href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $objBook->getKeeperCode(); ?>" class="fw-normal mb-1"><?php echo $value["keeperName"]; ?></a> 
+			  <?php }?>
                 <p class="text-muted mb-0"></p>
               </div>
             </div>

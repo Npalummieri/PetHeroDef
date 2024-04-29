@@ -2,11 +2,11 @@
 include("nav.php");
 ?>
 <!-- How it Works Section -->
-<section class="section about-section m-5" style="background-color: #110257;" id="how-it-works">
-    <div class="container">
-        <div class="row justify-content-center align-items-center">
+<h2 class="bg-dark rounded text-center text-white m-2 p-2">How it Works</h2>
+<section class="section about-section m-5"  id="how-it-works" style="background-color: #110257;">
+    <div class="container" >
+        <div class="row justify-content-center align-items-center p-2">
             <div class="col-lg-8">
-                <h2 class="bg-dark rounded text-center text-white mt-2 py-3">How it Works</h2>
                 <p class="lead text-center text-white">
                     PetHero is an innovative online platform designed with the mission of connecting pet owners with
                     reliable and passionate pet caregivers. Our vision is to offer a safe and reliable space where pet
@@ -24,14 +24,16 @@ include("nav.php");
         </div>
     </div>
     <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel" style="background-color: #110257;">
-    <div class="carousel-inner col-4 bg-dark text-center">
+    <div class="carousel-inner col-4  text-center">
         <?php for ($i = 0; $i < count($images); $i += 3) : ?>
             <?php $active = ($i === 0) ? 'active' : ''; ?>
             <div class="carousel-item <?php echo $active ?>">
                 <div class="row">
                     <?php for ($j = $i; $j < min($i + 3, count($images)); $j++) : ?>
                         <div class="col">
-                            <img class="d-block mx-auto" src="<?php echo FRONT_ROOT . "Images/" . $images[$j] ?>" alt="Slide" width="256px" height="256px">
+                            <?php var_dump((FRONT_ROOT . 'Images/' . $images[$j])) ; ?>
+                            <!-- file_exists doesn't work with relative so had to reference ROOT instead of FRONT_ROOT -->
+                            <img class="d-block mx-auto" src="<?php echo (file_exists(ROOT . 'Images/' . $images[$j])) ?  FRONT_ROOT . 'Images/' . $images[$j] : FRONT_ROOT.'Images/SysImages/labrador-retriever-scaled.jpg'; ?>" alt="Slide" width="256px" height="256px">
                         </div>
                     <?php endfor; ?>
                 </div>

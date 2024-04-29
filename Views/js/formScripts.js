@@ -56,20 +56,21 @@ const breedManage = {
     // Función para cargar las razas desde el archivo JSON
     loadBreed: function (typePet) {
         // Realizar una solicitud AJAX para cargar el archivo JSON correspondiente
+	console.log("HOLA?");
+		var baseUrl = $("#baseUrl").data("baseurl");
+        var url = typePet === 'dog' ? baseUrl+"DAOJson/dogBreeds.json" : baseUrl+"DAOJson/catBreeds.json";
 
-
-        var url = typePet === 'dog' ? "../DAOJson/dogBreeds.json" : "../DAOJson/catBreeds.json";
-
-        //console.log(url);
+        console.log(url);
 
         $.ajax({
             url: url,
             cache: false,
             dataType: 'json',
             success: function (data) {
+				console.log(data);
                 var select = $('#breed');
                 select.empty(); // Limpiar las opciones anteriores
-
+				
                 // Agregar las nuevas opciones desde el archivo JSON
                 $.each(data, function (key, value) {
                     select.append($('<option>', {
@@ -141,18 +142,10 @@ const FormAjaxModule = {
     generateVisitPerDaySelect: function () {
         // Realizar la llamada AJAX para obtener el atributo visitPerDay del Keeper
         var keeperCode = $("#keeperCode").val();
-        var urlMod = "../Keeper/GetVisitPerDay"
-        //console.log("keeperCode" + keeperCode);
-                var url = window.location.href;
-
-                // Obtener el código del cuidador de la URL
-                var parts = url.split('/');
-                var partCount = parts.length;
-                if(partCount === 9){
-                    urlMod = "../../Keeper/GetVisitPerDay"
-                }
+		var curUrl = $('#curUrl').data('cururl');
+        var baseUrl = curUrl + "Keeper/getVisitPerDay";
         $.ajax({
-            url: urlMod, 
+            url: baseUrl, 
             method: 'POST',
             dataType: "json",
             data: {
@@ -200,17 +193,10 @@ const FormAjaxModule = {
             var typePet = document.getElementById("DivType");
             var typeSize = document.getElementById("DivSize");
 
-            var urlMod = "../Booking/getPetsByOwnFiltered"
-            //console.log("keeperCode" + keeperCode);
-                var url = window.location.href;
-
-                // Obtener el código del cuidador de la URL
-                var parts = url.split('/');
-                var partCount = parts.length;
-                if(partCount === 9){
-                    urlMod = "../../Booking/getPetsByOwnFiltered"
-                }
-
+			var curUrl = $('#curUrl').data('cururl');
+			var baseUrl = curUrl + "Booking/getPetsByOwnFiltered";
+                
+			console.log("BASE URL"+baseUrl);
             //Una es la variable interna y otra el data-*
 
             var dataTypePet = typePet.dataset.typepet;
@@ -219,7 +205,7 @@ const FormAjaxModule = {
             // console.log(dataTypeSize);
             // Realiza una solicitud AJAX al servidor para obtener las mascotas del tipo seleccionado
             $.ajax({
-                url: urlMod, // Reemplaza con la URL de tu servidor  
+                url: baseUrl, // Reemplaza con la URL de tu servidor  
                 dataType: 'json',
                 type: 'POST',
                 data: {
@@ -268,7 +254,8 @@ const FormAjaxModule = {
                     var calendarEl = document.getElementById('calendar');
 
                     var calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
+						headerToolbar: false, // Ocultar el encabezado
+						initialView: 'dayGridMonth',
                         events: datesInRange.map(date => ({
                             start: date,
                             backgroundColor: 'green'
@@ -315,6 +302,7 @@ const infoModule = {
             var curUrl = $('#cururl').data('cururl');
             var baseUrl = curUrl + "Home/doBio";
             var userCode = $('#bio').data("userlogged");
+	
             $('#editBioBtn').click(function () {
                 $('#bio').hide();
                 $('#bioEditor').show();
@@ -388,7 +376,16 @@ const infoModule = {
 
                         // Formatear el timestamp como "Y-m-d / H:i"
                         var timestampFormateado = date + " / " + hour;
-                        $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + 'Home/notificationArea" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
+                        if(notification.message.indexOf("My Bookings") != -1)
+                        {
+                            $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + 'Booking/showMyBookings" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
+                        }else if(notification.message.indexOf("myCoupons") != -1)
+                        {
+                            $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + 'Coupon/showMyCoupons" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
+                        }else{
+                            $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + '#" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
+                        }
+                        
 
                         if (notification.seen == 0) {
                             numNotis++;
@@ -812,8 +809,9 @@ const KeepersInteract = {
     
                     // Renderizar el calendario con las fechas en el rango
                     var calendarEl = document.getElementById('calendar');
-                    var calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
+                    var calendar = new FullCalendar.Calendar(calendarEl,  {
+						headerToolbar: false, // Ocultar el encabezado
+						initialView: 'dayGridMonth',
                         events: datesInRange.map(date => ({
                             start: date,
                             backgroundColor: 'green'

@@ -77,7 +77,9 @@ class HomeController
     {
         if (Session::IsLogged()) {
             $result = $this->userService->srv_updateBio($bio, $userCode);
+			Session::SetOkMessage("Bio updated!");
         } else {
+			Session::SetBadMessage("Non authorized");
             header("location: " . FRONT_ROOT . "Home/Index");
         }
     }
@@ -131,4 +133,30 @@ class HomeController
             }
         }
     }
+	
+	public function showDashboard()
+	{
+		if(Session::IsLogged())
+		{
+			$checkAdmin = Session::GetLoggedUser();
+			
+			if($checkAdmin != null)
+			{
+				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				{
+					require_once(VIEWS_PATH."dashboard.php");
+				}else{
+					Session::DeleteSession();
+					header("location: ".FRONT_ROOT."Home/showLoginView");
+				}
+			}else{
+				Session::DeleteSession();
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+			
+			}else{
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+	}
+		
 }

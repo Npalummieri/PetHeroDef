@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 04, 2024 at 01:04 AM
+-- Generation Time: Apr 26, 2024 at 02:52 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -81,7 +81,7 @@ CREATE TABLE `keeper` (
   `id` int(11) NOT NULL,
   `keeperCode` varchar(255) NOT NULL,
   `email` varchar(50) CHARACTER SET armscii8 COLLATE armscii8_bin NOT NULL,
-  `username` varchar(12) NOT NULL,
+  `username` varchar(12) CHARACTER SET armscii8 COLLATE armscii8_bin NOT NULL,
   `password` varchar(255) NOT NULL,
   `status` enum('active','inactive','suspended','') NOT NULL,
   `name` varchar(20) NOT NULL,
@@ -117,6 +117,20 @@ CREATE TABLE `message` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notification`
+--
+
+CREATE TABLE `notification` (
+  `id` int(3) NOT NULL,
+  `message` varchar(255) NOT NULL,
+  `receiver` varchar(255) NOT NULL,
+  `timestamp` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
+  `seen` int(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `owner`
 --
 
@@ -131,7 +145,8 @@ CREATE TABLE `owner` (
   `lastname` varchar(20) NOT NULL,
   `dni` int(16) NOT NULL,
   `pfp` varchar(255) DEFAULT NULL,
-  `bio` varchar(180) DEFAULT NULL
+  `bio` varchar(180) DEFAULT NULL,
+  `suspensiondate` timestamp(6) NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -217,6 +232,12 @@ ALTER TABLE `message`
   ADD KEY `chatCode` (`chatCode`);
 
 --
+-- Indexes for table `notification`
+--
+ALTER TABLE `notification`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `owner`
 --
 ALTER TABLE `owner`
@@ -235,7 +256,7 @@ ALTER TABLE `pet`
   ADD UNIQUE KEY `video` (`video`),
   ADD UNIQUE KEY `vaccPlan` (`vaccPlan`),
   ADD UNIQUE KEY `pfp` (`pfp`),
-  ADD KEY `FK ownerCode` (`ownerCode`);
+  ADD KEY `FK ownerCode` (`ownerCode`) USING BTREE;
 
 --
 -- Indexes for table `review`
@@ -278,6 +299,12 @@ ALTER TABLE `keeper`
 --
 ALTER TABLE `message`
   MODIFY `idMsg` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `notification`
+--
+ALTER TABLE `notification`
+  MODIFY `id` int(3) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `owner`
@@ -326,7 +353,7 @@ ALTER TABLE `message`
 -- Constraints for table `pet`
 --
 ALTER TABLE `pet`
-  ADD CONSTRAINT `FK ownerCode` FOREIGN KEY (`ownerCode`) REFERENCES `owner` (`ownerCode`);
+  ADD CONSTRAINT `FK ownerCode` FOREIGN KEY (`ownerCode`) REFERENCES `owner` (`ownerCode`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `review`

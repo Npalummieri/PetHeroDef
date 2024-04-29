@@ -5,6 +5,7 @@ namespace Models;
 class Owner extends User{
 
     private $ownerCode;
+	private $suspensionDate;
 
     
     public function __construct()
@@ -33,6 +34,26 @@ class Owner extends User{
 
         return $this;
     }
+	
+	/**
+     * Get the value of ownerCode
+     */ 
+    public function getSuspensionDate()
+    {
+        return $this->suspensionDate;
+    }
+
+    /**
+     * Set the value of ownerCode
+     *
+     * @return  self
+     */ 
+    public function setSuspensionDate($suspensionDate)
+    {
+        $this->suspensionDate = $suspensionDate;
+
+        return $this;
+    }
 
     public function fromUserToOwner(User $user)
     {
@@ -44,6 +65,9 @@ class Owner extends User{
         $this->setLastname($user->getLastname());
         $this->setDni($user->getDni());
         $this->setPfp($user->getPfp());
+		$this->setBio($user->getBio());
+		$this->setSuspensionDate($user->getSuspensionDate());
+		
     }
 }
 

@@ -12,10 +12,9 @@ include("nav.php");
     <div class="container  rounded" style="background-color: #110257;">
         <div class="row align-items-center">
             <div class="col-lg-4">
-                <div class="about-avatar text-center m-3">
-                    <img class="mt-3 mx-auto img-rounded rounded-circle" src="<?php echo FRONT_ROOT . "Images/" . $pet->getPfp() ?>" title="" alt="" width="312px" height="312px">
+                <div class="about-avatar text-center">
+                    <img class="img-fluid img-rounded rounded-circle" src="<?php echo FRONT_ROOT . "Images/" . $pet->getPfp() ?>" title="" alt="" width="312px" height="312px">
                 </div>
-
             </div>
             <div class="col-lg-8">
                 <div class="about-list">
@@ -41,11 +40,11 @@ include("nav.php");
                     </div>
 
                     <div class="media ">
-              <label class="text-truncate">Vaccplan: <?php if($pet->getVaccPlan() != null) { ?><a href="<?php echo FRONT_ROOT . "Images/" . $pet->getVaccPlan() ?>" target="_blank" class="text-white">Vaccplan</a><?php }else echo "Not uploaded"; ?></label>
+              <p><label>Vaccplan: <?php if($pet->getVaccPlan() != null) { ?><a   class="text-truncate" href="<?php echo FRONT_ROOT . "Images/" . $pet->getVaccPlan() ?>" target="_blank" class="text-white">Vaccplan</a><?php }else echo "Not uploaded"; ?></label></p>
             </div>
 
             <div class="media ">
-            <label class="text-truncate">Video : <?php if($pet->getVideo() != null) { ?><a href="<?php echo FRONT_ROOT . $pet->getVideo() ?>" target="_blank" class="text-white">Video </a><?php }else echo "Not uploaded"; ?></label>
+            <p><label>Video : <?php if($pet->getVideo() != null) { ?><a  class="text-truncate" href="<?php echo FRONT_ROOT . $pet->getVideo() ?>" target="_blank" class="text-white">Video </a><?php }else echo "Not uploaded"; ?></label></p>
             </div>
                 </div>
             </div>

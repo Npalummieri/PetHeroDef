@@ -19,7 +19,7 @@ class PetDAO {
         try
         {
          
-            //var_dump($pet);
+
             $query = "INSERT INTO ".$this->tableName." (petCode,name,pfp,ownerCode,size,breed,vaccPlan,video,typePet,age)
             VALUES (:petCode,:name,:pfp,:ownerCode,:size,:breed,:vaccPlan,:video,:typePet,:age);";
             
@@ -35,7 +35,7 @@ class PetDAO {
             $parameters["typePet"] = $pet->getTypePet(); 
             $parameters["age"] = $pet->getAge(); 
             
-            //var_dump($parameters);
+
             $this->connection = Connection::GetInstance();
 
             
@@ -109,7 +109,7 @@ class PetDAO {
 
             $resultSet = $this->connection->Execute($query,$parameters);
 
-            //var_dump($resultSet);
+
 
             $petArray = array();
             foreach($resultSet as $petArr)
@@ -152,8 +152,6 @@ class PetDAO {
             $this->connection = Connection::GetInstance();
 
             $resultSet = $this->connection->Execute($query,$parameters);
-
-            //var_dump($resultSet);
 
             $petArray = array();
             foreach($resultSet as $petArr)
@@ -389,14 +387,96 @@ class PetDAO {
             {
                 array_push($arrImages,$resultSet[$i]["pfp"]);
             }
-           //var_dump($arrImages);
+
         }catch(Exception $ex)
         {
             throw $ex;
         }
         return $arrImages;
     }
+	
+	public function getAll()
+    {
+        try{
+            $query = "SELECT * FROM ".$this->tableName;
 
+            $this->connection = Connection::GetInstance();
+
+            $resultSet = $this->connection->Execute($query);
+
+			$arrayPets = array();
+
+            foreach($resultSet as $row)
+            {
+				$pet = new Pet();
+			
+                $pet->setId($row["id"]);
+                $pet->setpetCode($row["petCode"]);
+                $pet->setName($row["name"]);
+                $pet->setPfp($row["pfp"]);
+                $pet->setOwnerCode($row["ownerCode"]);
+                $pet->setSize($row["size"]);
+                $pet->setBreed($row["breed"]);
+                $pet->setVaccPlan($row["vaccPlan"]);
+                $pet->setVideo($row["video"]);
+                $pet->setTypePet($row["typePet"]);
+                $pet->setAge($row["age"]);
+				
+				array_push($arrayPets,$pet);
+            }
+			
+		}catch(Exception $ex)
+        {
+            throw $ex;
+        }
+        return $arrayPets;
+    }
+	
+	
+	public function getFilteredPetsAdm($code)
+	{
+		try{
+			$query ="SELECT * FROM ".$this->tableName;
+			
+			if (strpos($code, "PET") !== false) {
+            $query .= " WHERE petCode LIKE CONCAT(:code, '%')";
+        }elseif (strpos($code, "OWN") !== false) {
+            $query .= " WHERE ownerCode LIKE CONCAT(:code, '%')";
+        }
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["code"] = $code;
+			
+			$resultSet = $this->connection->Execute($query,$parameter);
+			
+			$petsFiltered = array();
+			foreach($resultSet as $row)
+			{
+				
+				$pet = new Pet();
+				
+				$pet->setId($row["id"]);
+                $pet->setpetCode($row["petCode"]);
+                $pet->setName($row["name"]);
+                $pet->setPfp($row["pfp"]);
+                $pet->setOwnerCode($row["ownerCode"]);
+                $pet->setSize($row["size"]);
+                $pet->setBreed($row["breed"]);
+                $pet->setVaccPlan($row["vaccPlan"]);
+                $pet->setVideo($row["video"]);
+                $pet->setTypePet($row["typePet"]);
+                $pet->setAge($row["age"]);
+				
+				array_push($petsFiltered,$pet);
+				
+			}
+			
+			return $petsFiltered;
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
+	
 }
-
 ?>

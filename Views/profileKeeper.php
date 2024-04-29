@@ -12,15 +12,19 @@ use Utils\Session as Session;
     <div class="row">
         <!-- pfp col -->
         <div class="col-lg-4">
-            <div class="about-avatar text-center">
-                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="mt-3 mx-auto img-rounded rounded-circle" width="354px" height="354px">
+            <div class="about-avatar text-center mt-3">
+                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" >
                 <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
                     <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Edit Profile</a>
                 <?php } ?>
+				</div>
+				 <div class="container responsive rounded mt-3">
+                <div id="calendar" class="text-white bg-white rounded"></div>
             </div>
+            
         </div>
         <!-- userinfo col -->
-        <div class="col-lg-8 mt-5">
+        <div class="col-lg-8 p-3">
             <?php if (isset($_SESSION["bmsg"])) { ?>
                 <p class="alert alert-danger"><?php echo $_SESSION["bmsg"];
                                                 unset($_SESSION["bmsg"]); ?> </p>
@@ -93,6 +97,8 @@ use Utils\Session as Session;
                     </div>
                 
             
+                    <hr>
+
             <div class="form-group m-3">
                 <label for="bio">About Me</label>
                 <p id="bio" class="text-black bg-light" data-userlogged="<?php echo $infoKeeper->getKeeperCode(); ?>"><?php echo $infoKeeper->getBio(); ?></p>
@@ -112,14 +118,12 @@ use Utils\Session as Session;
 
             </div>
 
-            <div class="container responsive">
-                <div id="calendar" class="text-white bg-white text-center"></div>
-            </div>
+           
 
 
 
 
-            <hr>
+            
 
         </div>
     </div>

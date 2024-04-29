@@ -133,8 +133,8 @@ class OwnerController
                     //Updated info
                     $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
                     Session::CreateSession($infoOwner);
-                    header("location: " . FRONT_ROOT . "Owner/showMyProfile");
                 }
+                header("location: " . FRONT_ROOT . "Owner/showMyProfile");
             }
         } else {
             header("location: " . FRONT_ROOT . "Home/Index");
@@ -146,4 +146,106 @@ class OwnerController
         $infoOwner = $this->ownerService->getByCode($ownerCode);
         require_once(VIEWS_PATH . "myProfileOwner.php");
     }
+	
+		// ||||||||||||||||||| Edit owners
+		public function showListOwners()
+	{
+		if(Session::IsLogged())
+		{
+			$checkAdmin = Session::GetLoggedUser();
+			
+			if($checkAdmin != null)
+			{
+				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				{
+					$listOwns = $this->ownerService->srv_getAllOwners();
+					require_once(VIEWS_PATH."listOwners.php");
+				}else{
+					Session::DeleteSession();
+					header("location: ".FRONT_ROOT."Home/showLoginView");
+				}
+			}else{
+				Session::DeleteSession();
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+			
+			}else{
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+	}	
+		
+		
+	public function showEditOwner($ownerCode)
+	{
+		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		{
+			$owner = $this->ownerService->getByCode($ownerCode);
+			require_once(VIEWS_PATH."adminEditOwn.php");
+		}
+	}
+	
+
+	public function adminEditOwner($ownerCode, $email = "", $username = "", $status = "", $name = "", $lastname = "", $suspensionDate = "")
+	{
+		$edits = array(
+			"email" => $email,
+			"username" => $username,
+			"status" => $status,
+			"name" => $name,
+			"lastname" => $lastname,
+			"suspensionDate" => $suspensionDate
+		);
+
+		foreach ($edits as $field => $value) {
+			if (!empty($value)) {
+				$methodName = "srv_edit" . ucfirst($field);
+				$result = $this->ownerService->$methodName($ownerCode, $value);
+				if($result == 1){
+                    $resultOkFinal = "";
+					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					Session::SetOkMessage($resultOkFinal);
+				}
+				if($result != 1)
+				{
+                    $resultFinal = "";
+					$resultFinal .= " || ".$result;
+					Session::SetBadMessage($resultFinal);
+					
+				}
+			}
+		}
+
+		header("location: " . FRONT_ROOT . "Owner/showListOwners");
+
+
+	}	
+	
+		public function listOwnersFiltered($code ="")
+	{
+		
+		if($code == "")
+		{
+			header("location: " . FRONT_ROOT . "Owner/showListOwners");
+		}
+		$listOwns = $this->ownerService->listOwnerFiltered($code);
+		if(is_array($listOwns)){
+			require_once(VIEWS_PATH."listOwners.php");
+		}else if($code != ""){
+			Session::SetBadMessage($listOwns);
+			header("location: " . FRONT_ROOT . "Owner/showListOwners");
+		}			
+	}
+	
+	public function deleteOwner($ownerCode)
+	{
+		$result = $this->ownerService->srv_deleteOwner($ownerCode);
+		if($result == 1)
+		{
+			Session::SetOkMessage("Permanently deleted owner");
+			header("location: " . FRONT_ROOT . "Owner/showListOwners");
+		}else{
+			Session::SetBadMessage($result);
+			header("location: " . FRONT_ROOT . "Owner/showListOwners");
+		}
+	}
 }

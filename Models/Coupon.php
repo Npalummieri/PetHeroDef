@@ -6,8 +6,8 @@ class Coupon{
 
     private $id;
     private $couponCode;
-    private $bookCode; //BookingID o el objeto?
-    private $price; //Tiene un precio final,pero si aplica el 50% 
+    private $bookCode; 
+    private $price; 
     private $status;
 
     /**

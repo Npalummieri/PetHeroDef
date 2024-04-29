@@ -113,8 +113,9 @@ class BookingController
         require_once(VIEWS_PATH . "myBookings.php");
     }
 
-    public function getMyBookings($initDate, $endDate, $status)
+    public function getMyBookings($initDate = "", $endDate = "", $status = "")
     {
+        var_dump($initDate, $endDate, $status);
         if (!Session::IsLogged()) {
             header("location: " . FRONT_ROOT . "Home/Index");
         } else {
@@ -122,9 +123,17 @@ class BookingController
                 $loggedUser = Session::GetLoggedUser();
                 $keeperCode = $loggedUser->getKeeperCode();
                 $myBookings = $this->bookingService->srv_GetMyBookings($initDate, $endDate, $status, $keeperCode);
-                require_once(VIEWS_PATH . "myBookings.php");
+                
+            }else{
+                $loggedUser = Session::GetLoggedUser();
+                $ownerCode = $loggedUser->getOwnerCode();
+                $myBookings = $this->bookingService->srv_GetMyBookings($initDate, $endDate, $status, $ownerCode);
             }
+            //var_dump($myBookings);
+            require_once(VIEWS_PATH . "myBookings.php");
+            
         }
+        
     }
 
     public function manageBooking($codeBook)
@@ -134,6 +143,8 @@ class BookingController
             if (Session::GetTypeLogged() == "Models\Keeper") {
                 $loggedUser = Session::GetLoggedUser();
                 $conf = $this->bookingService->srv_confirmBooking($codeBook);
+				// echo "soy conf";
+				// var_dump($conf);
                 if ($conf == 1 || strpos($conf, "COU") !== false) {
                     Session::SetOkMessage("Successfuly confirmed!");
                 } else {
@@ -180,4 +191,86 @@ class BookingController
 
         echo $encodedInterval;
     }
+	
+	public function showListBookings()
+	{
+		if(Session::IsLogged())
+		{
+			$checkAdmin = Session::GetLoggedUser();
+			
+			if($checkAdmin != null)
+			{
+				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				{
+					$listBooks = $this->bookingService->srv_getAllBookings();
+					require_once(VIEWS_PATH."listBookings.php");
+				}else{
+					Session::DeleteSession();
+					header("location: ".FRONT_ROOT."Home/showLoginView");
+				}
+			}else{
+				Session::DeleteSession();
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+			
+			}else{
+				header("location: ".FRONT_ROOT."Home/showLoginView");
+			}
+	}
+	
+	public function showAdminEditBook($bookCode)
+	{
+		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		{
+			$booking = $this->bookingService->srv_getBookingByCode($bookCode);
+			require_once(VIEWS_PATH."adminEditBook.php");
+		}
+	}
+	
+	public function adminEditBooking($bookCode,$status = "",$price = "")
+	{
+		
+		$edits = array(
+			"status" => $status,
+			"price" => $price
+		);
+
+		var_dump($edits);
+
+		foreach ($edits as $field => $value) {
+			if (!empty($value)) {
+				$methodName = "srv_edit" . ucfirst($field);
+				$result = $this->bookingService->$methodName($bookCode, $value);
+				if($result == 1){
+                    $resultOkFinal = "";
+					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					Session::SetOkMessage($resultOkFinal);
+				}
+				if(is_string($result))
+				{
+                    $resultFinal = "";
+					$resultFinal .= " || ".$result;
+					Session::SetBadMessage($resultFinal);
+					
+				}
+			}
+		}
+		header("location: " . FRONT_ROOT . "Home/showListBookings");
+	}
+	
+	public function listBookingFiltered($code = "")
+	{
+		if($code == "")
+		{
+			header("location: " . FRONT_ROOT . "Home/showListBookings");
+		}
+		$listBooks = $this->bookingService->listBookingFiltered($code);
+		if(is_array($listBooks)){
+			require_once(VIEWS_PATH."listBookings.php");
+		}else if($code != ""){
+			Session::SetBadMessage($listBooks);
+			header("location: " . FRONT_ROOT . "Home/showListBookings");
+		}			
+	}
+	
 }

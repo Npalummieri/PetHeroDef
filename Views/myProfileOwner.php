@@ -3,30 +3,36 @@ include("header.php");
 include("nav.php");
 use Utils\Session as Session;
 ?>
-
+<div id="cururl" data-cururl="<?php echo FRONT_ROOT ?>" hidden ></div>
 <?php require_once("msgeDisplay.php"); ?>
-<div class="align-items-center">
-        <div class="col-lg-12">
-            <h2 class="bg-dark rounded text-white text-center">My Profile</h2>
+    <div class="container text-white" >
+    <div>
+		<?php if(Session::isLogged() && Session::GetTypeLogged() == "Models\Owner"){
+			
+			if(Session::GetLoggedUser()->getOwnerCode() == $infoOwner->getOwnerCode())
+			{ ?> 
+		<h2 class="bg-dark rounded text-white text-center p-2 mt-2">MY PROFILE</h2> 
+		<?php }}else { ?>
+			<h2 class="bg-dark rounded text-white text-center p-2 mt-2">PROFILE OWNER</h2>
+		<?php } ?>
         </div>
-    </div>
-<section class="section about-section text-white" id="about">
-    <div class="container  rounded" style="background-color: #110257;">
-        <div class="row align-items-center">
+        <div class="row align-items-center p-4 rounded" style="background-color: #110257;">
             <div class="col-lg-4">
                 <div class="about-avatar text-center">
-                    <img class="mt-3 mx-auto img-rounded rounded-circle p-3" src="<?php echo FRONT_ROOT . "Images/" . $infoOwner->getPfp() ?>" title="" alt="" width="354px" height="354px">
-                    <?php if(Session::GetTypeLogged() == "Models\Owner")
+                    <img class="" src="<?php echo FRONT_ROOT . "Images/" . $infoOwner->getPfp() ?>" title="" alt="Pfp owner" >
+                </div>
+                <?php if(Session::GetTypeLogged() == "Models\Owner")
                     { 
                         if(Session::GetLoggedUser()->getOwnerCode() == $infoOwner->getOwnerCode())
                         { ?>
+                        <div class="text-center mt-2">
                     <a href="<?php echo FRONT_ROOT . 'Owner/editProfile' ?>" class="btn btn-primary m-2 text-white">Edit Profile</a>
+                    </div>
                     <?php }
                     } ?>
-                </div>
-
             </div>
-            <div class="col-lg-8">
+			
+            <div class="col-lg-8 ">
                 <div class="about-list">
                 <?php if(Session::GetTypeLogged() == "Models\Owner")
                     { 

@@ -5,7 +5,6 @@ namespace DAO;
 use \Exception as Exception;
 use Models\Review as Review;
 use DAO\Connection as Connection;
-use Models\Status as Status;
 
 class ReviewDAO
 {
@@ -132,7 +131,7 @@ class ReviewDAO
         try {
 
             $query = "SELECT COUNT(*) FROM booking
-            WHERE ownerCode = :ownerCode AND keeperCode = :keeperCode AND status = :status;";
+            WHERE ownerCode = :ownerCode AND keeperCode = :keeperCode;";
 
 
             $queryTwo = "SELECT COUNT(*) FROM " . $this->tableName . " 
@@ -142,7 +141,7 @@ class ReviewDAO
 
             $parameters["ownerCode"] = $ownerCode;
             $parameters["keeperCode"] = $keeperCode;
-            $parameters["status"] = Status::FINISHED;
+            
 
             //if 1 or +1 could review
             $result = $this->connection->Execute($query, $parameters);

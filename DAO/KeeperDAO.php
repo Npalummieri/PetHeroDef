@@ -115,12 +115,11 @@ class KeeperDAO
 
                 array_push($keeperList, $keeper);
             }
-
-
-            return $keeperList;
+           
         } catch (Exception $ex) {
             throw $ex;
         }
+		 return $keeperList;
     }
 
     public function searchByEmail($email)
@@ -631,4 +630,164 @@ class KeeperDAO
             throw $ex;
         }
     }
+	
+	public function updateUsername($keeperCode,$username)
+	{
+		try{
+			
+		$query = "UPDATE " . $this->tableName . " 
+            SET username = :username 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["username"] = $username;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updatename($keeperCode,$name)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET name = :name 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["name"] = $name;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updatelastname($keeperCode,$lastname)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET lastname = :lastname 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["lastname"] = $lastname;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updateTypeCare($keeperCode,$typeCare)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET typeCare = :typeCare 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["typeCare"] = $typeCare;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updateTypePet($keeperCode,$typePet)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET typePet = :typePet 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["typePet"] = $typePet;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function updateScore($keeperCode,$score)
+	{
+		try{
+		$query = "UPDATE " . $this->tableName . " 
+            SET score = :score 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["score"] = $score;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+	}
+	
+	public function getFilteredKeepsAdm($code)
+	{
+		try{
+			$query ="SELECT * FROM ".$this->tableName;
+			if (strpos($code, "KEP") !== false) {
+            $query .= " WHERE keeperCode LIKE CONCAT(:code, '%')";
+        } elseif (filter_var($code, FILTER_VALIDATE_EMAIL)) {
+            $query .= " WHERE email LIKE CONCAT(:code, '%')";
+        } elseif ((preg_match("/^\d{8}$/",$code) == 1)) {
+            $query .= " WHERE dni LIKE CONCAT(:code, '%')";
+        } 
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["code"] = $code;
+			
+			$resultSet = $this->connection->Execute($query,$parameter);
+			
+			$keepersFiltered = array();
+			foreach($resultSet as $keeper)
+			{
+				$keep = new Keeper();
+
+                $keep->setId($keeper["id"]);
+                $keep->setkeeperCode($keeper["keeperCode"]);
+                $keep->setEmail($keeper["email"]);
+                $keep->setUserName($keeper["username"]);
+                $keep->setPassword($keeper["password"]);
+                $keep->setStatus($keeper["status"]);
+                $keep->setName($keeper["name"]);
+                $keep->setLastname($keeper["lastname"]);
+                $keep->setDni($keeper["dni"]);
+                $keep->setPfp($keeper["pfp"]);
+                $keep->setTypeCare($keeper["typeCare"]);
+                $keep->setPrice($keeper["price"]);
+                $keep->setTypePet($keeper["typePet"]);
+                $keep->setScore($keeper["score"]);
+                $keep->setInitDate($keeper["initDate"]);
+                $keep->setEndDate($keeper["endDate"]);
+                $keep->setVisitPerDay($keeper["visitPerDay"]);
+				
+				array_push($keepersFiltered,$keep);
+				
+			}
+			
+			return $keepersFiltered;
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
 }

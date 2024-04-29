@@ -167,7 +167,7 @@ class CouponService
 
             $coupon = $this->couponDAO->getCouponByCode($couponCode);
             $bookingToCheck = $this->bookingDAO->GetByCode($coupon->getBookCode());
-            // echo "booking to check ".var_dump($bookingToCheck);
+
             if(Dates::currentCheck($bookingToCheck->getInitDate()) == null)
             {
                 $this->bookingDAO->cancelBooking($coupon->getBookCode());
@@ -255,4 +255,122 @@ class CouponService
         }
         return $result;
     }
+	
+	public function srv_getAllCoupons()
+	{
+		try{
+			$coupList = $this->couponDAO->getAll();
+		}catch(Exception $ex)
+		{
+			$coupList = $ex->getMessage();
+		}
+		return $coupList;
+	}
+	
+	  public function srv_getCoupByCode($coupCode)
+    {
+        try {
+            $couponCode = $this->couponDAO->getCouponByCode($coupCode);
+        } catch (Exception $ex) {
+           $couponCode = $ex->getMessage();
+        }
+        return $couponCode;
+    }
+	
+		public function srv_editPrice($coupCode,$price)
+	{
+		try{
+			
+			$resp = $this->couponDAO->modifyPrice($coupCode,$price);
+			
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editStatus($coupCode,$status)
+	{
+		//echo "STATUS :".$status;
+		$resp = null;
+		try{
+			$coupon = $this->srv_getCoupByCode($coupCode);
+			$booking = $this->bookingDAO->GetByCode($coupon->getBookCode());
+			if($coupon != null && $booking != null)
+			{
+			
+				if($status == Status::PAIDUP)
+				{
+					$valDates = Dates::validateAndCompareDates($booking->getInitDate(),$booking->getEndDate());
+					if(Dates::currentCheck($booking->getInitDate()) != null &&  ($valDates != -1 || $valDates != null))
+					{
+						$resultOB = $this->bookingDAO->checkOverBookingConfirm($booking);
+						$resultFirstBreed = $this->bookingDAO->checkFirstBreed($booking);
+						if($resultOB == 0)
+						{
+							if($resultFirstBreed == 1)
+							{
+								$resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(),Status::PAIDUP);
+								$this->srv_GenerateCouponToOwner($booking->getBookCode());
+								$resp = $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),$status);
+								
+								$fullCoup = $this->couponDAO->getFullInfoCoupon($coupon->getCouponCode());
+								//Sending email
+
+								$sended = $this->mailer->sendingEmail("nicoop910@gmail.com", $fullCoup, VIEWS_PATH . "couponMail.php");
+
+
+								//Update the booking to paidup
+								$this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"], Status::PAIDUP);
+
+
+								$bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
+
+
+								//get the idConver between keeper/owner or generate a new one from both 'parts'
+								$idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(), $bookingPaidup->getOwnerCode());
+							}else
+							{
+								$resp = "The pet doesn't match the breed of the first record!";
+							}
+						}else{
+						$resp = "Not possible to update status to confirm.Overbooking problem";
+						}
+					}else{
+						$resp = "Not possible to update status to confirm.Invalid dates";
+					}
+					
+				}else if($status == Status::PENDING) {
+				$resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(),Status::CONFIRMED);
+				$this->srv_GenerateCouponToOwner($booking->getBookCode());
+				$resp = $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),$status);
+				}else{
+					$resp = $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),$status);
+				}
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		
+		return $resp;
+	}
+	
+	public function listCouponFiltered($code)
+	{
+        try {
+        if (strpos($code, "BOOK") !== false || 
+            strpos($code, "COU") !== false )
+			{
+				$coupList = $this->couponDAO->getFilteredCoupsAdm($code);
+			}else {
+				$coupList = "Not matching results.Remember to use BOOK,COU";
+				}
+        }catch(Exception $ex)
+		{
+			$coupList = $ex->getMessage();
+		}
+		return $coupList;
+	}
 }

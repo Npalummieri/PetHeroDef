@@ -64,7 +64,7 @@ class BookingService
 
 
                 if (Dates::validateAndCompareDates($initDate, $endDate) >= 0) {
-                    //var_dump(Dates::currentCheck($initDate));
+
                     if (Dates::currentCheck($initDate) && Dates::currentCheck($endDate)) {
                         $booking->setInitDate($initDate);
                         $booking->setEndDate($endDate);
@@ -83,13 +83,13 @@ class BookingService
 
                     $booking->setVisitPerDay($visitPerDay);
                     $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(), $totalDays, $visitPerDay));
-
+					
                     if ($this->bookingDAO->checkOverBooking($booking) == 1) {
                         if ($initDate >= $keeper->getInitDate() && $endDate <= $keeper->getEndDate()) {
                             $resp = $this->bookingDAO->Add($booking);
                             
                         } else {
-                            $resp = "Your dates doesn't match withe the ones specified by the Keeper!";
+                            $resp = "Your dates doesn't match with the ones specified by the Keeper!";
                         }
                     }else{
                         $resp = "Overbooking problem!";
@@ -124,17 +124,26 @@ class BookingService
         return $array;
     }
 
-    public function srv_getMyBookings($initDate, $endDate, $status, $keeperCode)
+    public function srv_getMyBookings($initDate, $endDate, $status, $loggedCode)
     {
-        if (empty($initDate) || empty($endDate)) {
-            $initDate = null;
-            $endDate = null;
-        }
-        if(empty($status))
+
+        try{
+            if (empty($initDate) || empty($endDate)) {
+                $initDate = null;
+                $endDate = null;
+            }
+            if(empty($status))
+            {
+                $status = null;
+            }
+
+            $bookings = $this->bookingDAO->getMyBookings($initDate, $endDate, $status, $loggedCode);
+        }catch(Exception $ex)
         {
-            $status = null;
+            $bookings = $ex->getMessage();
         }
-        return $this->bookingDAO->getMyBookings($initDate, $endDate, $status, $keeperCode);
+
+        return $bookings;
     }
 
     public function srv_getBookingByStatus($userCode, $status)
@@ -157,20 +166,29 @@ class BookingService
                 $conf = $this->bookingDAO->checkOverBookingConfirm($booking);
                 $confTwo = $this->bookingDAO->checkFirstBreed($booking);
 
-
-                if ($conf <= 1 && ($confTwo != null || $confTwo != 0) && Dates::currentCheck($booking->getInitDate()) != null) {
+                if ($conf < 1 && $confTwo == "available" && Dates::currentCheck($booking->getInitDate()) != null && Dates::currentCheck($booking->getEndDate()) != null) {
                     $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CONFIRMED);
                     if ($resp == 1) {
-                        $this->bookingDAO->actionPostConfirm($booking->getBookCode(),$booking->getPetCode(),$booking->getInitDate(),$booking->getEndDate());
+                        $notifyTo = $this->bookingDAO->actionPostConfirm($booking->getBookCode(),$booking->getPetCode(),$booking->getInitDate(),$booking->getEndDate());
+                        if($notifyTo != null)
+                        {
+                            //checkThis
+                            foreach($notifyTo as $value)
+                            {
+                                $this->srv_notifyBookingChange($value["bookCode"],Status::CANCELLED,$value["ownerCode"]);
+                            }
+                        }
                         $result = $this->couponService->srv_GenerateCouponToOwner($codeBook);
+
                         $this->notificationDAO->generateNoti("Coupon generated,go to 'myCoupons' to check it!",$booking->getOwnerCode());
                     }
                 } else {
-                    if ($conf > 1) {
+                    if ($conf >= 1) {
                         $result = "Overbooking problem!";
-                    } else if ($confTwo == null || $confTwo == 0) {
-                        $result = "Check your first confirmed reservation of the day.You are restricted to that breed!";
-                    }else if(Dates::currentCheck($booking->getInitDate()) == null){
+                    } else if ($confTwo != "available") {
+                        $result = "Check your first confirmed reservation of the day.You are restricted to that breed! BREED : {$confTwo}";
+                    }else if(Dates::currentCheck($booking->getInitDate()) == null || Dates::currentCheck($booking->getEndDate()) == null)
+                    {
                         $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CANCELLED);
                         $result = "The booking expired,too late for confirmation";
                     }
@@ -178,7 +196,7 @@ class BookingService
             }
         } catch (Exception $ex) {
             $result = "Major problem " . $ex->getMessage();
-        } //Null,return coupCode == OK ,return error msge;
+        } 
         return $result;
     }
 
@@ -198,8 +216,6 @@ class BookingService
         try {
             $bookingSearched = $this->bookingDAO->GetByCode($bookCode);
             $datesBooking = $this->bookingDAO->getDatesByCode($bookCode);
-            // var_dump($datesBooking["initDate"]);
-            // var_dump(Dates::currentCheck($datesBooking["initDate"]));
             if (Dates::currentCheck($datesBooking["initDate"])) {
                 $result = $this->bookingDAO->cancelBooking($bookCode);
                 if($result == 1 && $bookingSearched != null)
@@ -242,5 +258,102 @@ class BookingService
         }
 
         return $intervalDates;
+    }
+	
+	public function srv_getAllBookings()
+	{
+		try{
+			$bookList = $this->bookingDAO->GetAll();
+		}catch(Exception $ex)
+		{
+			$bookList = $ex->getMessage();
+		}
+		return $bookList;
+	}
+	
+	public function srv_editPrice($bookCode,$price)
+	{
+		try{
+			
+			$resp = $this->bookingDAO->modifyPrice($bookCode,$price);
+			
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+	}
+	
+	public function srv_editStatus($bookCode,$status)
+	{
+		try{
+			$booking = $this->srv_getBookingByCode($bookCode);
+			if($booking != null)
+			{
+			
+				if($status == Status::CONFIRMED)
+				{
+					$valDates = Dates::validateAndCompareDates($booking->getInitDate(),$booking->getEndDate());
+					if(Dates::currentCheck($booking->getInitDate()) != null &&  ($valDates != -1 || $valDates != null))
+					{
+						$resultOB = $this->bookingDAO->checkOverBookingConfirm($booking);
+						$resultFirstBreed = $this->bookingDAO->checkFirstBreed($booking);
+						if($resultOB == 0)
+						{
+							if($resultFirstBreed == 1)
+							{
+								$resp = $this->bookingDAO->modifyBookingStatus($bookCode,$status);
+								//agregar generatecupon?
+							}else{
+							$resp = "The pet doesn't match the breed of the first record!";
+							}
+						
+						}else{
+						$resp = "Not possible to update status to confirm.Overbooking problem";
+						}
+					}else{
+						$resp = "Not possible to update status to confirm.Invalid dates";
+					}
+					
+				}else{
+				$resp = $this->bookingDAO->modifyBookingStatus($bookCode,$status);
+				}
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		
+		return $resp;
+	}
+	
+	public function listBookingFiltered($code)
+	{
+        try {
+        if (strpos($code, "BOOK") !== false || 
+            strpos($code, "OWN") !== false || 
+            strpos($code, "PET") !== false || 
+            strpos($code, "KEP") !== false) 
+			{
+				$bookList = $this->bookingDAO->getFilteredBooksAdm($code);
+			}else {
+				$bookList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				}
+        }catch(Exception $ex)
+		{
+			$bookList = $ex->getMessage();
+		}
+		return $bookList;
+	}
+
+    public function srv_notifyBookingChange($bookCode,$status,$receiver)
+    {
+        try{
+            $resp = $this->notificationDAO->generateNoti("Your booking {$bookCode} has been modified to {$status}.Check on  'My Bookings' ",$receiver);
+        }catch(Exception $ex)
+        {
+            $resp = $ex->getMessage();
+        }
+        return $resp;
     }
 }

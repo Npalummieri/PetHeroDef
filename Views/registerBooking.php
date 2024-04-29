@@ -1,8 +1,10 @@
 <?php include_once("header.php");
 include_once("nav.php"); ?>
 
-<div class="container col-sm-12 col-md-8 col-lg-4">
-  <h1 class="bg-dark text-white text-center rounded">MAKE YOUR BOOKING</h1>
+
+<div id="curUrl" data-cururl = "<?php echo FRONT_ROOT ?>"></div>
+<div class="container col-sm-4 col-md-8 col-lg-12">
+  <h1 class="bg-dark text-white text-center rounded m-2 p-2 text-truncate">MAKE YOUR BOOKING</h1>
     <div class="card text-white" style="background-color: #110257;" >
       <div class="card-body">
         
