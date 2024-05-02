@@ -53,12 +53,21 @@ class ReviewService
 
             $review->setCodeKeeper($keeperCode);
             $review->setCodeOwner($ownerCode);
-            $review->setComment($comment);
+            
             $review->setScore($score);
 
             $review->setCodeReview($this->generateCode());
 
-            $resultAdd = $this->reviewDAO->Add($review);
+            $comment = filter_var($comment, FILTER_SANITIZE_SPECIAL_CHARS);
+            $pattern = "/<[^>]*>/i";
+            if(!preg_match($pattern,$comment))
+            {
+                $review->setComment($comment);
+                $resultAdd = $this->reviewDAO->Add($review);
+            }else{
+                $resultAdd = "Don't try it.Not allowed to use < > or any special characters!";
+            }
+            
             if($resultAdd == 1)
             {
                 $this->notificationDAO->generateNoti("New review on your profile!",$keeperCode);

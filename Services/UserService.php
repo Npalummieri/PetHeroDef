@@ -142,6 +142,23 @@ class UserService
         return $resp;
     }
 
+    public function validateLogin($userField,$password)
+    {
+        try{
+            if (filter_var($userField, FILTER_VALIDATE_EMAIL)) {
+                $user = $this->searchEmailLogin($userField);
+            } else if(filter_var($userField, FILTER_SANITIZE_SPECIAL_CHARS)) {
+                $user = $this->searchUsernameLogin($userField);
+            }else{
+                $user = "Not validate characters on fields.Check it!";
+            }
+        }catch(Exception $ex)
+        {
+            $user = $ex->getMessage();
+        }
+        return $user;
+    }
+
     ///Checkeo de datos del registro 
     public function validateRegisterUser($typeUser, $email, $username, $password, $name, $lastname, $dni, $pfpInfo)
     {
@@ -174,7 +191,7 @@ class UserService
 
                     $user->setUserName($username);
                 } else {
-                    throw new Exception("Not validate userName");
+                    throw new Exception("<ul> <strong> Not validate userName </strong> <li>Between 6-20 characters</li> <li>At least 1 mayus,1 minus</li> <li>Not ! @ { } [] ? </li> <li>Not ! @ { } [] ? </li> <li>No spaces</li></ul> ");
                 }
             } else {
                 throw new Exception("Username already exists!");
@@ -188,7 +205,7 @@ class UserService
                 $hashedPass = password_hash($password, PASSWORD_DEFAULT);
                 $user->setPassword($hashedPass);
             } else {
-                throw new Exception("Password does not match the requirements!");
+                throw new Exception("<ul> <strong> Password does not match the requirements! </strong> <li>Between 8-15 characters</li> <li>At least 1 mayus,1 minus</li> <li>Not ! @ { } [] ? <li>No spaces</li> </ul> ");
             }
 
 
@@ -321,11 +338,13 @@ class UserService
 
             $resultDates = Dates::validateAndCompareDates($initDate, $endDate);
 
-            if ($resultDates == 1 || $resultDates == 0) {
+            if ( ($resultDates == 1 || $resultDates) == 0 && (Dates::currentCheck($initDate) && Dates::currentCheck($endDate))) {
                 $result = $this->keeperDAO->getKeepersByDates($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, $resultsPerPage);
+            }else{
+                $result = "Not valid dates";
             }
         } catch (Exception $ex) {
-            throw $ex;
+            $result  = $ex->getMessage();
         }
         return $result;
     }
@@ -334,10 +353,15 @@ class UserService
     {
         $result = null;
         try {
-            if (strpos($userCode, "OWN") !== false) {
-                $result = $this->ownerDAO->updateBio($userCode, $bio);
-            } else if (strpos($userCode, "KEP") !== false) {
-                $result =  $this->keeperDAO->updateBio($userCode, $bio);
+            $bio = filter_var($bio, FILTER_SANITIZE_SPECIAL_CHARS);
+            if(preg_match("/<[Aa-Zz]*?>|<\/[Aa-Zz]**?>/i",$bio)){
+                $result = "Not valid characters on bio";
+            }else{
+                if (strpos($userCode, "OWN") !== false) {
+                    $result = $this->ownerDAO->updateBio($userCode, $bio);
+                } else if (strpos($userCode, "KEP") !== false) {
+                    $result =  $this->keeperDAO->updateBio($userCode, $bio);
+                }
             }
         } catch (Exception $ex) {
             $result = $ex->getMessage();

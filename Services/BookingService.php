@@ -127,19 +127,21 @@ class BookingService
     public function srv_getMyBookings($initDate, $endDate, $status, $loggedCode)
     {
 
-        try{
+        try {
+            if (empty($status)) {
+                $status = null;
+            }
             if (empty($initDate) || empty($endDate)) {
                 $initDate = null;
                 $endDate = null;
+                $bookings = $this->bookingDAO->getMyBookings($initDate, $endDate, $status, $loggedCode);
             }
-            if(empty($status))
-            {
-                $status = null;
+            if (Dates::validateAndCompareDates($initDate, $endDate) >= 0) {
+                $bookings = $this->bookingDAO->getMyBookings($initDate, $endDate, $status, $loggedCode);
+            }else{
+                throw new Exception("Not valid dates,check if initDate is bigger than the endDate !");
             }
-
-            $bookings = $this->bookingDAO->getMyBookings($initDate, $endDate, $status, $loggedCode);
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $bookings = $ex->getMessage();
         }
 

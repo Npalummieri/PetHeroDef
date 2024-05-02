@@ -69,7 +69,8 @@ class MessageService
 
             }
 
-
+            $msgText = filter_var($msgText, FILTER_SANITIZE_SPECIAL_CHARS);
+            $msgText = htmlspecialchars($msgText);
             $result  = $this->messageDAO->sendMessage($senderCode, $receiverCode, $msgText, $chatCode, 0);
             
         } catch (Exception $ex) {
