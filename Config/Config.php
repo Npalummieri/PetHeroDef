@@ -3,6 +3,7 @@
 namespace Config;
 
 define("ROOT", dirname(__DIR__) . "/");
+var_dump(ROOT);
 //Path to your project's root folder
 define("FRONT_ROOT", "/LabIV/ReDefTesis/PetHeroDef/");
 define("VIEWS_PATH", "Views/");
@@ -18,7 +19,7 @@ define("VACCS_PLAN",IMG_PATH."PetImages/Vaccplan/");
 define("DB_HOST", "localhost");
 define("DB_NAME", "pethero");
 define("DB_USER", "root");
-define("DB_PASS", "");
+define("DB_PASS", "h/yss88bk0V5BdmK");
 
 ?>
 

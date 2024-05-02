@@ -17,11 +17,11 @@
 
 	session_start();
 
-	//¿Pq nos habra dicho en la correccion que el require del header y el footer aca no corresponden... ?
+
 	//require_once(VIEWS_PATH."header.php");
 
 	Router::Route(new Request());
 
 	//require_once(VIEWS_PATH."footer.php");
 
-    ?>
+?>
