@@ -115,7 +115,7 @@ class BookingController
 
     public function getMyBookings($initDate = "", $endDate = "", $status = "")
     {
-        var_dump($initDate, $endDate, $status);
+       
         if (!Session::IsLogged()) {
             header("location: " . FRONT_ROOT . "Home/Index");
         } else {
@@ -123,15 +123,26 @@ class BookingController
                 $loggedUser = Session::GetLoggedUser();
                 $keeperCode = $loggedUser->getKeeperCode();
                 $myBookings = $this->bookingService->srv_GetMyBookings($initDate, $endDate, $status, $keeperCode);
+                if(is_string($myBookings))
+                {
+                    Session::SetBadMessage($myBookings);
+                    header("location: " . FRONT_ROOT . "Booking/showMyBookings");
+                }else{
+                    require_once(VIEWS_PATH . "myBookings.php");
+                }
                 
             }else{
                 $loggedUser = Session::GetLoggedUser();
                 $ownerCode = $loggedUser->getOwnerCode();
                 $myBookings = $this->bookingService->srv_GetMyBookings($initDate, $endDate, $status, $ownerCode);
+                if(is_string($myBookings))
+                {
+                    Session::SetBadMessage($myBookings);
+                    header("location: " . FRONT_ROOT . "Booking/showMyBookings");
+                }else{
+                    require_once(VIEWS_PATH . "myBookings.php");
+                }
             }
-            //var_dump($myBookings);
-            require_once(VIEWS_PATH . "myBookings.php");
-            
         }
         
     }

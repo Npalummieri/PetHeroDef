@@ -57,12 +57,20 @@ class KeeperController
 
     public function getFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber = '1')
     {
+        $filteredKeepers = $this->userService->srv_GetFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, 6);
+        if(!is_string($filteredKeepers))
+        {
+            $totalPages = ceil(count($filteredKeepers) / 6);
 
-        $totalPages = ceil(count($this->userService->srv_GetFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, 6)) / 6);
-
-        $allKeepers = $this->userService->srv_GetFilteredKeepers($initDate, $endDate, $size, $typePet, $visitPerDay, $pageNumber, 6);
-
-        require_once(VIEWS_PATH . "keeperListPag.php");
+            $allKeepers = $filteredKeepers;
+            require_once(VIEWS_PATH . "keeperListPag.php");
+        }else{
+            Session::SetBadMessage($filteredKeepers);
+            header("location: " . FRONT_ROOT . "Home/Index");
+            
+        }
+        
+        
     }
 
 

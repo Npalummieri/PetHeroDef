@@ -36,16 +36,16 @@ class AuthController
 		Session::CreateSession($user);
 		header("location: " . FRONT_ROOT . "Home/showDashboard");
 	}else{
-		if (filter_var($userField, FILTER_VALIDATE_EMAIL)) {
-            $user = $this->userService->searchEmailLogin($userField);
-        } else {
-            $user = $this->userService->searchUsernameLogin($userField);
-        }
-
-        if ($user == null) {
-            Session::SetBadMessage("User not found");
+		
+        $user = $this->userService->validateLogin($userField,$password);
+        if (is_string($user)) {
+            Session::SetBadMessage($user);
             header("location: " . FRONT_ROOT . "Home/showLoginView");
-        } else {
+        } else if($user == null)
+        {
+            Session::SetBadMessage("Not user found");
+            header("location: " . FRONT_ROOT . "Home/showLoginView");
+        }else {
             if ($this->userService->checkPassword(get_class($user), $user->getEmail(), $password)) {
 
                 Session::SetOkMessage("Login successfully");
