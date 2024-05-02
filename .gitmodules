@@ -1,15 +1,15 @@
-[submodule "dompdf"] 
-  path = Utils/vendor/dompdf/dompdf
-  url = https://github.com/dompdf/dompdf
-[submodule "masterminds"] 
-  path = Utils/vendor/masterminds/html5  
-  url = https://github.com/dompdf/dompdf
-[submodule "phenx"] 
-  path = Utils/vendor/phenx/php-font-lib
-  url = https://github.com/dompdf/dompdf
-[submodule "phenxsvg"] 
-  path = Utils/vendor/phenx/php-svg-lib
-  url = https://github.com/dompdf/dompdf
-[submodule "sabberworm"] 
-  path = Utils/vendor/sabberworm/php-css-parser
-  url = https://github.com/dompdf/dompdf
+# [submodule "dompdf"] 
+#   path = Utils/vendor/dompdf/dompdf
+#   url = https://github.com/dompdf/dompdf
+# [submodule "masterminds"] 
+#   path = Utils/vendor/masterminds/html5  
+#   url = https://github.com/dompdf/dompdf
+# [submodule "phenx"] 
+#   path = Utils/vendor/phenx/php-font-lib
+#   url = https://github.com/dompdf/dompdf
+# [submodule "phenxsvg"] 
+#   path = Utils/vendor/phenx/php-svg-lib
+#   url = https://github.com/dompdf/dompdf
+# [submodule "sabberworm"] 
+#   path = Utils/vendor/sabberworm/php-css-parser
+#   url = https://github.com/dompdf/dompdf
