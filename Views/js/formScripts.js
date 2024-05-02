@@ -322,14 +322,16 @@ const infoModule = {
 
             $('#saveBioBtn').click(function () {
                 var bio = $('#bioTextarea').val();
-                if (bio.length > 200) {
+                var sanitizedValue = bio.replace(/[^a-zA-Z0-9\s'!+\-()¿?]/g, ''); // Permitir solo letras, espacios, guiones y apóstrofes
+                var bioSanit = sanitizedValue.replace(/[-%^&*_|~=`{}\[\]:";'<>?,.\/]/g, ' ');
+                if (bioSanit.length > 200) {
                     alert('Bio should be max 200 characters');
                     return;
                 }
                 $.ajax({
                     type: 'POST',
                     url: baseUrl, // Ruta del controlador para guardar la bio
-                    data: { bio: bio,
+                    data: { bio: bioSanit,
                             userCode :userCode },
                     success: function(response) {
                         
@@ -850,6 +852,7 @@ const KeepersInteract = {
             var initDate = row.find(".initial-date-input").val();
             var endDate = row.find(".end-date-input").val();
             var curUrl = $('#cururl').data('cururl');
+            console.log(curUrl);
             var baseUrl = curUrl + "Keeper/updateAvailability";
             if (!initDate || !endDate) {
                 // Mostrar mensaje de error
@@ -1105,14 +1108,17 @@ const moduleReview = {
 
             
             $("#submitReview").click(function() {
-                var comment = $("#reviewText").val();
+                var commentInput = $("#reviewText").val();
                 var score = $("#rating").val();
                 var keeperCode = $("#rateBtn").data("keepercode");
+                var sanitizedValue = commentInput.replace(/[^a-zA-Z0-9\s'!+\-()¿?]/g, ''); // Permitir solo letras, espacios, guiones y apóstrofes
+                var comment = sanitizedValue.replace(/[-%^&*_|~=`{}\[\]:";'<>?,.\/]/g, ' ');
                 $.ajax({
                     type: "POST",
                     url: "../../Review/doReview",
                     data: {  keeperCode : keeperCode,comment: comment, score: score , },
                     success: function(response) {
+
                         // console.log("REPSONSE" +response);
                         // Cerrar la ventana emergente después de enviar la revisión
                         $("#reviewPopup").css("display", "none");
