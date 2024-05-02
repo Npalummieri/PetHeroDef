@@ -3,7 +3,7 @@
 namespace Config;
 
 define("ROOT", dirname(__DIR__) . "/");
-var_dump(ROOT);
+//var_dump(ROOT);
 //Path to your project's root folder
 define("FRONT_ROOT", "/LabIV/ReDefTesis/PetHeroDef/");
 define("VIEWS_PATH", "Views/");
