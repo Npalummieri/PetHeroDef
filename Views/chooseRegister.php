@@ -1,4 +1,4 @@
-<?php include("header.php");
+<?php require_once("header.php");
 include("nav.php");
 ?>
 <div class="container">
@@ -7,7 +7,7 @@ include("nav.php");
       <h1 class=" bg-dark text-white rounded p-2 m-2">Which is your Role?</h1>
     </div>
   </div>
-  <div class="row justify-content-around " >
+  <div class="row justify-content-around ">
     <div class="col-sm-6 col-md-4 col-lg-3 rounded p-4" style="background-color: #110257;">
       <div class="card text-center">
         <h2 class="card-title">Owner</h2>
@@ -30,4 +30,4 @@ include("nav.php");
     </div>
   </div>
 </div>
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

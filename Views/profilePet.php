@@ -1,5 +1,5 @@
 <?php
-include("header.php");
+require_once("header.php");
 include("nav.php");
 ?>
 <?php require_once("msgeDisplay.php"); ?>
@@ -55,4 +55,4 @@ include("nav.php");
 <script src="<?php echo JS_PATH . "formScripts.js" ?>">
 
 </script>
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

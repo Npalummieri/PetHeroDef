@@ -1,6 +1,6 @@
 
 <?php 
- include("header.php");
+ require_once("header.php");
  include('nav.php');
 ?>
 <div class="wrapper row4">
@@ -21,4 +21,4 @@
   </div>
 </main>
 </div>
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

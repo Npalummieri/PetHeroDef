@@ -1,5 +1,5 @@
 <?php
-include("header.php");
+require_once("header.php");
 include("nav.php");
 use Utils\Session as Session;
 ?>
@@ -85,4 +85,4 @@ use Utils\Session as Session;
 <script>
     infoModule.bioEdit();
 </script>
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

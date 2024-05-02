@@ -1,8 +1,6 @@
-<?php 
-      
-      include_once("header.php");
-      include_once("nav.php");
-      include_once("formKeepersList.php");
+<?php require_once("header.php");
+include_once("nav.php");
+include_once("formKeepersList.php");
 ?>
 <div class="container">
 
@@ -10,12 +8,10 @@
   <form action="  " method="">
 
     <?php
-
     echo "<div class='d-flex row justify-content-center' style='border: 5px solid pink;'>";
     foreach ($allKeepers as $keeperCode => $internArray) {
       
-      echo "<div class='col-3 card m-1 border border-dark'>"
-    ?>
+      echo "<div class='col-3 card m-1 border border-dark'>" ?>
 
       <?php foreach ($internArray as $value) {
         if (is_a($value, "Models\Keeper")) { ?>

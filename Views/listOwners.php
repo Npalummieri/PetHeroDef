@@ -1,5 +1,5 @@
 <?php 
-include("header.php");
+require_once("header.php");
 
 ?>
 
@@ -78,7 +78,7 @@ include("msgeDisplay.php");
 <script src="<?php echo JS_PATH."formScripts.js"; ?>"></script>
 <script>KeepersInteract.reConfirm();</script>
 <?php 
-include("footer.php");
+require_once("footer.php");
 
 ?>
 

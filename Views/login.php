@@ -1,5 +1,5 @@
-<?php 
- include("header.php");
+<?php
+require_once("header.php");
  include("nav.php");
  use Utils\Session as Session;
 ?>
@@ -33,5 +33,5 @@
 </div>
 
 <?php 
- include("footer.php");
+require_once("footer.php");
 ?>

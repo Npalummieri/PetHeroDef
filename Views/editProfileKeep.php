@@ -1,6 +1,6 @@
 <?php
-include("header.php");
-include("nav.php");
+require_once("header.php");
+include_once("nav.php");
 ?>
 
 <div class="container">
@@ -38,4 +38,4 @@ include("nav.php");
 </div>
 
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

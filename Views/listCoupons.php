@@ -1,5 +1,8 @@
-<?php include("header.php"); ?>
+<?php require_once("header.php"); ?>
 
+<?php 
+include("msgeDisplay.php");
+?>
 <a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="text-center text-white p-2 rounded bg-dark"><i class="fas fa-arrow-left "></i> DASHBOARD</a>
 <div class="container">
 <h2 class="text-center text-white bg-dark m-2 p-2 rounded">COUPON LIST</h2>
@@ -48,4 +51,4 @@
 </div>
 <script src="<?php echo JS_PATH."formScripts.js"; ?>"></script>
 <script>KeepersInteract.reConfirm();</script>
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

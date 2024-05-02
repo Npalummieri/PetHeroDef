@@ -1,5 +1,5 @@
 <?php require_once("header.php");
-require_once("nav.php");
+include_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php");
 
 //var_dump(date_default_timezone_get());

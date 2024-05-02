@@ -1,5 +1,5 @@
 <?php
-include("header.php");
+require_once("header.php");
 include("nav.php");
 ?>
 <div class="container-fluid mt-5">
@@ -81,7 +81,7 @@ include("nav.php");
 </form>
 </div>
 <?php
-include("footer.php");
+require_once("footer.php");
 ?>
 <script src="<?php echo JS_PATH."formScripts.js" ?>"></script>
 <script>

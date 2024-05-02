@@ -1,6 +1,6 @@
 <?php
-include_once("header.php");
-include_once("nav.php");
+require_once("header.php");
+include("nav.php");
 use Utils\Session as Session;
 require_once(VIEWS_PATH . "formBookingList.php");
 ?>

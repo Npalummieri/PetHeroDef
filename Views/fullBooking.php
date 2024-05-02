@@ -1,5 +1,5 @@
 <?php
-    include("header.php");
+    require_once("header.php");
     include("nav.php");
 ?>
 <h2 class="bg-dark text-lg text-white text-center rounded p-2 mt-2">BOOKING INFORMATION</h2>
@@ -81,4 +81,4 @@
 KeepersInteract.calendarKeeper();
 KeepersInteract.reConfirm();
 FormAjaxModule.calendarBooking();</script>
-<?php include("footer.php") ?>
+<?php require_once("footer.php") ?>

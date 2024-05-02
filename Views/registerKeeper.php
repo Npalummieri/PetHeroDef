@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php require_once("header.php"); ?>
 <?php include("nav.php"); ?>
 
 <div class="wrapper row4 ">
@@ -69,4 +69,4 @@
 
 <script src="<?php echo JS_PATH . 'formScript.js' ?>"></script>
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

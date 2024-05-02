@@ -1,4 +1,4 @@
-<?php include("header.php");
+<?php require_once("header.php");
 include("nav.php") ?>
 <form action="<?php echo FRONT_ROOT . "Pet/UpdatePetInfo" ?>" method="POST" enctype="multipart/form-data">
 

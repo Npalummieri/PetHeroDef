@@ -1,4 +1,4 @@
-<?php include_once("header.php"); ?>
+<?php require_once("header.php"); ?>
 <?php include_once("nav.php"); ?>
 
 

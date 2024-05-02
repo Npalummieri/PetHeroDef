@@ -1,6 +1,6 @@
 <?php
-include_once("header.php");
-include("nav.php");
+require_once("header.php");
+include_once("nav.php");
 
 ?>
 
@@ -8,7 +8,7 @@ include("nav.php");
 
   <h2 class="bg-dark rounded text-white text-center mt-2 p-2">MY PETS</h2>
   <div class="container">
-  <?php include("msgeDisplay.php") ?>
+  <?php include_once("msgeDisplay.php") ?>
   </div>
   <div class="scrollable">
     <form action="" method="">
@@ -70,5 +70,5 @@ include("nav.php");
 <script>KeepersInteract.reConfirm();</script>
 
 <?php
-include_once("footer.php");
+require_once("footer.php");
 ?>

@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php require_once("header.php"); ?>
 <h2 class="text-center text-white bg-dark m-2 p-2 rounded">Coupon Editing</h2>
 <?php include("msgeDisplay.php"); ?>
 <div class="container text-white mt-5" style="background-color: #110257;">
@@ -20,4 +20,4 @@
     <button type="submit" class="btn btn-primary m-2">Save changes</button>
   </form>
 </div>
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

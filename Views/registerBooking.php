@@ -1,5 +1,5 @@
-<?php include_once("header.php");
-include_once("nav.php"); ?>
+<?php require_once("header.php");
+require_once("nav.php"); ?>
 
 
 <div id="curUrl" data-cururl = "<?php echo FRONT_ROOT ?>"></div>

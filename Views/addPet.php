@@ -1,4 +1,4 @@
-<?php include("header.php");
+<?php require_once("header.php");
 include("nav.php") ?>
 <form action="<?php echo FRONT_ROOT . "Pet/add" ?>" method="POST" enctype="multipart/form-data">
  <div  id="baseUrl" data-baseurl="<?php echo FRONT_ROOT ?>" hidden> </div>
@@ -79,4 +79,4 @@ include("nav.php") ?>
   breedManage.preloadBreed();
   registerPetForm.limitage();
 </script>
-<?php include("footer.php") ?>
+<?php require_once("footer.php") ?>

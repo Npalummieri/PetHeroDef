@@ -1,6 +1,6 @@
 <?php
-include("header.php");
-include("nav.php");
+require_once("header.php");
+include_once("nav.php");
 ?>
 <div class="container mt-5">
 
@@ -22,7 +22,7 @@ include("nav.php");
                 <hr>
                 <h5>Availability : </h5>
                 <div>
-                    
+
                 </div>
 
                 <hr>
@@ -97,9 +97,9 @@ include("nav.php");
     <?php } ?>
 </div>
 
-                    <script src="<?php echo JS_PATH . "formScripts.js"; ?>"></script>
-                    <script>
-                        moduleReview.displayFieldReview();
-                    </script>
+<script src="<?php echo JS_PATH . "formScripts.js"; ?>"></script>
+<script>
+    moduleReview.displayFieldReview();
+</script>
 
-                    <?php include("footer.php") ?>
+<?php require_once("footer.php") ?>

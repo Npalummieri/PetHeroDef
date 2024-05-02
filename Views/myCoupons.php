@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php require_once("header.php"); ?>
 <?php include("nav.php"); ?>
 
 <h2 class="bg-dark rounded text-white text-center m-2 p-2">My Coupons</h2>
@@ -47,4 +47,4 @@
     </div>
 </div>
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

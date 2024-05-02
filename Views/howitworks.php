@@ -1,4 +1,4 @@
-<?php include("header.php");
+<?php require_once("header.php");
 include("nav.php");
 ?>
 <!-- How it Works Section -->
@@ -56,4 +56,4 @@ include("nav.php");
 
 
 <?php
-include("footer.php"); ?>
+require_once("footer.php"); ?>
