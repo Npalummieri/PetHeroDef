@@ -1,3 +1,3 @@
-[submodule "path_to_submodule"] 
-  path = /LabIV/ReDefTesis/PetHeroDef/Utils/vendor/dompdf/dompdf
-  url = https://github.com/Npalummieri/PetHeroDef/
+[submodule "vendor"] 
+  path = Utils\vendor
+  url = https://github.com/dompdf/dompdf
