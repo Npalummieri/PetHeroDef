@@ -2,7 +2,7 @@
 require_once("nav.php");
 require_once(VIEWS_PATH . "formKeepersList.php");
 
-var_dump(date_default_timezone_get());
+//var_dump(date_default_timezone_get());
 ?>
 
 <h2 class=" bg-dark rounded text-center text-white p-2">KEEPERS</h2>

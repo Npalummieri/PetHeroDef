@@ -5,7 +5,7 @@ include("nav.php");
 use Utils\Session as Session;
 
 ?>
-
+<div id="cururl" data-cururl="<?php echo FRONT_ROOT ?>" hidden ></div>
 <?php require_once("msgeDisplay.php"); ?>
             <h2 class="bg-dark text-white text-center rounded mt-2">KEEPER INFORMATION</h2>
 <div class="container  text-white rounded" id="contMain" style="background-color: #110257;">

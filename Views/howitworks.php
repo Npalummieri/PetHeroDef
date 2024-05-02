@@ -28,10 +28,10 @@ include("nav.php");
         <?php for ($i = 0; $i < count($images); $i += 3) : ?>
             <?php $active = ($i === 0) ? 'active' : ''; ?>
             <div class="carousel-item <?php echo $active ?>">
-                <div class="row">
+                <div class="row m-2 p-2">
                     <?php for ($j = $i; $j < min($i + 3, count($images)); $j++) : ?>
-                        <div class="col">
-                            <?php var_dump((FRONT_ROOT . 'Images/' . $images[$j])) ; ?>
+                        <div class="col p-2">
+                            
                             <!-- file_exists doesn't work with relative so had to reference ROOT instead of FRONT_ROOT -->
                             <img class="d-block mx-auto" src="<?php echo (file_exists(ROOT . 'Images/' . $images[$j])) ?  FRONT_ROOT . 'Images/' . $images[$j] : FRONT_ROOT.'Images/SysImages/labrador-retriever-scaled.jpg'; ?>" alt="Slide" width="256px" height="256px">
                         </div>
