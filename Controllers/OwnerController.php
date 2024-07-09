@@ -8,7 +8,7 @@ use Services\PetService as PetService;
 use Utils\Session as Session;
 use Services\OwnerService as OwnerService;
 use Services\UserService as UserService;
-
+use Utils\Dates as Dates;
 
 class OwnerController
 {
@@ -39,7 +39,7 @@ class OwnerController
 
             $result = $this->ownerService->srv_add($userOwn, $userInfo);
             if ($result == 1) {
-                Session::SetOkMessage("Successfully Registered!");
+                Session::SetOkMessage("Registrado con exito");
                 header("location: " . FRONT_ROOT . "Home/Index");
             } else {
                 Session::SetBadMessage($result);
@@ -80,15 +80,6 @@ class OwnerController
         }
     }
 
-    // public function showKeepersList()
-    // {
-
-    //         $allKeepers = $this->userService->getKeepersInfoAvai();
-
-    //     require_once(VIEWS_PATH . "keeperListPag.php");
-    // }
-
-
 
     public function showMyProfile()
     {
@@ -98,6 +89,10 @@ class OwnerController
 
                 $infoOwner = $this->ownerService->getByCode($ownerLogged->getOwnerCode());
 
+                if($infoOwner->getSuspensionDate() != null)
+                {
+                    $remsuspense = Dates::remainingSuspense($ownerLogged->getOwnerCode());
+                }
                 require_once(VIEWS_PATH . "myProfileOwner.php");
             } else {
                 Session::DeleteSession();
@@ -156,7 +151,7 @@ class OwnerController
 			
 			if($checkAdmin != null)
 			{
-				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 				{
 					$listOwns = $this->ownerService->srv_getAllOwners();
 					require_once(VIEWS_PATH."listOwners.php");
@@ -177,7 +172,7 @@ class OwnerController
 		
 	public function showEditOwner($ownerCode)
 	{
-		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 		{
 			$owner = $this->ownerService->getByCode($ownerCode);
 			require_once(VIEWS_PATH."adminEditOwn.php");
@@ -195,23 +190,22 @@ class OwnerController
 			"lastname" => $lastname,
 			"suspensionDate" => $suspensionDate
 		);
-
+         $resultOkFinal = null;
+         $resultFinal = null;
 		foreach ($edits as $field => $value) {
 			if (!empty($value)) {
 				$methodName = "srv_edit" . ucfirst($field);
 				$result = $this->ownerService->$methodName($ownerCode, $value);
 				if($result == 1){
-                    $resultOkFinal = "";
-					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					$resultOkFinal .= " || ".ucfirst($field)." modificado con exito! <br>";
 					Session::SetOkMessage($resultOkFinal);
-				}
-				if($result != 1)
-				{
-                    $resultFinal = "";
-					$resultFinal .= " || ".$result;
-					Session::SetBadMessage($resultFinal);
-					
-				}
+				}else if($result == 0)
+                {
+                    Session::SetOkMessage("");
+                }else{
+                    $resultFinal .= $result." - ".ucfirst($field)." no se pudo modificar <br>";
+                    Session::SetBadMessage($resultFinal);
+                }
 			}
 		}
 

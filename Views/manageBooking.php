@@ -20,11 +20,11 @@
             <td><?php echo $booking->getEndHour(); ?> </td>
             <td><?php echo $booking->getStatus(); ?> </td>
             <td><?php echo $booking->getTotalPrice(); ?> </td>
-            <td><input type="radio" name="mngBook" id="confirm" value="confirmed">Confirm</td>
-            <td><input type="radio" name="mngBook" id="decline" value="declined">Decline</td> 
+            <td><input type="radio" name="mngBook" id="confirm" value="confirmed">Confirmar</td>
+            <td><input type="radio" name="mngBook" id="decline" value="declined">Rechazar</td> 
         </tr>
 
-        <button type="submit" name="codeBook" value="<?php echo $booking->getBookCode() ?>">Apply Changes</button>
+        <button type="submit" name="codeBook" value="<?php echo $booking->getBookCode() ?>">Aplicar cambios</button>
     
         
     </tbody>

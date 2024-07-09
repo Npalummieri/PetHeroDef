@@ -1,7 +1,7 @@
 <div style=" margin: auto;">
     <div style="display: inline; text-align: center;">
-        <h1>COUPON INFORMATION</h1>
-        <p>Coupon code : [ <?php echo $fullCoup["couponCode"]; ?> ]</p>
+        <h1>INFORMACIÓN DE CUPON</h1>
+        <p>Codigo de cupón : [ <?php echo $fullCoup["couponCode"]; ?> ]</p>
     </div>
     <table style="margin: auto; width: 100%; border: 2px solid black;">
         <tbody>
@@ -13,14 +13,14 @@
 
             <tr style="background-color: lightgray;">
                 <th colspan="12" style="border : 1px solid black; ">
-                    <h3 style="margin-top: 1em;">Booking Information</h3>
+                    <h3 style="margin-top: 1em;">Información de reserva</h3>
                 </th>
             </tr>
             <tr style="text-align: center;">
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Init Date</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">End Date</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Total price</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Visits per day</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Desde</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Hasta</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Precio total</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Visitas por dia</th>
             </tr>
             <tr style="text-align: center;">
                 <td style="text-align: center;">
@@ -40,14 +40,14 @@
 
             <tr style=" background-color: lightgray;">
                 <th colspan="12" style="border : 1px solid black; ">
-                    <h3 style="margin-top: 1em;">Pet Information</h3>
+                    <h3 style="margin-top: 1em;">Información de mascota</h3>
                 </th>
             </tr>
             <tr style="text-align: center;">
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Pet Name</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Type Pet</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Breed</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Size</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Nombre</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Tipo</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Raza</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Tamaño</th>
             </tr>
 
             <tr style="text-align: center;">
@@ -55,27 +55,32 @@
                     <?php echo $fullCoup["namePet"]; ?>
                 </td>
                 <td style="text-align: center;">
-                    <?php echo $fullCoup["typePet"]; ?>
+                    <?php echo $fullCoup["typePet"] === "cat" ? "Gato" : "Perro"; ?>
                 </td>
                 <td style="text-align: center;">
                     <?php echo $fullCoup["breed"]; ?>
                 </td>
                 <td style="text-align: center;">
-                    <?php echo $fullCoup["size"]; ?>
+                <?php if($fullCoup["size"] === "big")
+              { echo "Grande";}
+              else if($fullCoup["size"] === "medium")
+              {echo "Mediano";}
+              else {echo "Pequeño";}
+              ;?>
                 </td>
             </tr>
 
 
             <tr style=" background-color: lightgray;">
                 <th colspan="12" style="border : 1px solid black; ">
-                    <h3 style="margin-top: 1em;">Contact information</h3>
+                    <h3 style="margin-top: 1em;">Información de contacto</h3>
                 </th>
             </tr>
             <tr style="text-align: center;">
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Owner name</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Owner Email</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Keeper name</th>
-                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Keeper Email</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Nombre dueño</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Email dueño</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Nombre cuidador</th>
+                <th style="margin: auto; padding: 1em; text-align: center; font-size: larger;">Email cuidador</th>
             </tr>
 
             <tr style="text-align: center;">
@@ -101,7 +106,7 @@
         <tfoot style="border: 3px solid black; background-color: lightgray; text-align: center;">
 
             <tr>
-                <td colspan="12">For any inquire contact support at <a href="">www.pethero.com/supportCli</a> - Ignore this mail if you don't recognize where this come from</td>
+                <td colspan="12">Por cualquier consulta a <a href="">www.pethero.com/supportCli</a> - Ignorar este email si no reconoce su origen.</td>
             </tr>
 
 

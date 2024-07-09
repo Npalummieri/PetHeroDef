@@ -4,7 +4,7 @@ require_once("nav.php"); ?>
 
 <div id="curUrl" data-cururl = "<?php echo FRONT_ROOT ?>"></div>
 <div class="container col-sm-4 col-md-8 col-lg-12">
-  <h1 class="bg-dark text-white text-center rounded m-2 p-2 text-truncate">MAKE YOUR BOOKING</h1>
+  <h1 class="bg-dark text-white text-center rounded m-2 p-2 text-truncate">HACÉ TU RESERVA</h1>
     <div class="card text-white" style="background-color: #110257;" >
       <div class="card-body">
         
@@ -12,28 +12,33 @@ require_once("nav.php"); ?>
         
         <form action="<?php echo FRONT_ROOT . "Booking/addBooking" ?>" method="POST" id="BookForm">
           <div class="form-group row m-2">
-            <label for="InitDate">INITIAL DATE</label>
+            <label for="InitDate">FECHA INICIAL</label>
             <input type="date" name="initDate" id="InitDate" class="form-control" min="<?php echo date('Y-m-d'); ?>"  required>
           </div>
           <div class="form-group row m-2">
-            <label for="EndDate">END DATE</label>
+            <label for="EndDate">FECHA FINAL</label>
             <input type="date" name="endDate" id="EndDate" class="form-control" min="<?php echo date('Y-m-d'); ?>"  required>
           </div>
           <div>
             <p id="AvailMsge" class="text-lg text-uppercase"><strong></strong></p>
           </div>
-          <p class="text-center">REMEMBER! This keeper only takes care of <strong><?php echo $typePet ?></strong> with this specific size: <strong><?php echo $typeSize ?></strong></p>
+          <p class="text-center">¡Atención! Este cuidador solo se encarga de <strong><?php echo $typePet === "cat" ?  "Gato" : "Perro"?></strong> con tamaño  <strong><?php if($typeSize === "big")
+              { echo "Grande";}
+              else if($typeSize === "medium")
+              {echo "Mediano";}
+              else {echo "Pequeño";}
+              ;?></strong></p>
           <div id="DivType" data-typepet="<?php echo $typePet ?>"></div>
           <div id="DivSize" data-typesize="<?php echo $typeSize ?>"></div>
           <div class="form-group row m-2">
-            <label for="PetCode">Pet to keep :</label>
+            <label for="PetCode">Mascota a cuidar :</label>
             <select name="petCode" id="PetCode" class="form-control" required>
-              <option value="">Select your Pet : </option>
+              <option value="">Selecciona tu mascota : </option>
             </select>
-            <p class="text-danger m-1">Note: If you don't see any pets displayed to select, most probably you don't have the type of Pet that Keeper attends</p>
+            <p class="text-danger m-1">ATENCION : Si no ve su mascota en el listado es porque no coincide con los requisitos del cuidador</p>
           </div>
           <div class="form-group row m-2">
-            <label for="visitPerDaySelect" class="">Visit per day :</label>
+            <label for="visitPerDaySelect" class="">Visitas por dia :</label>
           <select id="visitPerDaySelect" class="form-control" name="visitPerDay">
 
           </select>
@@ -45,7 +50,7 @@ require_once("nav.php"); ?>
         
 
           <div class="form-group row m-2">
-            <button type="submit" id="ButtonCheck" class="btn btn-primary">Confirm</button>
+            <button type="submit" id="ButtonCheck" class="btn btn-primary">Confirmar</button>
           </div>
 
 

@@ -37,7 +37,7 @@ class BookingController
         }
 
         if (strpos($resp, "BOOK") !== false) {
-            Session::SetOkMessage("Booking added successfully");
+            Session::SetOkMessage("Reserva agregada correctamente");
             header("location: " . FRONT_ROOT . "Booking/showMyBookings");
         } else {
 
@@ -157,7 +157,7 @@ class BookingController
 				// echo "soy conf";
 				// var_dump($conf);
                 if ($conf == 1 || strpos($conf, "COU") !== false) {
-                    Session::SetOkMessage("Successfuly confirmed!");
+                    Session::SetOkMessage("Reserva confirmada");
                 } else {
                     Session::SetBadMessage($conf);
                 }
@@ -187,7 +187,7 @@ class BookingController
     {
         $result = $this->bookingService->srv_cancelBooking($bookCode);
         if ($result == 1) {
-            Session::SetOkMessage("Booking rejected!");
+            Session::SetOkMessage("Reserva cancelada");
         } else {
             Session::SetBadMessage($result);
         }
@@ -211,7 +211,7 @@ class BookingController
 			
 			if($checkAdmin != null)
 			{
-				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 				{
 					$listBooks = $this->bookingService->srv_getAllBookings();
 					require_once(VIEWS_PATH."listBookings.php");
@@ -231,7 +231,7 @@ class BookingController
 	
 	public function showAdminEditBook($bookCode)
 	{
-		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 		{
 			$booking = $this->bookingService->srv_getBookingByCode($bookCode);
 			require_once(VIEWS_PATH."adminEditBook.php");
@@ -248,22 +248,22 @@ class BookingController
 
 		var_dump($edits);
 
+        $resultFinal = null;
+        $resultOkFinal = null;
 		foreach ($edits as $field => $value) {
 			if (!empty($value)) {
 				$methodName = "srv_edit" . ucfirst($field);
 				$result = $this->bookingService->$methodName($bookCode, $value);
 				if($result == 1){
-                    $resultOkFinal = "";
 					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
 					Session::SetOkMessage($resultOkFinal);
-				}
-				if(is_string($result))
-				{
-                    $resultFinal = "";
-					$resultFinal .= " || ".$result;
-					Session::SetBadMessage($resultFinal);
-					
-				}
+				}else if($result == 0)
+                {
+                    Session::SetOkMessage("");
+                }else{
+                    $resultFinal .= $result." - ".ucfirst($field)." no se pudo modificar <br>";
+                    Session::SetBadMessage($resultFinal);
+                }
 			}
 		}
 		header("location: " . FRONT_ROOT . "Home/showListBookings");

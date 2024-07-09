@@ -3,9 +3,9 @@
 <?php 
 include("msgeDisplay.php");
 ?>
-<a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="text-center text-white p-2 rounded bg-dark"><i class="fas fa-arrow-left "></i> DASHBOARD</a>
+<a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="btn text-center align-items-center text-white  rounded bg-dark"><i class="fas fa-arrow-left "></i><span> MENÚ</span></a>
 <div class="container">
-<h2 class="text-center text-white bg-dark m-2 p-2 rounded">COUPON LIST</h2>
+<h2 class="text-center text-white bg-dark m-2 p-2 rounded">Lista de cupones</h2>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,8 +13,8 @@ include("msgeDisplay.php");
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <form class="d-flex ms-auto" action="<?php echo FRONT_ROOT."Coupon/listCouponsFiltered" ?>" method=GET >
-                    <input class="form-control me-2" type="text" name="code"  placeholder="Insert code (COU,BOOK)" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
+                    <input class="form-control me-2" type="text" name="code"  placeholder="Inserte código (COU,BOOK)" aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
                 </form>
             </div>
         </div>
@@ -24,11 +24,11 @@ include("msgeDisplay.php");
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Coupon Code</th>
-                    <th>Book Code</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>Cod. cupon</th>
+                    <th>Cod. reserva</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody style="vertical-align: middle;">
@@ -40,8 +40,8 @@ include("msgeDisplay.php");
                     <td><?php echo $coupon->getPrice(); ?></td>
                     <td><?php echo $coupon->getStatus(); ?></td>
                     <td style="vertical-align: middle;">
-                        <a class="btn btn-dis btn-primary m-2" data-msg="Edit this record?" href="<?php echo FRONT_ROOT."Coupon/showAdminEditCoup/".$coupon->getCouponCode() ?>">Edit</a> 
-                        <a class="btn btn-dis btn-danger m-2" data-msg = "Record will be removed forever. Sure?" href="<?php echo FRONT_ROOT."Coupon/declineCoupon/".$coupon->getCouponCode() ?>">Delete</a>
+                        <a class="btn btn-dis btn-primary m-2" data-msg="¿Editar este registro?" href="<?php echo FRONT_ROOT."Coupon/showAdminEditCoup/".$coupon->getCouponCode() ?>">Editar</a> 
+                        <a class="btn btn-dis btn-danger m-2" data-msg = "Registro será borrado permanentemente ¿Confirmar?" href="<?php echo FRONT_ROOT."Coupon/declineCoupon/".$coupon->getCouponCode() ?>">Borrar</a>
                     </td>
                 </tr>
                 <?php } ?>

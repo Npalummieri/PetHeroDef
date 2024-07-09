@@ -3,17 +3,19 @@ require_once("header.php");
 include("nav.php");
 ?>
 <div class="container text-center">
-    <h2 class=" mt-3 bg-dark rounded text-white">COUPON PAY</h2>
+    <h2 class=" mt-3 bg-dark rounded text-white">PAGO DE CUPÓN</h2>
 </div>
 <?php
 require_once("msgeDisplay.php");
+
 ?>
+
 <div class="container d-flex justify-content-center mt-5 mb-5">
 
     <div class="row g-3 p-2 rounded" style="background-color: #110257;">
         <div class="col-md-6">
-            <form action="<?php echo FRONT_ROOT . 'Coupon/payCoupon' ?>" method="POST">
-                <span class="text-white">PAYMENT METHOD</span>
+            <form action="" id="payForm" method="POST">
+                <span class="text-white">PAGO</span>
                 <div class="card">
                     <div class="accordion" id="accordionExample">
                         <div class="card">
@@ -22,12 +24,11 @@ require_once("msgeDisplay.php");
                                     <button class="btn btn-light btn-block text-left p-3 rounded-0" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                         <div class="d-flex align-items-center justify-content-between">
 
-                                            <span>Credit card</span>
+                                            <span>Tarjetas de credito</span>
                                             <div class="icons">
-                                                <img src="https://i.imgur.com/2ISgYja.png" width="30">
-                                                <img src="https://i.imgur.com/W1vtnOV.png" width="30">
-                                                <img src="https://i.imgur.com/35tC99g.png" width="30">
-                                                <img src="https://i.imgur.com/2ISgYja.png" width="30">
+                                                <img src="https://i.imgur.com/2ISgYja.png" width="30" alt="mastercard">
+                                                <img src="https://i.imgur.com/W1vtnOV.png" width="30" alt="visa">
+                                                <img src="https://i.imgur.com/35tC99g.png" width="30" alt="stripe">
                                             </div>
 
                                         </div>
@@ -38,7 +39,7 @@ require_once("msgeDisplay.php");
                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
                                 <div class="card-body payment-card-body">
 
-                                    <span class="font-weight-normal card-text">Card Number</span>
+                                    <span class="font-weight-normal card-text">Numero de tarjeta</span>
                                     <div class="input m-2">
 
                                         <i class="fa fa-credit-card"></i>
@@ -48,7 +49,7 @@ require_once("msgeDisplay.php");
 
 
 
-                                    <span class="font-weight-normal card-text">Card holder</span>
+                                    <span class="font-weight-normal card-text">Titular </span>
                                     <div class="input m-2">
                                         <i class="fa fa-credit-card"></i>
                                         <input type="text" class="form-control" name="cardholder" id="cholder" placeholder="John D. Doe" required>
@@ -59,7 +60,7 @@ require_once("msgeDisplay.php");
 
                                         <div class="col-md-6">
 
-                                            <span class="font-weight-normal card-text">Expiry Date</span>
+                                            <span class="font-weight-normal card-text">Vencimiento</span>
                                             <div class="input">
 
                                                 <i class="fa fa-calendar"></i>
@@ -85,7 +86,7 @@ require_once("msgeDisplay.php");
 
                                     </div>
 
-                                    <span class="text-muted certificate-text"><i class="fa fa-lock"></i> Your transaction is secured with ssl certificate</span>
+                                    <span class="text-muted certificate-text"><i class="fa fa-lock"></i> Transacción asegurada con ceritifcación SSL</span>
 
                                 </div>
                             </div>
@@ -97,8 +98,10 @@ require_once("msgeDisplay.php");
 
         </div>
 
+        <div class="alert bg-warning text-dark text-center" id="sending" hidden><h3>ENVIANDO...</h3></div>
+
         <div class="col-md-6">
-            <span class="text-white">SUMMARY</span>
+            <span class="text-white">RESUMEN</span>
 
             <div class="card">
 
@@ -106,7 +109,7 @@ require_once("msgeDisplay.php");
 
                     <div class="d-flex flex-column">
 
-                        <span>Pay per visit</i></span>
+                        <span>Pago por visita</i></span>
                         <a href="#" class="billing"></a>
 
                     </div>
@@ -124,14 +127,14 @@ require_once("msgeDisplay.php");
 
                     <div class="d-flex justify-content-between mb-2">
 
-                        <span>Bonuses</span>
+                        <span>Bonus</span>
                         <span><?php echo $fullCoup["totalPrice"] * 0.02 . '$';  ?></span>
 
                     </div>
 
                     <div class="d-flex justify-content-between">
 
-                        <span>payment in advance<i class="fa fa-clock-o"></i></span>
+                        <span>Pago adelantado <i class="fa fa-clock-o"></i></span>
                         <span>-2%</span>
 
                     </div>
@@ -146,8 +149,8 @@ require_once("msgeDisplay.php");
 
                     <div class="d-flex flex-column">
 
-                        <span>Today you pay(US Dollars)</span>
-                        <small>After 24 hours +$5.00</small>
+                        <span>Hoy abona</span>
+                        <small>Luego de 24hs +$5.00</small>
 
                     </div>
                     <span><?php echo ($fullCoup["totalPrice"] / 2) - $fullCoup["totalPrice"] * 0.02 . '$' ?></span>
@@ -159,7 +162,7 @@ require_once("msgeDisplay.php");
 
                 <div class="p-3 text-end">
 
-                    <button type="submit" class="btn btn-success btn-block free-button ">Pay it!</button>
+                    <button type="submit" id="submitButton" class="btn btn-success btn-block free-button " onsubmit="disableSubmitButton()">Pagar</button>
 
                 </div>
             </div>
@@ -169,6 +172,7 @@ require_once("msgeDisplay.php");
 </div>
 <script src="<?php echo JS_PATH . 'formScripts.js'; ?>"></script>
 <script>
+    cardFuncs.sendingEmail();
     cardFuncs.manageExpire();
     cardFuncs.manageCardNumb();
     cardFuncs.manageCcv();

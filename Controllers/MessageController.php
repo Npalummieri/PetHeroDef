@@ -38,6 +38,7 @@ class MessageController
         }
 
         if ($arrayCodes != null) {
+            
             $msgSended = $this->messageService->srv_sendMessage($senderCode, $msgText, $converCode);
         }
 

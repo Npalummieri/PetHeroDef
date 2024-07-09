@@ -135,7 +135,7 @@ class  conversationDAO
             } else if (strpos($userCode, "KEP") !== false) {
                 $query .= " WHERE c.keeperCode = :userCode";
             } else {
-                throw new Exception("Something is bad with the userCode");
+                throw new Exception("Algo salió mal con el usuario logueado");
             }
 
             $query .= " GROUP BY
@@ -164,7 +164,7 @@ class  conversationDAO
             foreach ($resultSet as $row) {
                 //paso directamente un array asociativo para no deserializar y serializar los objs y pasarlos a json
                 //$conver = new Conversation();
-
+                var_dump($row);
                 $conver["idCon"] = $row["idCon"];
                 $conver["codeConv"] = $row["codeConv"];
                 $conver["keeperCode"] = $row["keeperCode"];
@@ -179,7 +179,7 @@ class  conversationDAO
                 $conver["kpfp"] .= $row["kpfp"];
                 $conver["opfp"] = FRONT_ROOT . "Images/";
                 $conver["opfp"] .= $row["opfp"];
-                $conver["lastMsgText"] = $row["lastMsgText"];
+                $conver["lastMsgText"] = html_entity_decode($row["lastMsgText"], ENT_QUOTES, 'UTF-8');
                 $conver["msgTimeStamp"] = $row["msgTimeStamp"];
                 $conver["unread_messages"] = $row["unread_messages"];
 

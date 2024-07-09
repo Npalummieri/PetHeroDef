@@ -7,17 +7,19 @@ use Utils\Session as Session;
 ?>
 <div id="cururl" data-cururl="<?php echo FRONT_ROOT ?>" hidden ></div>
 <?php require_once("msgeDisplay.php"); ?>
-            <h2 class="bg-dark text-white text-center rounded mt-2">KEEPER INFORMATION</h2>
+            <h2 class="bg-dark text-white text-center rounded mt-2">PERFIL DE CUIDADOR</h2>
 <div class="container  text-white rounded" id="contMain" style="background-color: #110257;">
     <div class="row">
         <!-- pfp col -->
         <div class="col-lg-4">
-            <div class="about-avatar text-center mt-3">
-                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" >
-                <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
-                    <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Edit Profile</a>
-                <?php } ?>
+            <div class="about-avatar text-center border rounded-circle border-1 border-dark mt-3">
+                <img src="<?php echo FRONT_ROOT . "Images/" . $infoKeeper->getPfp() ?>" alt="Profile Picture" class="img-fluid">
 				</div>
+                <div class="d-flex justify-content-center">
+                <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
+                    <a href="<?php echo FRONT_ROOT . 'Keeper/showUpdateKeeper' ?>" class="btn btn-primary mt-3 p-2" id="btnprof" data-codekeeper="<?php echo $infoKeeper->getKeeperCode() ?>">Editar Perfil</a>
+                <?php } ?>
+                </div>
 				 <div class="container responsive rounded mt-3">
                 <div id="calendar" class="text-white bg-white rounded"></div>
             </div>
@@ -37,27 +39,33 @@ use Utils\Session as Session;
 
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Name:</strong> <?php echo $infoKeeper->getName(); ?></p>
-                    <p><strong>Email:</strong> <?php echo $infoKeeper->getEmail(); ?></p>
-                    <p><strong>Username:</strong> <?php echo $infoKeeper->getUserName(); ?></p>
+                    <p><strong>Nombre :</strong> <?php echo $infoKeeper->getName(); ?></p>
+                    <p><strong>Email :</strong> <?php echo $infoKeeper->getEmail(); ?></p>
+                    <p><strong>Nombre de usuario :</strong> <?php echo $infoKeeper->getUserName(); ?></p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Type Pet:</strong> <?php echo $infoKeeper->getTypePet(); ?></p>
-                    <p><strong>Type Care:</strong> <?php echo $infoKeeper->getTypeCare(); ?></p>
-                    <p><strong>Score:</strong> <?php echo $infoKeeper->getScore(); ?></p>
+                    <p><strong>Tipo de mascota :</strong> <?php echo $infoKeeper->getTypePet() === "cat" ?  "Gato" :  "Perro"; ?></p>
+                    <p><strong>Tamaño :</strong> <?php if($infoKeeper->getTypeCare() === "big")
+              { echo "Grande";}
+              else if($infoKeeper->getTypeCare() === "medium")
+              {echo "Mediano";}
+              else {echo "Pequeño";}
+              ;?></p>
+                    <p><strong>Puntaje :</strong> <?php echo $infoKeeper->getScore(); ?></p>
                 </div>
             </div>
             <hr>
-            <h3>Availability</h3>
             <div class="container">
+            <h3>Disponibilidad</h3>
                 <div class="row justify-content-center">
-                    <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 col-12  p-3 text-center">
-                        <div class="table-responsive rounded">
+                    <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 text-center">
+                    <p><strong>Visitas por dia : </strong> <?php echo $infoKeeper->getVisitPerDay(); ?></p>
+                        <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Initial date</th>
-                                        <th class="text-center">End date</th>
+                                        <th class="text-center">Fecha inicial</th>
+                                        <th class="text-center">Fecha final</th>
                                         <?php if ($loggedKeeper != null && $loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) { ?>
                                             <th class="text-center"></th>
                                         <?php } ?>
@@ -66,17 +74,17 @@ use Utils\Session as Session;
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="text-center p-3"><?php echo $infoKeeper->getInitDate(); ?></td>
-                                        <td class="text-center p-3"><?php echo $infoKeeper->getEndDate(); ?></td>
+                                        <td class="text-center"><?php echo $infoKeeper->getInitDate(); ?></td>
+                                        <td class="text-center"><?php echo $infoKeeper->getEndDate(); ?></td>
                                         <?php if ($loggedKeeper != null) {
                                             if ($loggedKeeper->getKeeperCode() == Session::GetLoggedUser()->getKeeperCode()) {
 
 
                                         ?>
                                                 <td class="text-center ">
-                                                    <button class="btn btn-primary btn-edit">Edit</button> 
-                                                    <button class="btn btn-success btn-save" style="display: none;">Save</button>
-                                                    <button class="btn btn-danger btn-cancel" style="display: none;">Cancel</button> 
+                                                    <button class="btn btn-primary btn-edit">Editar</button> 
+                                                    <button class="btn btn-success btn-save" style="display: none;">Guardar</button>
+                                                    <button class="btn btn-danger btn-cancel" style="display: none;">Cancelar</button> 
                                                 </td>
 
                                         <?php }
@@ -90,8 +98,8 @@ use Utils\Session as Session;
             </div>
                         <?php if ($loggedOwner != null) { ?>
                             <div class="d-flex justify-content-between">
-                                <a class="btn btn-success" href="<?php echo FRONT_ROOT . "Booking/showBookCreate/" . $keeperCode ?>">Hire it!</a>
-                                <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
+                                <a class="btn btn-success" href="<?php echo FRONT_ROOT . "Booking/showBookCreate/" . $keeperCode ?>">Contratar</a>
+                                <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">Puntua</button>
                             </div>
                         <?php  } ?>
                     </div>
@@ -100,8 +108,8 @@ use Utils\Session as Session;
                     <hr>
 
             <div class="form-group m-3">
-                <label for="bio">About Me</label>
-                <p id="bio" class="text-black bg-light" data-userlogged="<?php echo $infoKeeper->getKeeperCode(); ?>"><?php echo $infoKeeper->getBio(); ?></p>
+                <label for="bio" class="h3">Sobre mi</label>
+                <p id="bio" class="text-black bg-light p-2 rounded-3" data-userlogged="<?php echo $infoKeeper->getKeeperCode(); ?>"><?php echo $infoKeeper->getBio() == null ? "Bio sin redactar." : $infoKeeper->getBio() ?></p>
                 <div class="form-group" style="display: none;" id="bioEditor">
                     <textarea class="form-control" name="bio" id="bioTextarea" maxlength="200" placeholder="Enter your bio (max 200 characters)"></textarea>
                 </div>
@@ -109,12 +117,12 @@ use Utils\Session as Session;
                     if (Session::GetLoggedUser()->getKeeperCode() == $infoKeeper->getKeeperCode()) { ?>
 
                         <div class=" text-end">
-                            <button class="btn btn-primary" id="editBioBtn">Edit bio</button>
+                            <button class="btn btn-primary" id="editBioBtn">Editar bio</button>
                         </div>
                 <?php }
                 } ?>
-                <button class="btn btn-success" id="saveBioBtn" style="display: none;">Save</button>
-                <button class="btn btn-secondary" id="cancelBioBtn" style="display: none;">Cancel</button>
+                <button class="btn btn-success" id="saveBioBtn" style="display: none;">Guardar</button>
+                <button class="btn btn-secondary" id="cancelBioBtn" style="display: none;">Cancelar</button>
 
             </div>
 
@@ -137,14 +145,14 @@ use Utils\Session as Session;
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                <h5 class="modal-title" id="reviewModalLabel">Escribir reseña</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <textarea id="reviewText" class="form-control" rows="4" maxlength="200" placeholder="Write your review (max 200 characters)"></textarea>
+                <textarea id="reviewText" class="form-control border bordered-1 border-dark" rows="4" maxlength="200" placeholder="Escriba su reseña (max 200 caracteres)"></textarea>
                 <div class="form-group mt-3">
-                    <label for="rating">Rating:</label>
+                    <label for="rating">Puntaje:</label>
 
                     <select class="form-control" id="rating"> <i class="fa-solid fa-star">
                             <option value="1"><i class="bi bi-star-fill"></i> 1</option>
@@ -156,8 +164,8 @@ use Utils\Session as Session;
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="submitReview" type="button" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="submitReview" type="button" class="btn btn-primary">Enviar</button>
             </div>
         </div>
     </div>
@@ -166,7 +174,7 @@ use Utils\Session as Session;
 
 
 
-<h2 class="text-white m-3 p-2" style="background-color: #110257;">Reviews</h2>
+<h2 class="text-white m-3 p-2" style="background-color: #110257;">Reseñas</h2>
 <div id="reviews" class="row row-cols-1 row-cols-md-2 row-cols-sm-3 col-12-lg col-6-md col-3-sm  m-2" style="max-width: 100%;" >
     <?php foreach ($reviews as $review) { ?>
         <div class="col ">

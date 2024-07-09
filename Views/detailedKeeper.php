@@ -12,47 +12,52 @@ include_once("nav.php");
             </div>
             <!-- infokeep col -->
             <div class="col-12 col-sm-6 col-md-8 col-lg-9 col-xl-9">
-                <h2>Keeper Information</h2>
-                <p><strong>Name :</strong> <?php echo $keeper->getName(); ?></p>
+                <h2>Informacion del cuidador</h2>
+                <p><strong>Nombre :</strong> <?php echo $keeper->getName(); ?></p>
                 <p><strong>Email:</strong> <?php echo $keeper->getEmail(); ?></p>
-                <p><strong>Type Pet:</strong> <?php echo $keeper->getTypePet(); ?></p>
-                <p><strong>Type Care:</strong> <?php echo $keeper->getTypeCare(); ?></p>
-                <p><strong>Score:</strong> <?php echo $keeper->getScore(); ?></p>
+                <p><strong>Tipo:</strong> <?php echo $keeper->getTypePet() === "cat" ?  "Gato" :  "Perro"; ?></p>
+                <p><strong>Tamaño:</strong> <?php if($keeper->getTypeCare() === "big")
+              { echo "Grande";}
+              else if($keeper->getTypeCare() === "medium")
+              {echo "Mediano";}
+              else {echo "Pequeño";}
+              ;?></p>
+                <p><strong>Puntaje:</strong> <?php echo $keeper->getScore() == 0  ? "-" : $keeper->getScore() ; ?></p>
 
                 <hr>
-                <h5>Availability : </h5>
+                <h5>Disponibilidad : </h5>
                 <div>
-
+                <p><strong>Visitas por dia : </strong> <?php echo $infoKeeper->getVisitPerDay(); ?></p>
                 </div>
 
                 <hr>
                 <input type="hidden" name="keeperCode" value="<?php echo $keeper->getKeeperCode(); ?>">
                 <input type="hidden" name="typePet" value="<?php echo $keeper->getTypePet(); ?>">
                 <input type="hidden" name="typeSize" value="<?php echo $keeper->getTypeCare(); ?>">
-                <p class="m-3"><strong>Bio:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget odio nec leo condimentum congue.</p>
+                <p class="m-3"><strong>Bio :</strong></p>
                 <div class="d-flex justify-content-between">
-                    <button class="btn btn-success" type="submit">Hire it!</button>
+                    <button class="btn btn-success" type="submit">Contratar</button>
                     <!-- Botón Rate -->
-                    <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
+                    <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">PUNTUÁ</button>
                 </div>
             </div>
     </form>
 
 
-    <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">RATE!</button>
+    <button type="button" id="rateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-keepercode="<?php echo $keeper->getKeeperCode(); ?>">PUNTUÁ</button>
     <!-- Modal -->
     <div class="modal" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                    <h5 class="modal-title" id="reviewModalLabel">Escriba su reseña</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
-                    <textarea id="reviewText" class="form-control" rows="4" maxlength="200" placeholder="Write your review (max 200 characters)"></textarea>
+                    <textarea id="reviewText" class="form-control" rows="4" maxlength="200" placeholder="Escriba su reseña (max 200 caracteres)"></textarea>
                     <div class="form-group mt-3">
-                        <label for="rating">Rating:</label>
+                        <label for="rating">Puntaje :</label>
 
                         <select class="form-control" id="rating"> <i class="fa-solid fa-star">
                                 <option value="1"><i class="bi bi-star-fill"></i> 1</option>
@@ -64,8 +69,8 @@ include_once("nav.php");
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="submitReview" type="button" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button id="submitReview" type="button" class="btn btn-primary">Enviar</button>
                 </div>
             </div>
         </div>
@@ -73,7 +78,7 @@ include_once("nav.php");
 </div>
 
 
-<h2>Reviews</h2>
+<h2>Reseñas</h2>
 <div id="reviews">
     <?php foreach ($reviews as $review) { ?>
         <div class="row mb-4">

@@ -43,28 +43,28 @@ class KeeperService
                 if ($typeCare != Size::BIG) {
                     if ($typeCare != Size::MEDIUM) {
                         if ($typeCare != Size::SMALL) {
-                            $msgeError = "Not size allowed";
+                            $msgeError = "Tamaño no permitido";
                         }
                     }
                 }
             } else {
-                $msgeError = "Null typeCare";
+                $msgeError = "Defina el tamaño a cuidar";
             }
 
             if (isset($typePet)) {
                 if ($typePet != "dog" && $typePet != "cat") {
-                    $msgeError = "And that pet is a?";
+                    $msgeError = "Defina el tipo de mascota";
                 }
             }
 
             if (isset($price)) {
                 if ($price < 1) {
-                    $msgeError = "Nothing for free";
+                    $msgeError = "Su servicio no puede ser gratuito";
                 }
             }
 
             if (!($visitPerDay == 1 || $visitPerDay == 2)) {
-                $msgeError = "Not valid amount of day to visit";
+                $msgeError = "Numero invalido de visitas por dia";
             }
 
 
@@ -75,7 +75,7 @@ class KeeperService
 
                 $validateDates = Dates::validateAndCompareDates($initDate, $endDate);
             } else {
-                $msgeError = "Something wrong with the dates";
+                $msgeError = "Error en las fechas. Revise e intente nuevamente";
             }
 
 
@@ -109,7 +109,7 @@ class KeeperService
         try {
             $error = 1;
 
-            $keeperSearched = $this->keeperDAO->searchByKeeperCode($keeperLogged->getKeeperCode());
+            $keeperSearched = $this->keeperDAO->searchByCode($keeperLogged->getKeeperCode());
             $pfpToDelete = $keeperSearched->getPfp();
             if (isset($pfpInfo["pfp"]["tmp_name"]) && !empty($pfpInfo["pfp"]["tmp_name"])) {
 
@@ -128,9 +128,9 @@ class KeeperService
                 $mime = mime_content_type($pfpInfo["pfp"]["tmp_name"]);
 
                 if (!in_array($mime, $admittedTypes)) {
-                    $error = "Error with your photo,check the selected file";
+                    $error = "Error en el tipo de foto. Intente nuevamente";
                 } else if ($imgSize > 3 * 1024 * 1024) {
-                    $error = "Not supported size";
+                    $error = "Tamaño no soportado";
                 } else {
                     //(filename client-side)
                     $name_pfp = $pfpInfo["pfp"]["name"];
@@ -148,14 +148,14 @@ class KeeperService
                     if ($result == 1) {
                         move_uploaded_file($pfp, $pathToSave);
                         if (unlink(IMG_PATH . $pfpToDelete)) {
-                            $error = "File deleted successfully.";
+                            $error = "Archivo eliminado.";
                         }
                     }
                 }
 
 
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $msgeError = "Not an Email";
+                    $msgeError = "Email invalido.";
                 } else {
                     $email = trim($email);
                     $this->keeperDAO->updateEmail($keeperLogged->getKeeperCode(), $email);
@@ -163,8 +163,7 @@ class KeeperService
 
                 if (isset($bio) && !empty($bio) && $bio != null) {
                     if (preg_match('/[^a-z0-9!.,?=$]/i', $bio)) {
-                        // Si la expresión regular encuentra algún caracter que no sea letra, dígito o signo de puntuación básico, la función devuelve false
-                        $error = "Error at bio";
+                        $error = "Caracteres no validos. Reescribirla.";
                     } else {
                         $this->keeperDAO->updateBio($keeperLogged->getKeeperCode(), $bio);
                     }
@@ -174,14 +173,14 @@ class KeeperService
                     if ($price > 0) {
                         $this->keeperDAO->updatePrice($keeperLogged->getKeeperCode(), $price);
                     } else {
-                        $error  = "Something's wrong with price";
+                        $error  = "Precio invalido. Intente nuevamente.";
                     }
                 }
 
                 if ($visitPerDay == 1 || $visitPerDay == 2) {
                     $this->keeperDAO->updateVisitDay($keeperLogged->getKeeperCode(), $visitPerDay);
                 } else {
-                    $error = "Not valid amount of day to visit";
+                    $error = "Solo puede seleccionar 1 o 2 visitas por día.";
                 }
             }
         } catch (Exception $ex) {
@@ -193,7 +192,7 @@ class KeeperService
     public function srv_getKeeperByCode($keeperCode)
     {
         try {
-            $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
+            $keeper = $this->keeperDAO->searchByCode($keeperCode);
         } catch (Exception $ex) {
             $keeper =  $ex->getMessage();
         }
@@ -236,10 +235,10 @@ class KeeperService
                 if (Dates::currentCheck($initDate) != null &&  Dates::currentCheck($endDate) != null) {
                     $result = $this->keeperDAO->updateAvailability($keeperCode, $initDate, $endDate);
                 } else {
-                    $result = "Not possible this date at this time";
+                    $result = "Fecha invalida.";
                 }
             } else {
-                $result = "Not valid dates";
+                $result = "Fechas invalidas.";
             }
         } catch (Exception $ex) {
             $result .=  $ex->getMessage();
@@ -270,15 +269,12 @@ class KeeperService
 	{
 		try{
 			if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
-				$resp = "This type not allowed";
+				$resp = "Email invalido.";
 			}else{
 				$resp = $this->keeperDAO->updateEmail($keeperCode,$email);
 			}
 			
-			if($resp != 1)
-			{
-				$resp = "Not allowed email,try another one";
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -295,12 +291,9 @@ class KeeperService
                     $username = trim($username);
 					$resp = $this->keeperDAO->updateUsername($keeperCode,$username);
 			}else{
-				$resp = "Username doesn't match the requirements!!";
+				$resp = "Nombre de usuario no respeta los requisitos.";
 			}
-			if($resp != 1)
-			{
-				$resp = "Not allowed username"; 
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -313,15 +306,9 @@ public function srv_editStatus($keeperCode, $status)
     try {
 
         if ($status != Status::ACTIVE && $status != Status::INACTIVE && $status != Status::SUSPENDED) {
-            $resp = "Not permitted status";
+            $resp = "Estado invalido.";
         } else {
-            
             $resp = $this->keeperDAO->updateStatus($keeperCode, $status);
-            
-            
-            if ($resp !== 1) {
-                $resp = "Not modified status";
-            } 
         }
     } catch (Exception $ex) {
 
@@ -335,16 +322,13 @@ public function srv_editStatus($keeperCode, $status)
 	public function srv_editName($keeperCode,$name)
 	{
 		try{
-			$name_alpha_spaces = ctype_alpha(str_replace(' ', '', $name));
+            $name_alpha_spaces = ctype_alpha(str_replace(' ', '', $name));
             if ($name_alpha_spaces) {
-                $resp = $this->keeperDAO->updateName($keeperCode,$name);
-			}else{
-				$resp = "name doesn't match the requirements!!";
-			}
-			if($resp != 1)
-			{
-				$resp = "Not allowed name"; 
-			}
+                $resp = $this->keeperDAO->updateName($keeperCode, $name);
+            } else {
+                $resp = "Nombre invalido";
+            }
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -355,56 +339,45 @@ public function srv_editStatus($keeperCode, $status)
 	public function srv_editLastname($keeperCode,$lastname)
 	{
 		try{
-			$name_alpha_spaces = ctype_alpha(str_replace(' ', '', $lastname));
+            $name_alpha_spaces = ctype_alpha(str_replace(' ', '', $lastname));
             if ($name_alpha_spaces) {
-                $resp = $this->keeperDAO->updatelastname($keeperCode,$lastname);
-			}else{
-				$resp = "Lastname doesn't match the requirements!!";
-			}
-			if($resp != 1)
-			{
-				$resp = "Not modified lastname"; 
-			}
-		}catch(Exception $ex)
-		{
-			$resp = $ex->getMessage();
-		}
-		return $resp;
-	}
-	
-	public function srv_editTypeCare($keeperCode,$typeCare)
-	{
-		try{
+                $resp = $this->keeperDAO->updatelastname($keeperCode, $lastname);
+            } else {
+                $resp = "Apellido invalido";
+            }
 			
-            if ($typeCare != Size::BIG && $typeCare != Size::MEDIUM && $typeCare != Size::SMALL) {
-                $resp = $this->keeperDAO->updateTypeCare($keeperCode,$typeCare);
-			}else{
-				$resp = "Typecare doesn't match!";
-			}
-			if($resp != 1)
-			{
-				$resp = "Not modified type care"; 
-			}
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
 		}
 		return $resp;
 	}
+
+    public function srv_editTypeCare($keeperCode, $typeCare)
+    {
+        try {
+
+            if ($typeCare != Size::BIG && $typeCare != Size::MEDIUM && $typeCare != Size::SMALL) {
+                $resp = "Tipo de tamaño no es valido";
+            } else {
+                $resp = $this->keeperDAO->updateTypeCare($keeperCode, $typeCare);
+            }
+        } catch (Exception $ex) {
+            $resp = $ex->getMessage();
+        }
+        return $resp;
+    }
 	
 	public function srv_editTypePet($keeperCode,$typePet)
 	{
 		try{
 			
-            if ($typePet != "cat" && $typePet != "dog") {
+            if ($typePet == "cat" || $typePet == "dog") {
                 $resp = $this->keeperDAO->updateTypePet($keeperCode,$typePet);
 			}else{
-				$resp = "Typepet doesn't match!";
+				$resp = "El tipo de mascota no coincide. ' $typePet '";
 			}
-			if($resp != 1)
-			{
-				$resp = "Not modified type pet"; 
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -419,12 +392,9 @@ public function srv_editStatus($keeperCode, $status)
             if (ctype_digit($score) && $score >= 1 && $score <= 5) {
                 $resp = $this->keeperDAO->updateScore($keeperCode,$score);
 			}else{
-				$resp = "Score doesn't match has to be between 1 - 5!";
+				$resp = "Puntuación no valida. El valor debe ser entre 1 y 5";
 			}
-			if($resp != 1)
-			{
-				$resp = "Not allowed score"; 
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -439,12 +409,9 @@ public function srv_editStatus($keeperCode, $status)
             if (ctype_digit($price)) {
                 $resp = $this->keeperDAO->updatePrice($keeperCode,$price);
 			}else{
-				$resp = "Price must be a number";
+				$resp = "Precio debe ser un número. Verifique.";
 			}
-			if($resp != 1)
-			{
-				$resp = "Not allowed price"; 
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -461,7 +428,7 @@ public function srv_editStatus($keeperCode, $status)
 			{
 				$keepList = $this->keeperDAO->getFilteredKeepsAdm($code);
 			}else {
-				$keepList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				$keepList = "No hubo coincidencias. Recuerde usar BOOK,OWN,PET o KEP";
 				}
         }catch(Exception $ex)
 		{

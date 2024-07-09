@@ -42,7 +42,7 @@ class CouponDAO
         }
     }
 
-    public function getCouponByCode($couponCode)
+    public function searchByCode($couponCode)
     {
         try {
 
@@ -157,7 +157,7 @@ class CouponDAO
         }
     }
 
-    public function updateStatusCoup($couponCode,$status){
+    public function updateStatus($couponCode,$status){
         try {
 
             $query = "UPDATE " . $this->tableName . " as c
@@ -177,6 +177,8 @@ class CouponDAO
             throw $ex;
         }
     }
+
+
     //Paidup exit --> coupon & booking = paidup
     public function paidUpCoupon($couponCode)
     {
@@ -210,7 +212,7 @@ class CouponDAO
             $this->connection = Connection::GetInstance();
 
             $parameters["couponCode"] = $couponCode;
-
+            $parameters["status"] = Status::CANCELLED;
             $result = $this->connection->ExecuteNonQuery($query, $parameters);
 
 
@@ -218,26 +220,27 @@ class CouponDAO
                 $queryForJoin = "SELECT bookCode FROM " . $this->tableName . " 
                 WHERE couponCode = :couponCode;";
 
+                $parameterQ["couponCode"] = $couponCode;
 
-                $resultqJoin = $this->connection->Execute($queryForJoin, $parameters);
 
+                $resultqJoin = $this->connection->Execute($queryForJoin, $parameterQ);
 
+                //Medio innecesario el join teniendo en cuenta que el bookCode/coupCode es 1:1 entre Coup/Book
                 $queryBooking = "UPDATE booking AS b
                 JOIN coupon AS c 
                 ON b.bookCode = c.bookCode
                 SET b.status = :status;
-                WHERE b.bookCode = :bookCode ;";
+                WHERE b.bookCode = :bookCode;";
 
                 $parameter["bookCode"] = $resultqJoin[0]["bookCode"];
-                $parameter["status"] = Status::REJECTED;
-
+                //Cancelled para seguir la logica de que el dueño la CANCELA y no la rechaza(rejected) el keeper
+                $parameter["status"] = Status::CANCELLED;
 
                 $resultUpdate = $this->connection->ExecuteNonQuery($queryBooking, $parameter);
             }
 
             if ($resultUpdate == 1) {
                 $bookCodeValue = $resultqJoin[0]["bookCode"];
-
                 $queryPunish = "UPDATE owner as o 
                 JOIN booking as b
                 ON b.ownerCode = o.ownerCode
@@ -253,7 +256,7 @@ class CouponDAO
                 $parametersP["status"] = Status::SUSPENDED;
                 $parametersP["suspdate"] = $suspensionDateFormatted; 
 
-                $resultPunish = $this->connection->ExecuteNonQuery($query, $parametersP);
+                $resultPunish = $this->connection->ExecuteNonQuery($queryPunish, $parametersP);
             }
             return $resultPunish;
         } catch (Exception $ex) {
@@ -261,7 +264,7 @@ class CouponDAO
         }
     }
 
-    public function getCoupCodeByBook($bookCode)
+    public function getCoupCodeByBookCode($bookCode)
     {
         try {
 
@@ -337,7 +340,7 @@ class CouponDAO
 	}
 	
 	//Only modify bookings = finished / paidup
-	public function modifyPrice($coupCode,$price)
+	public function updatePrice($coupCode,$price)
 	{
 		try{
 			$query = "UPDATE ".$this->tableName." 

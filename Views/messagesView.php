@@ -6,15 +6,15 @@
   <div class="container">
 
 
-
+    <form action="" id="messages"></form>
     <div class="row">
 
       <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0 border border-rounded border-dark" style="background-color: #364a6e;">
         <div class="d-flex justify-content-between align-items-center">
-      <h2 class="text-center m-2">CHAT ROOM</h2>
+      <h2 class="text-center m-2">CHAT</h2>
         <a href="#" onclick="window.location.reload();" class="btn btn-success text-end"><i class="fa-solid fa-arrows-rotate"></i></a>
         </div>  
-        <h5 class="font-weight-bold mb-3 text-center text-lg-start">Contacts</h5>
+        <h5 class="font-weight-bold mb-3 text-center text-lg-start">Contactos</h5>
         <div class="card">
 
           <ul class="list-unstyled mb-0 ">
@@ -33,11 +33,11 @@
 
           <div class="message-input  rounded bg-white mb-3 " id="messageSection" style="display: none;">
             <div class="form-outline ">
-              <textarea class="form-control border" id="msg" rows="4" placeholder="Type your message here..."></textarea>
+              <textarea class="form-control border" id="msg" rows="4" placeholder="Escriba aqui..."></textarea>
 
             </div>
             <div class="text-end">
-              <button type="button" class="btnSend text-white bg-dark btn btn-rounded m-2" id="sendMsg">Send</button>
+              <button type="button" class="btnSend text-white bg-dark btn btn-rounded m-2" id="sendMsg">Enviar</button>
             </div>
           </div>
 

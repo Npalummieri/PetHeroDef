@@ -18,6 +18,19 @@ const registerPetForm = {
             });
 
         });
+    },
+    filterName: function(){
+        $(document).ready(function () {
+        const regexInvalidName = /[^a-zA-ZÀ-ÿ\s'-]/g;
+        const name = $("#name");
+
+        name.on("input", function () {
+
+            const currentValue = name.val();
+            const cleanedValue = currentValue.replace(regexInvalidName, '');
+            name.val(cleanedValue);
+        });
+        });
     }
 }
 const registerForm = {
@@ -25,8 +38,6 @@ const registerForm = {
         $(document).ready(function () {
 
             var dni = $("#dni");
-    
-
             dni.on("input", function () {
             
 
@@ -50,14 +61,93 @@ const registerForm = {
                 }
             });
         });
+    },
+    formControl: function () {
+
+        $(document).ready(function () {
+
+            var formEmb = $("#formEmbed");
+            var email = $("#formEmbed #email");
+            var username = $("#formEmbed #username");
+            var password = $("#formEmbed #password");
+            var name = $("#formEmbed #name");
+            var lastname = $("#formEmbed #lastname");
+            var pfp = $("#formEmbed #pfp");
+            let fieldName = "";
+            const msgBox = $("#formEmbed #msgFilter");
+            const warningList = $("#formEmbed #warningList");
+            const regexName = /^[a-zA-ZÀ-ÿ\s'-]+$/;
+            $('#formEmbed input').on("focus", function () {
+                fieldName = $(this).attr('name'); // Obtener el nombre del campo enfocado
+                console.log("fieldname: " + fieldName);
+            });
+
+
+            console.log("fieldname" + fieldName);
+            console.log(email.val());
+            function showErrorMessage(selector, message) {
+                msgBox.removeClass("d-none");
+                msgBox.addClass("bg-danger col-12");
+                warningList.removeClass("d-none");
+                $(selector).removeClass("d-none").html(message);
+            }
+            $('#formEmbed input').on("input", function () {
+                const $this = $(this);
+                const fieldValue = $this.val();
+                const fieldName = $this.attr('name');
+                
+                // Limpiar todos los mensajes de advertencia antes de validar
+                warningList.find("li").addClass("d-none");
+                const regexName = /^[a-zA-ZÀ-ÿ\s'-]+$/;
+                switch (fieldName) {
+                    case "email":
+                        if (fieldValue.length < 6) {
+                            showErrorMessage("#warnEmail", "El email debe tener al menos 6 caracteres.");
+                        }
+                        break;
+                    case "username":
+                        const regexUsername = /^(?=.*[A-Za-z])(?!.*[\s!@])(?:\D*\d){0,4}[A-Za-z\d]{6,20}$/;
+                        if (!regexUsername.test(fieldValue)) {
+                            showErrorMessage("#warnUsername", "Nombre de usuario entre 6 y 20 caracteres <br> -Hasta 4 números <br> -Sin caracteres especiales.");
+                        }
+                        break;
+                    case "password":
+                        const passRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[a-zA-Z])(?!.*[!@ ])[a-zA-Z\d]{8,15}$/;
+                        if (!passRegex.test(fieldValue)) {
+                            showErrorMessage("#warnPass", "Contraseña debe contener al menos 1 mayúscula, 1 minúscula <br> -Entre 8 y 15 caracteres <br> -Sin caracteres especiales.");
+                        }
+                        break;
+                    case "name":
+                        
+                        if (!regexName.test(fieldValue)) {
+                            showErrorMessage("#warnName", "Para el nombre únicamente :  <br> -Caracteres alfabéticos  <br> -Espacios  <br> -Apóstrofes y guiones");
+                        }
+                        break;
+                    case "lastname":
+                        
+                        if (!regexName.test(fieldValue)) {
+                            showErrorMessage("#warnLast", "Para el apellido únicamente :  <br> -Caracteres alfabéticos  <br> -Espacios  <br> -Apóstrofes y guiones");
+                        }
+                        break;
+                    case "pfp":
+                        if (fieldValue === "" || fieldValue.trim() === "") {
+                            showErrorMessage("#warnPfp", "Debe cargar una imagen de perfil.");
+                        }
+                        break;
+                    default:
+                        // Manejar otros casos si es necesario
+                        break;
+                }
+            });
+
+        })
     }
 };
 const breedManage = {
     // Función para cargar las razas desde el archivo JSON
     loadBreed: function (typePet) {
+        var baseUrl = $("#baseUrl").data("baseurl");
         // Realizar una solicitud AJAX para cargar el archivo JSON correspondiente
-	console.log("HOLA?");
-		var baseUrl = $("#baseUrl").data("baseurl");
         var url = typePet === 'dog' ? baseUrl+"DAOJson/dogBreeds.json" : baseUrl+"DAOJson/catBreeds.json";
 
         console.log(url);
@@ -67,7 +157,7 @@ const breedManage = {
             cache: false,
             dataType: 'json',
             success: function (data) {
-				console.log(data);
+				// console.log(data);
                 var select = $('#breed');
                 select.empty(); // Limpiar las opciones anteriores
 				
@@ -85,7 +175,7 @@ const breedManage = {
         });
     },
     preloadBreed: function () {
-        // Cargar las razas iniciales (por defecto o según tu lógica)
+        // Cargar las razas iniciales
         this.loadBreed('dog');
 
         // Manejar el cambio en el input de radio
@@ -105,11 +195,11 @@ const FormAjaxModule = {
         //Tratando de agarrar el input typePet y a partir de ahi buscar los animales del owner que correspondan
         $(document).ready(function () {
             $('#TypePet').change(function () {
-                var selectedType = $(this).val(); // Obtén el tipo de mascota seleccionado
+                var selectedType = $(this).val(); //Tipo de mascota seleccionado
 
                 // Realiza una solicitud AJAX al servidor para obtener las mascotas del tipo seleccionado
                 $.ajax({
-                    url: '../Booking/getPetsByOwnAndType', // Reemplaza con la URL de tu servidor  
+                    url: '../Booking/getPetsByOwnAndType',
                     dataType: 'json',
                     type: 'POST',
                     data: {
@@ -201,9 +291,7 @@ const FormAjaxModule = {
 
             var dataTypePet = typePet.dataset.typepet;
             var dataTypeSize = typeSize.dataset.typesize;
-            // console.log(dataTypePet);
-            // console.log(dataTypeSize);
-            // Realiza una solicitud AJAX al servidor para obtener las mascotas del tipo seleccionado
+            // Solicitud AJAX al servidor para obtener las mascotas del tipo seleccionado
             $.ajax({
                 url: baseUrl, // Reemplaza con la URL de tu servidor  
                 dataType: 'json',
@@ -368,40 +456,50 @@ const infoModule = {
 
 
                     // Agrega las nuevas notis al menú desplegable
-                    $.each(response, function (index, notification) {
-                        var timestampFormatted = notification.timestamp;
+                    if(response != null || response != "")
+                    {
+                        $.each(response, function (index, notification) {
+                            var timestampFormatted = notification.timestamp;
+    
+                            // Dividir el timestamp en fecha y hora
+                            var partes = timestampFormatted.split(" ");
+                            var date = partes[0]; // "Y-m-d"
+                            var hour = partes[1].slice(0, 5); // "H:i"
+                            console.log("index");
+                            console.log(index);
+                            console.log("notification");
+                            console.log(notification);
 
-                        // Dividir el timestamp en fecha y hora
-                        var partes = timestampFormatted.split(" ");
-                        var date = partes[0]; // "Y-m-d"
-                        var hour = partes[1].slice(0, 5); // "H:i"
+                            // Formatear el timestamp como "Y-m-d / H:i"
+                            var timestampFormateado = date + " / " + hour;
+                            if(notification.message.indexOf("BOOK") != -1)
+                            {
+                                $('#notificationMenu').append(`<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="${baseUrl}Booking/fullInfoBookView/${notification.codeRelated}" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">${hour}</span><span class="date text-end" style="font-size: 12px;">${date}</span></div><p class="item m-2 border-dark border-4 border-bottom">${notification.messagedf}</p></a></div>`);
+                            }else if(notification.message.indexOf("COU") != -1)
+                            {
+                                $('#notificationMenu').append(`<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="${baseUrl}Coupon/myCouponView/${notification.codeRelated}" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">${hour}</span><span class="date text-end" style="font-size: 12px;">${date}</span></div><p class="item m-2 border-dark border-4 border-bottom">${notification.message}</p></a></div>`);
+                            }else if(notification.message.indexOf("suspendida") != -1){
+                                $('#notificationMenu').append(`<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="${baseUrl}Owner/showMyProfile/${notification.codeRelated}" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">${hour}</span><span class="date text-end" style="font-size: 12px;">${date}</span></div><p class="item m-2 border-dark border-4 border-bottom">${notification.message}</p></a></div>`);
+                            }else if(notification.message.indexOf("reseña") != -1){
+                                $('#notificationMenu').append(`<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="${baseUrl}Keeper/showProfileKeeper/${notification.codeRelated}" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">${hour}</span><span class="date text-end" style="font-size: 12px;">${date}</span></div><p class="item m-2 border-dark border-4 border-bottom">${notification.message}</p></a></div>`);
+                            }
+                            
+    
+                            if (notification.seen == 0) {
+                                numNotis++;
+                            }
 
-                        // Formatear el timestamp como "Y-m-d / H:i"
-                        var timestampFormateado = date + " / " + hour;
-                        if(notification.message.indexOf("My Bookings") != -1)
-                        {
-                            $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + 'Booking/showMyBookings" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
-                        }else if(notification.message.indexOf("myCoupons") != -1)
-                        {
-                            $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + 'Coupon/showMyCoupons" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
-                        }else{
-                            $('#notificationMenu').append('<div class="container"><a class="p-2 border-2 border-dark rounded dropdown-item" href="' + baseUrl + '#" ?><div class="d-flex justify-content-between border-bottom"><span class="text-start" style="font-size: 8px;">' + hour + '</span><span class="date text-end" style="font-size: 12px;">' + date + '</span></div><p class="item m-2 border-dark border-4 border-bottom">' + notification.message + '</p></a></div>');
-                        }
-                        
-
-                        if (notification.seen == 0) {
-                            numNotis++;
-                        }
-                    });
-                    // console.log(numNotis);
-                    $('#notificationCount').text(numNotis);
+                            $('#notificationCount').text(numNotis);
+                        });
+                    }else{
+                        return;
+                    }
                 },
                 error: function (xhr, status, error) {
-                    console.error('Error al obtener las notificaciones:', error);
+                    console.error('Error al obtener las notificaciones:');
                 }
             });
         });
-        // Llama a la función para obtener las notificaciones cuando se carga la página
     },
 
     resetNotis: function(){
@@ -414,7 +512,7 @@ const infoModule = {
                 // Reinicia el contador de notificaciones a 0
                 $('#notificationCount').text('0');
         
-                // Realiza una solicitud AJAX al controlador para restablecer las notificaciones del usuario
+                // Solicitud AJAX al controlador para restablecer las notificaciones del usuario
                 $.ajax({
                     url: urlResetNotis,
                     method: 'POST',
@@ -443,16 +541,12 @@ const chatModule = {
                     if(response && response.length > 0)
                         {
                     // Recorrer los datos recibidos y agregar enlaces al contenedor
-                    // console.log("RESPONSE :" + response);
                     var userLogged = response[0].logged;
-                    // console.log("userLogged :" + userLogged);
+
 
                     var unreadMessages = response[0].unread_messages;
-                    // console.log("unreadmsges :" + unreadMessages);
                     $.each(response, function (index, user) {
-                        
 
-                        
                         // Crear el elemento de imagen del avatar
                         if (userLogged === 'keeper') {
 
@@ -508,10 +602,6 @@ const chatModule = {
                                 text: user.lastMsgText // Placeholder para el último mensaje
                             });
                             userInfo.append(username, message);
-
-                            
-
-
                         }
 
 
@@ -566,7 +656,7 @@ const chatModule = {
         $(document).ready(function () {
 
             // Manejar el clic en una conver
-            //No estoy seguro que off,on esten funcionando como deberia!
+            
             $(document).off('click', '.availTalkOption').on('click', '.availTalkOption', function (event) {
 
                 event.preventDefault();
@@ -593,7 +683,7 @@ const chatModule = {
                         $("#sendMsg").data("convercode", chatCode);
 
                         var responseObj = JSON.parse(response);
-
+                        console.log(response);
                         var currentUserCode = responseObj.currentUserCode;
 
 
@@ -606,8 +696,8 @@ const chatModule = {
                                     var msgeInfo = responseObj[key];
                                     // Determinar la clase CSS para el contenedor del mensaje
                                     var messageAlignmentClass = msgeInfo.codeSender === currentUserCode ? 'justify-content-end' : 'justify-content-start';
-                                    var messageDirectionClass = msgeInfo.codeSender === currentUserCode ? 'bg-body-tertiary text-start' : 'bg-body-secondary text-start';
-
+                                    var messageDirectionClass = msgeInfo.codeSender === currentUserCode ? 'bg-body-light text-start' : 'bg-body-secondary text-start';
+                                    
                                     // Crear el HTML para mostrar el mensaje en el chat
                                     var messageHtml = '<li class="d-flex mb-4 ' + messageAlignmentClass + '">' +
                                         '<div class="card ' + messageDirectionClass + '">' +
@@ -625,7 +715,7 @@ const chatModule = {
                             }
                         }
 
-                        // Obtén el elemento scrollable (por ejemplo, un div con un contenido largo)
+                        // Focus al elemento a scrollear
                         var scrollableElement = document.getElementById('chatDef');
 
                         // Establece la propiedad scrollTop al máximo para que se vea desde el final
@@ -648,13 +738,14 @@ const chatModule = {
         });
     },
     updateRecipientChatContainer: function () { //Es algo demandante calculo en terminos de rendimiento pero fue lo unico que se me ocurrio sin usar algo 'externo'
-        // Actualizar el chat cada vez que se toque el textarea
-        $('#msg').click(function () {
+        // Actualizar el chat cada vez que se toque el textarea -> modificado a actualizacion automatica cada 500ms
+        // $('#msg').click
+        setInterval((function () {
             var chatCode = $("#sendMsg").data("convercode");
             var dataArray = {
                 "converCode": chatCode
             };
-    
+     
             $.ajax({
                 url: '../Message/getMessages',
                 method: 'POST',
@@ -666,13 +757,13 @@ const chatModule = {
                     // Analizar la respuesta JSON
                     var responseObj = JSON.parse(response);
                     var currentUserCode = responseObj.currentUserCode;
-    
+                    
                     // Iterar sobre los mensajes y generar el HTML correspondiente
                     for (var key in responseObj) {
                         if (responseObj.hasOwnProperty(key) && key !== 'currentUserCode') {
                             var msgeInfo = responseObj[key];
                             var messageAlignmentClass = msgeInfo.codeSender === currentUserCode ? 'justify-content-end' : 'justify-content-start';
-                            var messageDirectionClass = msgeInfo.codeSender === currentUserCode ? 'bg-body-tertiary text-start' : 'bg-body-secondary text-start';
+                            var messageDirectionClass = msgeInfo.codeSender === currentUserCode ? 'bg-body-light text-start' : 'bg-body-secondary text-start';
     
                             var messageHtml = '<li class="d-flex mb-4 ' + messageAlignmentClass + '">' +
                                 '<div class="card ' + messageDirectionClass + '">' +
@@ -698,18 +789,18 @@ const chatModule = {
                     //     }
                     // });
     
-                    // Obtener el elemento scrollable y hacer scroll hacia abajo
-                    var scrollableElement = document.getElementById('chatDef');
-                    scrollableElement.scrollTop = scrollableElement.scrollHeight;
+                    // Obtener el elemento scrollable y hacer scroll hacia abajo (utilizado solo al enviar no al recibir)
+                    // var scrollableElement = document.getElementById('chatDef');
+                    // scrollableElement.scrollTop = scrollableElement.scrollHeight;
     
                     // Eliminar la notificación de mensajes no leídos
                     $('.noti[data-convercode="' + chatCode + '"]').remove();
                 },
                 error: function (error) {
-                    console.error('Error al actualizar el chat del destinatario:', error);
+                    console.error('Error al actualizar el chat', error);
                 }
             });
-        });
+        }),1000000);
     },    
     sendMsg: function () {
 
@@ -729,11 +820,6 @@ const chatModule = {
                 "converCode": chatCode
             };
 
-            // console.log(dataArray.message);
-            // console.log(dataArray.chatCode);
-
-
-
             $.ajax({
                 url: '../Message/sendMessage',
                 method: 'POST',
@@ -745,7 +831,7 @@ const chatModule = {
 
                     // Analiza la respuesta JSON
                     var responseMsge = JSON.parse(response);
-
+                    
                     // Actualiza dinámicamente el recuadro de texto de la lista de columnas de contactos
                     $('.last-message').each(function () {
                         var conversationCode = $(this).closest('.availTalkOption').data('convercode');
@@ -835,7 +921,6 @@ const KeepersInteract = {
             var initDate = row.find("td:first").text().trim();
             var endDate = row.find("td:nth-child(2)").text().trim();
     
-            // Reemplaza el contenido de las celdas con inputs para editar
             row.find("td:first").html('<input type="date" class="form-control initial-date-input" value="' + initDate + '">');
             //Selector for 2nd td in tr
             row.find("td:nth-child(2)").html('<input type="date" class="form-control end-date-input" value="' + endDate + '">');
@@ -869,9 +954,7 @@ const KeepersInteract = {
                 },
                 dataType: 'json',
                 success: function (response) {
-                    // console.log("Actualización exitosa");
-                    // console.log("response: " + response);
-                    
+
                     // Recarga la página automáticamente para que se muestre el cambio
                     
                     if(response != 1){
@@ -899,25 +982,23 @@ const KeepersInteract = {
         $(document).ready(function () {
             $('.btn-availability').click(function (e) {
                 e.preventDefault();
-                //Como no paraba de arrojar errores segun el controlador que llamaba a la vista,tuve que forzar el enrutamiento para tener acceso al Keeper/getAvailability independientemente de donde este parado (la url)
+                //Forzado de enrutamiento segun ruta actual de donde este el usuario,para conectar correctamente con el controlador y funcion referenciada
                 var curUrl = $('#cururl').data('cururl');
                 var btn = $(this);
                 var card = btn.closest('.card');
                 var additionalInfo = card.find('.additional-info');
                 var codeKeeper = btn.data('codekeeper'); // Obtener el código del guardián desde el atributo data
-                // console.log("baseurl"+baseUrl);
-                // console.log("CODEKEP"+ codeKeeper);
-                //     // Definir la URL base
+
+                //Definir la URL base
                 var baseUrl = curUrl + "Keeper/getAvailability";
 
-                // console.log("URL" + baseUrl);
                 $.ajax({
                     
                     url: baseUrl, // Ruta controller
                     method: 'POST',
                     data: {
                         "keeperCode" : codeKeeper
-                    }, // Pasar el código del guardián como parámetro
+                    }, //Parametro que necesita la funcion en el controlador
                     dataType: 'JSON',
                     
                     success: function (response) {
@@ -925,15 +1006,15 @@ const KeepersInteract = {
                         var html = '<div class="container my-2 text-white ">';
                         html += '<ul class="list-unstyled text-center">';
                         html += '<div class="mx-auto">';
-                        html += '<h5 class="max-width-100 text-truncate">' + "AVAILABILITY :" + '</h5>';
+                        html += '<h5 class="max-width-100 text-truncate">' + "Disponibilidad :" + '</h5>';
                         html += '<li class="list-group-item list-group-item-info rounded  ">';
-                        html += '<p><strong>START :</strong> ' + response.initDate + '</p>';
-                        html += '<p><strong>END :</strong> ' + response.endDate + '</p>';
+                        html += '<p><strong>Desde :</strong> ' + response.initDate + '</p>';
+                        html += '<p><strong>Hasta :</strong> ' + response.endDate + '</p>';
                         html += '</div>';
                         html += '</ul>';
                         html += '</div>';
 
-                        //console.log(html);
+
                         additionalInfo.html(html);
                         additionalInfo.css('visibility', 'visible');
                         // Mostrar la tarjeta adicional
@@ -967,7 +1048,7 @@ const KeepersInteract = {
             function loadMoreData() {
                 loading = true;
                 $.ajax({
-                    url: '../Owner/showMoreData', // Cambia 'load-more-data.php' por el archivo que maneja la carga de más datos
+                    url: '../Owner/showMoreData', 
                     method: 'GET',
                     data: {
                         startIndex: startIndex,
@@ -1008,6 +1089,36 @@ const KeepersInteract = {
 };
 
 const cardFuncs = {
+
+    sendingEmail: function(){
+        $('#payForm').on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            $('#submitButton').prop('disabled', true);
+            $('#sending').prop('hidden', false);
+            $.ajax({
+              url: '../../Coupon/payCoupon',
+              type: 'POST',
+              data: form.serialize(),
+              dataType : 'json',
+              success: function(response) {
+                if(response === 1)
+                {
+                    window.location.href = '../../Coupon/showMyCoupons';
+                }else if(response === -1)
+                {
+                    window.location.href = '../../Coupon/showMyCoupons';
+                }else{
+                   window.location.href = '../../Home/showLoginView';
+                }
+              },
+              error: function() {
+                // Manejo de errores
+                $('#submitButton').prop('disabled', false);
+              }
+            });
+          });
+    },
 
     onlyNumberInput: function () {
         $(document).ready(function () {
@@ -1119,7 +1230,7 @@ const moduleReview = {
                     data: {  keeperCode : keeperCode,comment: comment, score: score , },
                     success: function(response) {
 
-                        // console.log("REPSONSE" +response);
+                        
                         // Cerrar la ventana emergente después de enviar la revisión
                         $("#reviewPopup").css("display", "none");
                         location.reload();

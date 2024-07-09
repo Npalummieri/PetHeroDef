@@ -48,11 +48,11 @@ class OwnerService
 
                 if ($updatepfp == 1) {
                     move_uploaded_file($userInfo["pfp"], $userInfo["pathToSave"]);
-                } else {
-                    $errorMsge = "Something's wrong with the pfp,already register";
-                }
+				}// } else {
+                //     $errorMsge = "Imagen ";
+                // }
             } else {
-                $errorMsge = "Failed register error in DB.Contact support";
+                $errorMsge = "No es posible cargar esta imagen.";
             }
         } catch (Exception $ex) {
             $errorMsge .=  $ex->getMessage();
@@ -111,9 +111,9 @@ class OwnerService
                 $mime = mime_content_type($pfpInfo["pfp"]["tmp_name"]);
 
                 if (!in_array($mime, $admittedTypes)) {
-                    $error = "Error with your photo,check the selected file";
+                    $error = "Error en el tipo de imagen. JPG,PNG,JPEG,BMP,GIF permitidos.";
                 } else if ($imgSize > 3 * 1024 * 1024) {
-                    $error = "Not supported size";
+                    $error = "Tamaño no soportado. 5MB max.";
                 } else {
 
                     $name_pfp = $pfpInfo["pfp"]["name"];
@@ -138,7 +138,7 @@ class OwnerService
             if (isset($bio) && !empty($bio) && $bio != null) {
                 if (preg_match('/[^a-z0-9!.,?=$]/i', $bio)) {
                     // Si la expresión regular encuentra algún caracter que no sea letra, dígito o signo de puntuación básico, la función devuelve false
-                    $error = "error at bio";
+                    $error = "Unicamente valores alfanumericos. Caracteres especiales no permitidos";
                 } else {
                     $error = $this->ownerDAO->updateBio($ownerLogged, $bio);
                 }
@@ -164,15 +164,12 @@ class OwnerService
 	{
 		try{
 			if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
-				$resp = "This type not allowed";
+				$resp = "Email invalido.";
 			}else{
 				$resp = $this->ownerDAO->updateEmail($ownerCode,$email);
 			}
 			
-			if($resp != 1)
-			{
-				$resp = "Not modified email";
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -189,11 +186,7 @@ class OwnerService
                     $username = trim($username);
 					$resp = $this->ownerDAO->updateUsername($ownerCode,$username);
 			}else{
-				$resp = "Username doesn't match the requirements!!";
-			}
-			if($resp != 1)
-			{
-				$resp = "Not modified username"; 
+				$resp = "Nombre de usuario no respeta los requisitos.";
 			}
 		}catch(Exception $ex)
 		{
@@ -207,15 +200,9 @@ public function srv_editStatus($ownerCode, $status)
     try {
 
         if ($status != Status::ACTIVE && $status != Status::INACTIVE && $status != Status::SUSPENDED) {
-            $resp = "Not permitted status";
+            $resp = "Estado invalido. Verifique";
         } else {
-            
             $resp = $this->ownerDAO->updateStatus($ownerCode, $status);
-            
-            
-            if ($resp !== 1) {
-                $resp = "Not modified status";
-            } 
         }
     } catch (Exception $ex) {
 
@@ -233,12 +220,9 @@ public function srv_editStatus($ownerCode, $status)
             if ($name_alpha_spaces) {
                 $resp = $this->ownerDAO->updateName($ownerCode,$name);
 			}else{
-				$resp = "name doesn't match the requirements!!";
+				$resp = "Nombre no cumple los requisitos.";
 			}
-			if($resp != 1)
-			{
-				$resp = "Not modified name"; 
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -253,12 +237,9 @@ public function srv_editStatus($ownerCode, $status)
             if ($name_alpha_spaces) {
                 $resp = $this->ownerDAO->updatelastname($ownerCode,$lastname);
 			}else{
-				$resp = "Lastname doesn't match the requirements!!";
+				$resp = "Apellido no cumple los requisitos.";
 			}
-			if($resp != 1)
-			{
-				$resp = "Not modified lastname"; 
-			}
+			
 		}catch(Exception $ex)
 		{
 			$resp = $ex->getMessage();
@@ -274,15 +255,11 @@ public function srv_editStatus($ownerCode, $status)
 				if(Dates::currentCheck($suspensionDate) == 1)
 				{
 					$result = $this->ownerDAO->updateSuspDate($ownerCode,$suspensionDate);
-					if($result != 1)
-					{
-						$resp = "Not modified suspension Date";
-					}
 				}else{
-					$resp = "Date older than current";
+					$resp = "Fecha ya pasada.";
 				}
 			}else{
-				$resp = "Not valid date";
+				$resp = "Fecha invalida. Revise";
 			}
 			
 		}catch(Exception $ex)
@@ -301,7 +278,7 @@ public function srv_editStatus($ownerCode, $status)
 			{
 				$ownList = $this->ownerDAO->getFilteredOwnsAdm($code);
 			}else {
-				$ownList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				$ownList = "No hubo coincidencias. Recuerde usar BOOK,OWN,PET o KEP";
 				}
         }catch(Exception $ex)
 		{
@@ -315,18 +292,14 @@ public function srv_editStatus($ownerCode, $status)
 		try{
 			if(strpos($ownerCode,"OWN") !== false)
 			{
-				$resp =$this->ownerDAO->deleteOwner($ownerCode);
-				if($resp != 1)
-				{
-					$resp = "Not possible to delete the owner,check that doesn't have any booking/coupon in course";
-				}
+				$resp =$this->ownerDAO->delete($ownerCode);
 			}else{
-				$resp = "Not valid ownerCode";
+				$resp = "Codigo invalido.";
 			}
 			
 		}catch(Exception $ex)
 		{
-			$resp = "The owner is still with a booking/coupon in course.Cannot delete ";
+			$resp = "No es posible borrar el dueño actualmente.";
 		}
 		return $resp;
 	}

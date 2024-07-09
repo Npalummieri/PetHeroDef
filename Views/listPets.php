@@ -5,7 +5,7 @@ require_once("header.php");
 <?php 
 include("msgeDisplay.php");
 ?>
-<a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="text-center text-white p-2 rounded bg-dark"><i class="fas fa-arrow-left "></i> DASHBOARD</a>
+    <a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="btn text-center align-items-center text-white  rounded bg-dark"><i class="fas fa-arrow-left "></i><span> DASHBOARD</span> </a>
 <div class="container">
 <h2 class="text-center text-white bg-dark m-2 p-2 rounded">PET LIST</h2>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
@@ -26,17 +26,17 @@ include("msgeDisplay.php");
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Pet Code</th>
-                    <th>Name</th>
-                    <th>Type of Pet</th>
-                    <th>Breed</th>
-                    <th>Size</th>
-                    <th>Age</th>
-                    <th>PFP</th>
-                    <th>Vaccination Plan</th>
-                    <th>Owner Code</th>
+                    <th>Cod. Mascota</th>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Raza</th>
+                    <th>Tamaño</th>
+                    <th>Edad</th>
+                    <th>FP</th>
+                    <th>Plan de vac.</th>
+                    <th>Cod. Dueño</th>
                     <th>Video</th>
-                    <th>Action</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody style="vertical-align: middle;">
@@ -54,7 +54,7 @@ include("msgeDisplay.php");
 					<?php 
     				$pfpPath = ROOT . "Images/" . $pet->getPfp();
 					if (file_exists($pfpPath)) {
-						echo '<a href="' .  FRONT_ROOT."Images/".$pet->getPfp() . '" target="_blank">PFP</a>';
+						echo '<a href="' .  FRONT_ROOT."Images/".$pet->getPfp() . '" target="_blank">FP</a>';
 					} else {
 							echo 'Image Not Found';
 							} ?></td>
@@ -63,7 +63,7 @@ include("msgeDisplay.php");
 							<?php 
                     $vaccPlanPath = ROOT . "Images/" . $pet->getVaccPlan();
 					if (file_exists($vaccPlanPath)) {
-						echo '<a href="' . FRONT_ROOT."Images/".$pet->getVaccPlan() . '" target="_blank">Vaccplan</a>';
+						echo '<a href="' . FRONT_ROOT."Images/".$pet->getVaccPlan() . '" target="_blank">Plan de vac.</a>';
 					} else {
 							echo 'Image Not Found';
 							} ?></td>
@@ -83,8 +83,8 @@ include("msgeDisplay.php");
 					
                     <td style="vertical-align: middle;">
 					<div class="d-flex justify-content-between align-items-center">
-							<a class="btn-dis btn btn-primary m-2" data-msg = "Edit this record?" href="<?php echo FRONT_ROOT."Pet/showAdminEditPet/".$pet->getPetCode(); ?>">Edit</a> 
-							<a class="btn-dis btn btn-danger m-2" data-msg = "Record will be removed forever. Sure?" href="<?php echo FRONT_ROOT."Pet/deletePetAdm/".$pet->getPetCode(); ?>">Delete</a>
+							<a class="btn-dis btn btn-primary m-2" data-msg = "¿Editar registro?" href="<?php echo FRONT_ROOT."Pet/showAdminEditPet/".$pet->getPetCode(); ?>">Editar</a> 
+							<a class="btn-dis btn btn-danger m-2" data-msg = "Registro será borrado permanentemente ¿Confirmar?" href="<?php echo FRONT_ROOT."Pet/deletePetAdm/".$pet->getPetCode(); ?>">Borrar</a>
 							</div>
 					</td>
 					
@@ -92,6 +92,10 @@ include("msgeDisplay.php");
                 <?php } ?>
             </tbody>
         </table>
+        <div class="d-flex justify-content-end text-white" id="paginationDiv">
+            <!-- <p>Visualizando <?php echo $actualPage ?> / <?php echo $page ?></p> -->
+            <p>Registros totales : <?php echo $total ?></p>
+        </div>
     </div>
 </div>
 <script src="<?php echo JS_PATH."formScripts.js"; ?>"></script>

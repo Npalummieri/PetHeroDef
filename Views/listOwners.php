@@ -6,9 +6,9 @@ require_once("header.php");
 <?php 
 include("msgeDisplay.php");
 ?>
-<a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="text-center text-white p-2 rounded bg-dark"><i class="fas fa-arrow-left "></i> DASHBOARD</a>
+    <a href="<?php echo FRONT_ROOT."Home/showDashboard" ?>" class="btn text-center align-items-center text-white  rounded bg-dark"><i class="fas fa-arrow-left "></i><span> MENÚ</span> </a>
 	<div class="container">
-	<h2 class="text-center text-white bg-dark m-2 p-2 rounded">OWNER LIST</h2>
+	<h2 class="text-center text-white bg-dark m-2 p-2 rounded">Lista de dueños</h2>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,8 +16,8 @@ include("msgeDisplay.php");
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <form class="d-flex ms-auto" action="<?php echo FRONT_ROOT."Owner/listOwnersFiltered" ?>" method=GET>
-                    <input class="form-control me-2"  type="text" name="code" placeholder="Insert code, dni or email" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
+                    <input class="form-control me-2"  type="text" name="code" placeholder="Inserte codigo, dni o email" aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
                 </form>
             </div>
         </div>
@@ -27,17 +27,17 @@ include("msgeDisplay.php");
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Owner Code</th>
+                    <th>Cod. Dueño</th>
                     <th>Email</th>
-                    <th>Username</th>
-                    <th>Status</th>
-                    <th>Name</th>
-                    <th>Lastname</th>
+                    <th>Usuario</th>
+                    <th>Estado</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
                     <th>DNI</th>
-                    <th>PFP</th>
+                    <th>FP</th>
                     <th>Bio</th>
-                    <th>Suspension Date</th>
-					<th>Action</th>
+                    <th>Suspension</th>
+					<th>Acciones</th>
                 </tr>
             </thead>
             <tbody style="vertical-align: middle;">
@@ -57,7 +57,7 @@ include("msgeDisplay.php");
 					
 					if (file_exists($pfpPath) && $pfpPath != ROOT) 
 					{
-						echo '<a href="'. FRONT_ROOT."Images/".$owner->getPfp() . '" target="_blank">PFP</a>';
+						echo '<a href="'. FRONT_ROOT."Images/".$owner->getPfp() . '" target="_blank">FP</a>';
 					} else 
 					{
 						echo 'PFP Not Found';
@@ -65,8 +65,8 @@ include("msgeDisplay.php");
                     <td class="truncate-text"><?php  echo $owner->getBio(); ?></td>
                     <td><?php echo $owner->getSuspensionDate(); ?></td>
 					<td style="vertical-align: middle;" class="d-flex justify-content-around align-items-center">
-							<a class="btn-dis btn btn-primary m-2" data-msg = "Edit this record?" href="<?php echo FRONT_ROOT."Owner/showEditOwner/".$owner->getOwnerCode(); ?>">Edit</a> 
-							<a class="btn-dis btn btn-danger m-2" data-msg = "Owner will be removed forever. Sure? Also all the pets related will be removed!" href="<?php echo FRONT_ROOT."Owner/deleteOwner/".$owner->getOwnerCode(); ?>">Delete</a>
+							<a class="btn-dis btn btn-primary m-2" data-msg = "¿Editar registro?" href="<?php echo FRONT_ROOT."Owner/showEditOwner/".$owner->getOwnerCode(); ?>">Editar</a> 
+							<a class="btn-dis btn btn-danger m-2" data-msg = "El dueño será borrado permanentemente junto con sus mascotas ¿Confirmar?" href="<?php echo FRONT_ROOT."Owner/deleteOwner/".$owner->getOwnerCode(); ?>">Eliminar</a>
 							
 					</td>
                 </tr>

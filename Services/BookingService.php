@@ -46,67 +46,86 @@ class BookingService
 
     public function srv_validateBooking($ownerCode, $initDate, $endDate, $petCode, $keeperCode, $typePet, $typeSize, $visitPerDay)
     {
-        $resp = null;
         try {
-            if($this->ownerDAO->searchByCode($ownerCode)->getStatus() != "suspended")
+
+            $keeper = $this->keeperDAO->searchByCode($keeperCode);
+
+            $resp = null;
+
+            if ($this->ownerDAO->searchByCode($ownerCode)->getStatus() == "suspended") //Si el usuario esta suspendido
             {
-               
-            if ($this->keeperDAO->revalidateKeeperPet($keeperCode, $petCode) > 0  && $this->bookingDAO->checkDoubleBooking($ownerCode, $keeperCode, $petCode, $initDate, $endDate) == 0) {
-                
+                $resp = "Tu cuenta esta suspendida";
+            }
+
+            if ($this->keeperDAO->revalidateKeeperPet($keeperCode, $petCode) <= 0) {
+                $resp = "Fechas no validas";
+            }
+
+            if ($this->bookingDAO->checkDoubleBooking($ownerCode, $keeperCode, $petCode, $initDate, $endDate) != 0) {
+                $resp = "Problema de reserva duplicada. Imposible registrar";
+            }
+
+            if (Dates::validateAndCompareDates($initDate, $endDate) <  0) {
+                $resp = "Fechas no validas. Revisar que la fecha inicial no supere la final";
+            }
+
+            if ($keeper->getVisitPerDay() < $visitPerDay) {
+                $resp = "Las visitas seleccionadas no corresponden con las del cuidador";
+            }
+
+            if (Dates::currentCheck($initDate) == null || Dates::currentCheck($endDate) == null) {
+                $resp = "Fechas no validas";
+            }
+
+            //Ver si la lógica esta bien
+            if ($initDate < $keeper->getInitDate() || $endDate > $keeper->getEndDate()) {
+                $resp = "Fechas especificadas no corresponden con las fechas del cuidador.";
+            }
+
+            $totalDays = Dates::calculateDays($initDate, $endDate);
+            $totalPriceCalc = null;
+            if ($totalDays != null) {
+                $totalPriceCalc = $this->srv_calculateBookingPrice($keeper->getPrice(), $totalDays, $visitPerDay);
+            }else{
+                $resp = "Error con los fechas. Intervalo invalido.";
+            }
+            
+            if(ctype_digit($visitPerDay))
+            {
+                if($visitPerDay != "1" && $visitPerDay != "2")
+                {
+                    $resp = "Visitas por dia no validas";
+                }
+            }
+            
+
+            if ($resp == null) {
                 $booking = new Booking();
 
                 $booking->setBookCode($this->generateCode());
                 $booking->setOwnerCode($ownerCode);
                 $booking->setKeeperCode($keeperCode);
                 $booking->setPetCode($petCode);
-
-                $keeper = $this->keeperDAO->searchByKeeperCode($keeperCode);
-
-
-                if (Dates::validateAndCompareDates($initDate, $endDate) >= 0) {
-
-                    if (Dates::currentCheck($initDate) && Dates::currentCheck($endDate)) {
-                        $booking->setInitDate($initDate);
-                        $booking->setEndDate($endDate);
-                        $totalDays = Dates::calculateDays($initDate, $endDate);
-                        if ($totalDays != null) {
-                            $booking->setTotalDays($totalDays);
-                        }
-                    }
-                } else {
-                    $resp = "Not valid dates";
+                $booking->setInitDate($initDate);
+                $booking->setEndDate($endDate);
+                $booking->setTotalDays($totalDays);
+                $booking->setTotalPrice($totalPriceCalc);
+                $booking->setVisitPerDay($visitPerDay);
+                //Revisar dif checkOverBooking y doubleBooking no me acuerdo
+                if ($this->bookingDAO->checkOverBooking($booking) != 1) {
+                    $resp = "Conflicto de fechas y mascota selecccionada,verifique que no tenga otra reserva.";
+                }else{
+                    $resp = $this->bookingDAO->Add($booking);
                 }
-
-                if ($keeper->getVisitPerDay() != $visitPerDay) {
-                    $resp = "Visit per day has no coincidence";
-                } else {
-
-                    $booking->setVisitPerDay($visitPerDay);
-                    $booking->setTotalPrice($this->srv_calculateBookingPrice($keeper->getPrice(), $totalDays, $visitPerDay));
-					
-                    if ($this->bookingDAO->checkOverBooking($booking) == 1) {
-                        if ($initDate >= $keeper->getInitDate() && $endDate <= $keeper->getEndDate()) {
-                            $resp = $this->bookingDAO->Add($booking);
-                            
-                        } else {
-                            $resp = "Your dates doesn't match with the ones specified by the Keeper!";
-                        }
-                    }else{
-                        $resp = "Overbooking problem!";
-                    }
-                }
-            } else {
-                $resp = "Error with the dates and the pet selected! Check that you already doesn't have another booking!";
+                
             }
-           
-        }else{
-            $resp = "Your account is suspended!";
-        }
         } catch (Exception $ex) {
             $resp = $ex->getMessage();
         }
+
         return $resp;
     }
+    
 
 
     private function srv_calculateBookingPrice($price, $totalDays, $visitPerDay)
@@ -139,7 +158,7 @@ class BookingService
             if (Dates::validateAndCompareDates($initDate, $endDate) >= 0) {
                 $bookings = $this->bookingDAO->getMyBookings($initDate, $endDate, $status, $loggedCode);
             }else{
-                throw new Exception("Not valid dates,check if initDate is bigger than the endDate !");
+                throw new Exception("Fechas no validas.");
             }
         } catch (Exception $ex) {
             $bookings = $ex->getMessage();
@@ -155,7 +174,7 @@ class BookingService
 
     public function srv_getBookingByCode($codeBook)
     {
-        return $this->bookingDAO->GetByCode($codeBook);
+        return $this->bookingDAO->searchByCode($codeBook);
     }
 
     //booking had been confirmed -> generate coupon
@@ -163,13 +182,13 @@ class BookingService
     {
         try {
 
-            $booking = $this->bookingDAO->GetByCode($codeBook);
+            $booking = $this->bookingDAO->searchByCode($codeBook);
             if ($booking != null) {
                 $conf = $this->bookingDAO->checkOverBookingConfirm($booking);
                 $confTwo = $this->bookingDAO->checkFirstBreed($booking);
 
                 if ($conf < 1 && $confTwo == "available" && Dates::currentCheck($booking->getInitDate()) != null && Dates::currentCheck($booking->getEndDate()) != null) {
-                    $resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CONFIRMED);
+                    $resp = $this->bookingDAO->updateStatus($booking->getBookCode(), Status::CONFIRMED);
                     if ($resp == 1) {
                         $notifyTo = $this->bookingDAO->actionPostConfirm($booking->getBookCode(),$booking->getPetCode(),$booking->getInitDate(),$booking->getEndDate());
                         if($notifyTo != null)
@@ -181,23 +200,27 @@ class BookingService
                             }
                         }
                         $result = $this->couponService->srv_GenerateCouponToOwner($codeBook);
-
-                        $this->notificationDAO->generateNoti("Coupon generated,go to 'myCoupons' to check it!",$booking->getOwnerCode());
+                        if($result == 1)
+                        {
+                            $coupCodeGenerated = $this->couponService->srv_getCoupCodeByBook($codeBook);
+                            $this->notificationDAO->generateNoti("Reserva confirmada. Cupon generado {$coupCodeGenerated} ve a 'Mis cupones' para verlo.",$booking->getOwnerCode(),$coupCodeGenerated);
+                        }
+                        
                     }
                 } else {
                     if ($conf >= 1) {
-                        $result = "Overbooking problem!";
+                        $result = "Problema de reservas cruzadas. No es posible registrar";
                     } else if ($confTwo != "available") {
-                        $result = "Check your first confirmed reservation of the day.You are restricted to that breed! BREED : {$confTwo}";
+                        $result = "Revise la raza de la primera reserva confirmada! Raza : {$confTwo}";
                     }else if(Dates::currentCheck($booking->getInitDate()) == null || Dates::currentCheck($booking->getEndDate()) == null)
                     {
-                        $this->bookingDAO->modifyBookingStatus($booking->getBookCode(), Status::CANCELLED);
-                        $result = "The booking expired,too late for confirmation";
+                        $this->bookingDAO->updateStatus($booking->getBookCode(), Status::CANCELLED);
+                        $result = "Reserva expirada,tarde para confirmar.";
                     }
                 }
             }
         } catch (Exception $ex) {
-            $result = "Major problem " . $ex->getMessage();
+            $result = $ex->getMessage();
         } 
         return $result;
     }
@@ -205,9 +228,9 @@ class BookingService
     public function srv_getFullBooking($userCode, $bookCode)
     {
         try {
-            $fullBook = $this->bookingDAO->getBookingByCodeLogged($userCode, $bookCode);
+            $fullBook = $this->bookingDAO->getBookingsByCodeLogged($userCode, $bookCode);
         } catch (Exception $ex) {
-            $fullBook = "Cannot get this booking " . $ex->getMessage();
+            $fullBook = " No se puede acceder. Intente más tarde. ";
         }
         return $fullBook;
     }
@@ -216,20 +239,21 @@ class BookingService
     public function srv_cancelBooking($bookCode)
     {
         try {
-            $bookingSearched = $this->bookingDAO->GetByCode($bookCode);
+            $bookingSearched = $this->bookingDAO->searchByCode($bookCode);
             $datesBooking = $this->bookingDAO->getDatesByCode($bookCode);
             if (Dates::currentCheck($datesBooking["initDate"])) {
                 $result = $this->bookingDAO->cancelBooking($bookCode);
                 if($result == 1 && $bookingSearched != null)
                 {
-                    $this->notificationDAO->generateNoti("The $bookCode has been cancelled.Check 'myBookings' for detailed info",$bookingSearched->getOwnerCode());
-                    $this->notificationDAO->generateNoti("The $bookCode has been cancelled.Check 'myBookings' for detailed info",$bookingSearched->getKeeperCode());
+                    $this->notificationDAO->generateNoti("La reserva {$bookCode} ha sido cancelada.Revise 'Mis reservas' para detalles",$bookingSearched->getOwnerCode(),$bookCode);
+                    $this->notificationDAO->generateNoti("La reserva {$bookCode} ha sido cancelada.Revise 'Mis reservas' para detalles",$bookingSearched->getKeeperCode(),$bookCode);
                 }
             } else {
-                $result = "Not possible cancel.Too late (minimum 24hs)";
+                $result = "Imposible cancelar con este tiempo de antelación (minimum 24hs)";
             }
         } catch (Exception $ex) {
-            $result .= "Not possible to cancel this booking " . $ex->getMessage();
+            $result .= "No es posible cancelar esta reserva.";
+            $ex->getMessage();
         }
         return $result;
     }
@@ -256,7 +280,8 @@ class BookingService
                 $intervalDates[] = $date->format('Y-m-d'); // Format YYYY-MM-DD
             }
         } catch (Exception $ex) {
-            $intervalDates = "Problem at getting the interval " . $ex->getMessage();
+            $intervalDates = "Problema de fechas .Intente nuevamente luego de revisar";
+            $ex->getMessage();
         }
 
         return $intervalDates;
@@ -304,21 +329,21 @@ class BookingService
 						{
 							if($resultFirstBreed == 1)
 							{
-								$resp = $this->bookingDAO->modifyBookingStatus($bookCode,$status);
+								$resp = $this->bookingDAO->updateStatus($bookCode,$status);
 								//agregar generatecupon?
 							}else{
-							$resp = "The pet doesn't match the breed of the first record!";
+							$resp = "Raza de la mascota no es igual a la primer reserva confirmada del dia";
 							}
 						
 						}else{
-						$resp = "Not possible to update status to confirm.Overbooking problem";
+						$resp = "No se ha podido actualizar el estado. Problema de solapamiento de reservas";
 						}
 					}else{
-						$resp = "Not possible to update status to confirm.Invalid dates";
+						$resp = "No es posible actualizar el estado. Problemas de fechas";
 					}
 					
 				}else{
-				$resp = $this->bookingDAO->modifyBookingStatus($bookCode,$status);
+				$resp = $this->bookingDAO->updateStatus($bookCode,$status);
 				}
 			}
 		}catch(Exception $ex)
@@ -339,7 +364,7 @@ class BookingService
 			{
 				$bookList = $this->bookingDAO->getFilteredBooksAdm($code);
 			}else {
-				$bookList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				$bookList = "Resultados no encontrados. Recuerde usar BOOK,OWN,PET o KEP";
 				}
         }catch(Exception $ex)
 		{
@@ -351,7 +376,7 @@ class BookingService
     public function srv_notifyBookingChange($bookCode,$status,$receiver)
     {
         try{
-            $resp = $this->notificationDAO->generateNoti("Your booking {$bookCode} has been modified to {$status}.Check on  'My Bookings' ",$receiver);
+            $resp = $this->notificationDAO->generateNoti("Tu reserva {$bookCode} cambió su estado a {$status}.Revisá 'Mis reservas' ",$receiver,$bookCode);
         }catch(Exception $ex)
         {
             $resp = $ex->getMessage();

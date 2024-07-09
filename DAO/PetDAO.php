@@ -54,6 +54,40 @@ class PetDAO {
         }
     }
 
+    public function searchByCode($petCode)
+    {
+        try{
+            $query = "SELECT * FROM ".$this->tableName." 
+            WHERE petCode = :petCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["petCode"] = $petCode;
+
+            $resultSet = $this->connection->Execute($query,$parameters);
+
+            $pet = new Pet();
+            foreach($resultSet as $row)
+            {
+                $pet->setId($row["id"]);
+                $pet->setpetCode($row["petCode"]);
+                $pet->setName($row["name"]);
+                $pet->setPfp($row["pfp"]);
+                $pet->setOwnerCode($row["ownerCode"]);
+                $pet->setSize($row["size"]);
+                $pet->setBreed($row["breed"]);
+                $pet->setVaccPlan($row["vaccPlan"]);
+                $pet->setVideo($row["video"]);
+                $pet->setTypePet($row["typePet"]);
+                $pet->setAge($row["age"]);
+            }
+
+            return $pet;
+        }catch(Exception $ex){
+            throw $ex;
+        }
+    }
+
     public function getAllByOwner($ownerCode)
     {
         try{
@@ -183,7 +217,7 @@ class PetDAO {
     public function updateVideo($petCode,$video)
     {
         try{
-            $query = "UPDATE pet SET video = :video WHERE petCode = :petCode ;";
+            $query = "UPDATE ".$this->tableName." SET video = :video WHERE petCode = :petCode ;";
 
             $this->connection = Connection::GetInstance();
 
@@ -205,7 +239,7 @@ class PetDAO {
     {
         try{
 
-            $query = "UPDATE pet SET vaccPlan = :vaccPlan WHERE petCode = :petCode ;";
+            $query = "UPDATE ".$this->tableName." SET vaccPlan = :vaccPlan WHERE petCode = :petCode ;";
 
             $this->connection = Connection::GetInstance();
 
@@ -244,10 +278,28 @@ class PetDAO {
         }
     }
 
+    public function updateName($petCode,$name)
+    {
+        try{
+            $query = "UPDATE ".$this->tableName." SET name = :name WHERE petCode = :petCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["petCode"] = $petCode;
+            $parameters["name"] = $name;
+
+            return $this->connection->ExecuteNonQuery($query,$parameters);
+        }catch(Exception $ex)
+        {
+            throw $ex;
+            
+        }
+    }
+
     public function updateAge($petCode,$age)
     {
         try{
-            $query = "UPDATE pet SET age = :age WHERE petCode = :petCode ;";
+            $query = "UPDATE ".$this->tableName." SET age = :age WHERE petCode = :petCode ;";
 
             $this->connection = Connection::GetInstance();
 
@@ -265,12 +317,30 @@ class PetDAO {
     public function updateSize($petCode,$size)
     {
         try{
-            $query = "UPDATE pet SET size = :size WHERE petCode = :petCode ;";
+            $query = "UPDATE ".$this->tableName." SET size = :size WHERE petCode = :petCode ;";
 
             $this->connection = Connection::GetInstance();
 
             $parameters["petCode"] = $petCode;
             $parameters["size"] = $size;
+
+            return $this->connection->ExecuteNonQuery($query,$parameters);
+        }catch(Exception $ex)
+        {
+            throw $ex;
+            
+        }
+    }
+
+    public function updateBreed($petCode,$breed)
+    {
+        try{
+            $query = "UPDATE ".$this->tableName." SET breed = :breed WHERE petCode = :petCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["petCode"] = $petCode;
+            $parameters["breed"] = $breed;
 
             return $this->connection->ExecuteNonQuery($query,$parameters);
         }catch(Exception $ex)
@@ -300,39 +370,7 @@ class PetDAO {
         }
     }
 
-    public function getPet($petCode)
-    {
-        try{
-            $query = "SELECT * FROM ".$this->tableName." 
-            WHERE petCode = :petCode ;";
 
-            $this->connection = Connection::GetInstance();
-
-            $parameters["petCode"] = $petCode;
-
-            $resultSet = $this->connection->Execute($query,$parameters);
-
-            $pet = new Pet();
-            foreach($resultSet as $row)
-            {
-                $pet->setId($row["id"]);
-                $pet->setpetCode($row["petCode"]);
-                $pet->setName($row["name"]);
-                $pet->setPfp($row["pfp"]);
-                $pet->setOwnerCode($row["ownerCode"]);
-                $pet->setSize($row["size"]);
-                $pet->setBreed($row["breed"]);
-                $pet->setVaccPlan($row["vaccPlan"]);
-                $pet->setVideo($row["video"]);
-                $pet->setTypePet($row["typePet"]);
-                $pet->setAge($row["age"]);
-            }
-
-            return $pet;
-        }catch(Exception $ex){
-            throw $ex;
-        }
-    }
 
     public function checkPetBookings($petCode)
     {
@@ -355,7 +393,7 @@ class PetDAO {
             throw $ex;
         }
     }
-    public function deletePet($petCode)
+    public function delete($petCode)
     {
         try{
 

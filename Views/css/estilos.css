@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,600');
-
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 html {
   margin: 0;
   padding: 0;
@@ -455,6 +455,68 @@ body {
   justify-content: center;
   
 }
+
+#how-it-works{
+  font-family: "Comic Neue",'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1.5em;
+}
+
+.nav-item a{
+  color: white;
+}
+
+.nav-item:hover{
+  background-color: white;
+
+  a{
+    color: black;
+  }  
+  #bell{
+    color: black;
+  }
+  #notificationCount{
+    color: black;
+  }
+  
+  
+}
+
+#bell{
+  color: white;
+}
+
+#areanoti #notificationMenu{
+  background-color: white;
+  color: black;
+}
+#areanoti a{
+  color: black;
+}
+
+#deleteSt{
+  background-color: rgb(164, 2, 2);
+  
+}
+
+#deleteSt:hover{
+  background-color: rgb(93, 1, 1);
+  a{
+    color: white;
+  }  
+  
+}
+
+#sending{
+  position: fixed;
+  width: 50%;
+  top: 0;
+  right: 25%;
+  z-index: 2;
+  border: 2px solid rgb(203, 203, 4);
+}
+
+
 
 /* .about-avatar img {
   max-width: 100%; 

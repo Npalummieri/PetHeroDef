@@ -20,11 +20,11 @@ class CouponController
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $this->couponService->srv_generateCouponToOwner($bookCode, $price);
             } else {
-                Session::SetBadMessage("Not allowed to be there!");
+                Session::SetBadMessage("No puede ingresar sin el acceso adecuado");
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
         } else {
-            Session::SetBadMessage("Not allowed to be there!");
+            Session::SetBadMessage("No puede ingresar sin el acceso adecuado");
             header("location: " . FRONT_ROOT . "Home/Index");
         }
     }
@@ -90,40 +90,74 @@ class CouponController
                     $fullCoup = $this->couponService->srv_getInfoFullCoup($couponCode);
                     $couponCode = $fullCoup["couponCode"];
                     setcookie('couponcode', $couponCode, time() + (600), "/"); //10min
-                    require_once(VIEWS_PATH . "payCoup.php");
+                    if(!empty($fullCoup) && !empty($fullCoup["couponCode"]))
+                    {
+                        require_once(VIEWS_PATH . "payCoup.php");
+                    }else{
+                        Session::DeleteSession();
+                        Session::SetBadMessage("No le corresponde este cupon");
+                        header("location: " . FRONT_ROOT . "Home/showLoginView");
+                    }
                 } else {
                     Session::DeleteSession();
-                    Session::SetBadMessage("Not your coupon");
+                    Session::SetBadMessage("No le corresponde este cupon");
                     header("location: " . FRONT_ROOT . "Home/showLoginView");
                 }
             } else {
-                Session::DeleteSession();
+                
+                Session::SetBadMessage("Redireccionado. Debe loguearse");
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
         } else {
+            
+            Session::SetBadMessage("Redireccionado. Debe loguearse");
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
 
+    //false == failed validate
+    // -1 == session problem related
+    // 1 = paid
+    // 0 = 
     public function payCoupon($ccnum, $cardholder, $expdate, $ccv)
     {
+        $response = null;
         $couponCode = $_COOKIE["couponcode"];
         if (Session::IsLogged()) {
             if (Session::GetTypeLogged() == "Models\Owner") {
                 $response = $this->couponService->srv_validateCoup($couponCode, $ccnum, $cardholder, $expdate, $ccv);
-                if ($response != 1) {
-                    Session::SetBadMessage($response);
-                    header("location: " . FRONT_ROOT . "Coupon/payCouponView/" . $couponCode);
-                } else {
-                    Session::SetOkMessage("Payment aproved!");
-                    header("location: " . FRONT_ROOT . "Coupon/showMyCoupons");
+                if($response == 1)
+                {
+                    Session::SetOkMessage("Pago aprobado.");
+                }else{
+                    Session::SetOkMessage($response);
                 }
-            } else {
-                header("location: " . FRONT_ROOT . "Home/showLoginView");
+                
+            }else{
+                Session::DeleteSession();
+                Session::SetBadMessage("No le corresponde el accesso.");
+                $response = -1;
             }
-        } else {
-            header("location: " . FRONT_ROOT . "Home/showLoginView");
+        }else{
+            Session::DeleteSession();
+            Session::SetBadMessage("No le corresponde el accesso.");
+            $response = -1;
         }
+        //         if ($response != 1) {
+        //             Session::SetBadMessage($response);
+        //             header("location: " . FRONT_ROOT . "Coupon/payCouponView/" . $couponCode);
+        //         } else {
+        //             Session::SetOkMessage("Pago aprobado");
+        //             header("location: " . FRONT_ROOT . "Coupon/showMyCoupons");
+        //         }
+        //     } else {
+        //         header("location: " . FRONT_ROOT . "Home/showLoginView");
+        //     }
+        // } else {
+        //     header("location: " . FRONT_ROOT . "Home/showLoginView");
+        // }
+        echo json_encode($response);
+        
     }
 
     public function declineCoupon($couponCode)
@@ -134,7 +168,7 @@ class CouponController
                 if ($result >= 1) {
                     $resp = $this->couponService->srv_declineCoupon($couponCode);
                     if ($resp == 1) {
-                        Session::SetOkMessage("Coupon cancelled successfully");
+                        Session::SetOkMessage("Cupon cancelado");
                     } else {
                         Session::SetBadMessage($resp);
                     }
@@ -157,7 +191,7 @@ class CouponController
 			
 			if($checkAdmin != null)
 			{
-				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 				{
 					$listCoups = $this->couponService->srv_getAllCoupons();
 					require_once(VIEWS_PATH."listCoupons.php");
@@ -178,7 +212,7 @@ class CouponController
 		
 	public function showAdminEditCoup($coupCode)
 	{
-		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 		{
 			$coupon = $this->couponService->srv_getCoupByCode($coupCode);
 			require_once(VIEWS_PATH."adminEditCoup.php");
@@ -195,22 +229,22 @@ class CouponController
 
 		//var_dump($edits);
 
+        $resultFinal =null;
+        $resultOkFinal = null;
 		foreach ($edits as $field => $value) {
 			if (!empty($value)) {
 				$methodName = "srv_edit" . ucfirst($field);
 				$result = $this->couponService->$methodName($coupCode, $value);
 				if($result == 1){
-                    $resultOkFinal ="";
 					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
 					Session::SetOkMessage($resultOkFinal);
-				}
-				if(is_string($result))
-				{
-                    $resultFinal ="";
-					$resultFinal .= " || ".$result;
-					Session::SetBadMessage($resultFinal);
-					
-				}
+				}else if($result == 0)
+                {
+                    Session::SetOkMessage("");
+                }else{
+                    $resultFinal .= $result." - ".ucfirst($field)." no se pudo modificar <br>";
+                    Session::SetBadMessage($resultFinal);
+                }
 			}
 		}
 		header("location: " . FRONT_ROOT . "Home/showListCoupons");

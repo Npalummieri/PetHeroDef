@@ -65,12 +65,12 @@ class ReviewService
                 $review->setComment($comment);
                 $resultAdd = $this->reviewDAO->Add($review);
             }else{
-                $resultAdd = "Don't try it.Not allowed to use < > or any special characters!";
+                $resultAdd = "Caracteres no validos. Alfanumericos y de puntuacion permitidos.";
             }
             
             if($resultAdd == 1)
             {
-                $this->notificationDAO->generateNoti("New review on your profile!",$keeperCode);
+                $this->notificationDAO->generateNoti("Nueva reseña en su perfil",$keeperCode,$keeperCode);
             }
         }
         }catch(Exception $ex)

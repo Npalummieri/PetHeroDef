@@ -7,7 +7,7 @@ use DAO\keeperDAO as KeeperDAO;
 use Utils\Session as Session;
 use Services\UserService as UserService;
 use Models\Status as Status;
-use Models\User as User;
+
 
 class AuthController
 {
@@ -25,51 +25,44 @@ class AuthController
 
     public function Login($userField, $password)
     {
-	if( ($userField == "admin@gmail.com" || $userField == "Admin777") && $password == "Admin123")
-	{
-		$user = new User();
-		$user->setEmail("admin@gmail.com");
-		$user->setUsername("Admin777");
-		$user->setPassword("Admin123");
-		$user->setDni("00004321");
-		Session::SetOkMessage("Welcome admin");
-		Session::CreateSession($user);
-		header("location: " . FRONT_ROOT . "Home/showDashboard");
-	}else{
-		
-        $user = $this->userService->validateLogin($userField,$password);
+        $user = $this->userService->validateLogin($userField);
         if (is_string($user)) {
             Session::SetBadMessage($user);
             header("location: " . FRONT_ROOT . "Home/showLoginView");
-        } else if($user == null)
-        {
+        } else if ($user == null) {
             Session::SetBadMessage("Not user found");
             header("location: " . FRONT_ROOT . "Home/showLoginView");
-        }else {
+        } else {
+            
             if ($this->userService->checkPassword(get_class($user), $user->getEmail(), $password)) {
 
-                Session::SetOkMessage("Login successfully");
+                
                 Session::CreateSession($user);
                 $userLogged = Session::GetLoggedUser();
-                //"active" the status for the user
-
-                if ($userLogged->getStatus() === Status::INACTIVE) {
-                    if (Session::GetTypeLogged() == "Models\Owner") {
-                        $this->userService->srv_updateStatusUser($userLogged->getOwnerCode(),Status::ACTIVE);
-                    } else {
-                        $this->userService->srv_updateStatusUser($userLogged->getKeeperCode(),Status::ACTIVE);
+                if (is_a($userLogged,"Models\Admin")) {
+                    Session::SetOkMessage("Admin logueado correctamente");
+                    header("location: " . FRONT_ROOT . "Home/showDashboard");
+                    var_dump(Session::GetLoggedUser());
+                } else {
+                    //"active" the status for the user
+                    Session::SetOkMessage("Logueado correctamente");
+                    if ($userLogged->getStatus() === Status::INACTIVE) {
+                        if (Session::GetTypeLogged() == "Models\Owner") {
+                            $this->userService->srv_updateStatusUser($userLogged->getOwnerCode(), Status::ACTIVE);
+                        } else {
+                            $this->userService->srv_updateStatusUser($userLogged->getKeeperCode(), Status::ACTIVE);
+                        }
                     }
+                    header("location: " . FRONT_ROOT . "Home/Index");
                 }
-
-                header("location: " . FRONT_ROOT . "Home/Index");
             } else {
-                Session::SetBadMessage("Wrong password!");
+                Session::SetBadMessage("Contraseña incorrecta");
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
+                // var_dump($this->userService->checkPassword(get_class($user), $user->getEmail(), $password));
             }
         }
-	}
-        
     }
+    
 
     public function recoverPasswordView()
     {
@@ -80,9 +73,9 @@ class AuthController
     {
         $resp = $this->userService->srv_resetPassword($email, $dni);
         if ($resp != 1) {
-            Session::SetBadMessage("Not valid credentials!");
+            Session::SetBadMessage("Credenciales no validas");
         } else {
-            Session::SetOkMessage("Password recovered,check your email!");
+            Session::SetOkMessage("Contraseña reestablecida,revise su email");
         }
         header("location: " . FRONT_ROOT . "Home/showLoginView");
     }

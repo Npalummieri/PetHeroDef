@@ -6,17 +6,27 @@ use \Exception as Exception;
 use DAO\QueryType as QueryType;
 use DAO\Connection as Connection;
 use Models\Keeper as Keeper;
+use Interfaces\IRepositoriesBasic as IRepositoriesBasic;
+use Interfaces\IRepositoriesExtendUser as IRepositoriesExtendUser;
 
-
-class KeeperDAO
+class KeeperDAO implements IRepositoriesBasic,IRepositoriesExtendUser
 {
 
     private $tableName = "keeper";
     private $connection;
 
-    public function Add(Keeper $keeper)
+
+    /**
+     * @param Keeper $keeper
+     */
+    public function Add($keeper)
     {
+        
         try {
+
+            if (!$keeper instanceof Keeper) {
+                throw new Exception('Se espera que el parametro sea una instancia de Keeper');
+            }
 
             $query = "INSERT INTO " . $this->tableName . " (keeperCode,email,username,password,status,name,lastname,dni,pfp,typeCare,price,typePet,score,initDate,endDate,visitPerDay)
             VALUES (:keeperCode,:email,:username,:password,:status,:name,:lastname,:dni,:pfp,:typeCare,:price,:typePet,:score,:initDate,:endDate,:visitPerDay); ";
@@ -58,26 +68,6 @@ class KeeperDAO
         }
     }
 
-    public function updateStatus($code, $status)
-    {
-        try {
-
-            $query = "UPDATE " . $this->tableName . " 
-            SET status = :status  
-            WHERE keeperCode = :code ;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["code"] = $code;
-            $parameters["status"] = $status;
-
-            return $this->connection->ExecuteNonQuery($query, $parameters);
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-    }
-
-
     public function GetAll()
     {
 
@@ -115,12 +105,31 @@ class KeeperDAO
 
                 array_push($keeperList, $keeper);
             }
-           
         } catch (Exception $ex) {
             throw $ex;
         }
-		 return $keeperList;
+        return $keeperList;
     }
+
+    public function delete($code)
+	{
+		try{
+			
+			$query = "DELETE FROM ".$this->tableName." 
+			WHERE keeperCode = :keeperCode;";
+			
+			$this->connection = Connection::GetInstance();
+			
+			$parameter["keeperCode"] = $code;
+			
+			return $this->connection->ExecuteNonQuery($query,$parameter);
+			
+			
+		}catch(Exception $ex)
+		{
+			throw $ex;
+		}
+	}
 
     public function searchByEmail($email)
     {
@@ -157,12 +166,135 @@ class KeeperDAO
                     $keeper->setInitDate($value["initDate"]);
                     $keeper->setEndDate($value["endDate"]);
                     $keeper->setVisitPerDay($value["visitPerDay"]);
+                    $keeper->setBio($value["bio"]);
                 }
             }
         } catch (Exception $ex) {
             throw $ex;
         }
         return $keeper;
+    }
+
+    public function updateStatus($code, $status)
+    {
+        try {
+
+            $query = "UPDATE " . $this->tableName . " 
+            SET status = :status  
+            WHERE keeperCode = :code ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["code"] = $code;
+            $parameters["status"] = $status;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function searchByCode($keeperCode)
+    {
+        try {
+            $query = "SELECT * FROM " . $this->tableName . "
+            WHERE keeperCode = :keeperCode;";
+
+            $parameters["keeperCode"] = $keeperCode;
+
+            $this->connection = Connection::GetInstance();
+
+            $resultSet = $this->connection->Execute($query, $parameters);
+
+            if ($resultSet == null) {
+                $keeper = null;
+            } else {
+                foreach ($resultSet as $value) {
+                    $keeper = new Keeper();
+
+                    $keeper->setId($value["id"]);
+                    $keeper->setkeeperCode($value["keeperCode"]);
+                    $keeper->setEmail($value["email"]);
+                    $keeper->setUserName($value["username"]);
+                    $keeper->setPassword($value["password"]);
+                    $keeper->setStatus($value["status"]);
+                    $keeper->setName($value["name"]);
+                    $keeper->setLastname($value["lastname"]);
+                    $keeper->setDni($value["dni"]);
+                    $keeper->setPfp($value["pfp"]);
+                    $keeper->setTypeCare($value["typeCare"]);
+                    $keeper->setPrice($value["price"]);
+                    $keeper->setTypePet($value["typePet"]);
+                    $keeper->setScore($value["score"]);
+                    $keeper->setInitDate($value["initDate"]);
+                    $keeper->setEndDate($value["endDate"]);
+                    $keeper->setVisitPerDay($value["visitPerDay"]);
+                    $keeper->setBio($value["bio"]);
+                }
+            }
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+        return $keeper;
+    }
+
+    public function checkDni($dni)
+    {
+        try {
+            $query = "SELECT COUNT(*) FROM " . $this->tableName . " 
+            WHERE dni = :dni;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameter["dni"] = $dni;
+
+            $result = $this->connection->Execute($query, $parameter);
+
+            return $result[0][0];
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+
+    public function getPassword($email)
+    {
+        try {
+            $query = "SELECT password FROM " . $this->tableName . "
+            where email = :email;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["email"] = $email;
+
+            $resultSet = $this->connection->Execute($query, $parameters);
+
+            $arrPwd = array_shift($resultSet);
+
+            $pwd = $arrPwd["password"];
+
+            return $pwd;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function updatePassword($email, $password)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
+            SET password = :password 
+            WHERE email = :email ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["email"] = $email;
+            $parameters["password"] = $password;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function searchByUsername($username)
@@ -208,48 +340,118 @@ class KeeperDAO
         }
     }
 
-    public function searchByKeeperCode($keeperCode)
+    public function checkUsername($username)
     {
         try {
-            $query = "SELECT * FROM " . $this->tableName . "
-            WHERE keeperCode = :keeperCode;";
+            $query = "SELECT COUNT(*) as result FROM " . $this->tableName . " WHERE BINARY username = :username ;"; //Limit 1 to not oversearch
 
-            $parameters["keeperCode"] = $keeperCode;
+            $parameters["username"] = $username;
 
             $this->connection = Connection::GetInstance();
 
-            $resultSet = $this->connection->Execute($query, $parameters);
+            $result = $this->connection->Execute($query, $parameters);
 
-            if ($resultSet == null) {
-                $keeper = null;
-            } else {
-                foreach ($resultSet as $value) {
-                    $keeper = new Keeper();
 
-                    $keeper->setId($value["id"]);
-                    $keeper->setkeeperCode($value["keeperCode"]);
-                    $keeper->setEmail($value["email"]);
-                    $keeper->setUserName($value["username"]);
-                    $keeper->setPassword($value["password"]);
-                    $keeper->setStatus($value["status"]);
-                    $keeper->setName($value["name"]);
-                    $keeper->setLastname($value["lastname"]);
-                    $keeper->setDni($value["dni"]);
-                    $keeper->setPfp($value["pfp"]);
-                    $keeper->setTypeCare($value["typeCare"]);
-                    $keeper->setPrice($value["price"]);
-                    $keeper->setTypePet($value["typePet"]);
-                    $keeper->setScore($value["score"]);
-                    $keeper->setInitDate($value["initDate"]);
-                    $keeper->setEndDate($value["endDate"]);
-                    $keeper->setVisitPerDay($value["visitPerDay"]);
-                    $keeper->setBio($value["bio"]);
-                }
+            foreach ($result as $row) {
+                $finalRes = $row[0];
             }
+
+            return $finalRes;
+        } catch (Exception $ex) {
+
+            throw $ex;
+        }
+    }
+
+    public function updatePfp($keeperCode, $pfp)
+    {
+        try {
+            $query = "UPDATE keeper SET pfp = :pfp WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["keeperCode"] = $keeperCode;
+            $parameters["pfp"] = $pfp;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
         } catch (Exception $ex) {
             throw $ex;
         }
-        return $keeper;
+    }
+
+    public function updateEmail($keeperCode, $email)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
+            SET email = :email 
+            WHERE keeperCode = :keeperCode;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["keeperCode"] = $keeperCode;
+            $parameters["email"] = $email;
+
+            $result = $this->connection->ExecuteNonQuery($query, $parameters);
+
+            return $result;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function updateUsername($keeperCode, $username)
+    {
+        try {
+
+            $query = "UPDATE " . $this->tableName . " 
+            SET username = :username 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["username"] = $username;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function updateName($keeperCode, $name)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
+            SET name = :name 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["name"] = $name;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function updateLastname($keeperCode, $lastname)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
+            SET lastname = :lastname 
+            WHERE keeperCode = :keeperCode ;";
+
+            $this->connection = Connection::GetInstance();
+
+            $parameters["lastname"] = $lastname;
+            $parameters["keeperCode"] = $keeperCode;
+
+            return $this->connection->ExecuteNonQuery($query, $parameters);
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getKeeperFullInfo()
@@ -398,28 +600,7 @@ class KeeperDAO
         }
     }
 
-    public function getPassword($email)
-    {
-        try {
-            $query = "SELECT password FROM " . $this->tableName . "
-            where email = :email;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["email"] = $email;
-
-            $resultSet = $this->connection->Execute($query, $parameters);
-
-            $arrPwd = array_shift($resultSet);
-
-            $pwd = $arrPwd["password"];
-
-            return $pwd;
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-    }
-
+    
     //Validate the attr from the pet === keeper takecare
     public function revalidateKeeperPet($keeperCode, $petCode)
     {
@@ -472,42 +653,6 @@ class KeeperDAO
             throw $ex;
         }
         return $result;
-    }
-
-    public function updatePfp($keeperCode, $pfp)
-    {
-        try {
-            $query = "UPDATE keeper SET pfp = :pfp WHERE keeperCode = :keeperCode ;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["keeperCode"] = $keeperCode;
-            $parameters["pfp"] = $pfp;
-
-            return $this->connection->ExecuteNonQuery($query, $parameters);
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-    }
-
-    public function updateEmail($keeperCode, $email)
-    {
-        try {
-            $query = "UPDATE " . $this->tableName . " 
-            SET email = :email 
-            WHERE keeperCode = :keeperCode;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["keeperCode"] = $keeperCode;
-            $parameters["email"] = $email;
-
-            $result = $this->connection->ExecuteNonQuery($query, $parameters);
-
-            return $result;
-        } catch (Exception $ex) {
-            throw $ex;
-        }
     }
 
     public function updateBio($keeperCode, $bio)
@@ -594,102 +739,10 @@ class KeeperDAO
         }
     }
 
-    public function updatePassword($email, $password)
+    public function updateTypeCare($keeperCode, $typeCare)
     {
         try {
             $query = "UPDATE " . $this->tableName . " 
-            SET password = :password 
-            WHERE email = :email ;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["email"] = $email;
-            $parameters["password"] = $password;
-
-            return $this->connection->ExecuteNonQuery($query, $parameters);
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-    }
-
-    public function checkDni($dni)
-    {
-        try{
-            $query = "SELECT COUNT(*) FROM ".$this->tableName." 
-            WHERE dni = :dni;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameter["dni"] = $dni;
-
-            $result = $this->connection->Execute($query,$parameter);
-
-            return $result[0][0];
-        }catch(Exception $ex)
-        {
-            throw $ex;
-        }
-    }
-	
-	public function updateUsername($keeperCode,$username)
-	{
-		try{
-			
-		$query = "UPDATE " . $this->tableName . " 
-            SET username = :username 
-            WHERE keeperCode = :keeperCode ;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["username"] = $username;
-            $parameters["keeperCode"] = $keeperCode;
-
-            return $this->connection->ExecuteNonQuery($query, $parameters);
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-	}
-	
-	public function updatename($keeperCode,$name)
-	{
-		try{
-		$query = "UPDATE " . $this->tableName . " 
-            SET name = :name 
-            WHERE keeperCode = :keeperCode ;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["name"] = $name;
-            $parameters["keeperCode"] = $keeperCode;
-
-            return $this->connection->ExecuteNonQuery($query, $parameters);
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-	}
-	
-	public function updatelastname($keeperCode,$lastname)
-	{
-		try{
-		$query = "UPDATE " . $this->tableName . " 
-            SET lastname = :lastname 
-            WHERE keeperCode = :keeperCode ;";
-
-            $this->connection = Connection::GetInstance();
-
-            $parameters["lastname"] = $lastname;
-            $parameters["keeperCode"] = $keeperCode;
-
-            return $this->connection->ExecuteNonQuery($query, $parameters);
-        } catch (Exception $ex) {
-            throw $ex;
-        }
-	}
-	
-	public function updateTypeCare($keeperCode,$typeCare)
-	{
-		try{
-		$query = "UPDATE " . $this->tableName . " 
             SET typeCare = :typeCare 
             WHERE keeperCode = :keeperCode ;";
 
@@ -702,12 +755,12 @@ class KeeperDAO
         } catch (Exception $ex) {
             throw $ex;
         }
-	}
-	
-	public function updateTypePet($keeperCode,$typePet)
-	{
-		try{
-		$query = "UPDATE " . $this->tableName . " 
+    }
+
+    public function updateTypePet($keeperCode, $typePet)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET typePet = :typePet 
             WHERE keeperCode = :keeperCode ;";
 
@@ -720,12 +773,12 @@ class KeeperDAO
         } catch (Exception $ex) {
             throw $ex;
         }
-	}
-	
-	public function updateScore($keeperCode,$score)
-	{
-		try{
-		$query = "UPDATE " . $this->tableName . " 
+    }
+
+    public function updateScore($keeperCode, $score)
+    {
+        try {
+            $query = "UPDATE " . $this->tableName . " 
             SET score = :score 
             WHERE keeperCode = :keeperCode ;";
 
@@ -738,29 +791,28 @@ class KeeperDAO
         } catch (Exception $ex) {
             throw $ex;
         }
-	}
-	
-	public function getFilteredKeepsAdm($code)
-	{
-		try{
-			$query ="SELECT * FROM ".$this->tableName;
-			if (strpos($code, "KEP") !== false) {
-            $query .= " WHERE keeperCode LIKE CONCAT(:code, '%')";
-        } elseif (filter_var($code, FILTER_VALIDATE_EMAIL)) {
-            $query .= " WHERE email LIKE CONCAT(:code, '%')";
-        } elseif ((preg_match("/^\d{8}$/",$code) == 1)) {
-            $query .= " WHERE dni LIKE CONCAT(:code, '%')";
-        } 
-			$this->connection = Connection::GetInstance();
-			
-			$parameter["code"] = $code;
-			
-			$resultSet = $this->connection->Execute($query,$parameter);
-			
-			$keepersFiltered = array();
-			foreach($resultSet as $keeper)
-			{
-				$keep = new Keeper();
+    }
+
+    public function getFilteredKeepsAdm($code)
+    {
+        try {
+            $query = "SELECT * FROM " . $this->tableName;
+            if (strpos($code, "KEP") !== false) {
+                $query .= " WHERE keeperCode LIKE CONCAT(:code, '%')";
+            } elseif (filter_var($code, FILTER_VALIDATE_EMAIL)) {
+                $query .= " WHERE email LIKE CONCAT(:code, '%')";
+            } elseif ((preg_match("/^\d{8}$/", $code) == 1)) {
+                $query .= " WHERE dni LIKE CONCAT(:code, '%')";
+            }
+            $this->connection = Connection::GetInstance();
+
+            $parameter["code"] = $code;
+
+            $resultSet = $this->connection->Execute($query, $parameter);
+
+            $keepersFiltered = array();
+            foreach ($resultSet as $keeper) {
+                $keep = new Keeper();
 
                 $keep->setId($keeper["id"]);
                 $keep->setkeeperCode($keeper["keeperCode"]);
@@ -779,15 +831,14 @@ class KeeperDAO
                 $keep->setInitDate($keeper["initDate"]);
                 $keep->setEndDate($keeper["endDate"]);
                 $keep->setVisitPerDay($keeper["visitPerDay"]);
-				
-				array_push($keepersFiltered,$keep);
-				
-			}
-			
-			return $keepersFiltered;
-		}catch(Exception $ex)
-		{
-			throw $ex;
-		}
-	}
+
+                array_push($keepersFiltered, $keep);
+            }
+
+            return $keepersFiltered;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+
 }

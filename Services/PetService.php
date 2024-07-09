@@ -85,11 +85,11 @@ class PetService
 
                 //obtain extension
                 $extension = explode(".", $nameFile);
-                echo "<br> check Extension : <br>";
+                // echo "<br> check Extension : <br>";
 
 
                 //Filter size
-                if ($fileInfo["size"] < 5242880 && $fileInfo["size"] > 0) {
+                if ($fileInfo["size"] < 10242880 && $fileInfo["size"] > 0) {
 
                     if (in_array($mime, $imgTypes)) {
                         $imgSize = $fileInfo["size"];
@@ -132,7 +132,7 @@ class PetService
 
                             //move_uploaded_file($temp, $pathToSave);
                         } else {
-                            $error = "Not supported type.Check it";
+                            $error = ".MP4 unicamente. Revise su video";
                             $pathToBD = null;
                         }
                         //move_uploaded_file($temp, $pathToSave);
@@ -157,15 +157,15 @@ class PetService
             $pet = new Pet();
             $error = null;
             //Validate pet's name
-            if (strlen($name) > 1 && strlen($name) < 20) {
+            if (strlen($name) > 1 && strlen($name) < 30 && preg_match("/^[a-zA-ZÀ-ÿ\s'-]+$/",$name)) {
                 $pet->setName($name);
             } else {
-                $error .= " Error at length's name ";
+                $error .= " Error en el nombre,30 caracteres máximo. Caracteres especiales no permitidos. Unicamente guiones y apostrofes ";
             }
 
             //Validate type
             if ($typePet !== "dog" && $typePet !== "cat") {
-                $error .= " Error at typePet ";
+                $error .= " Error en el tipo de mascota ";
             } else {
                 $pet->setTypePet($typePet);
             }
@@ -175,13 +175,13 @@ class PetService
                 trim($ownerCode);
                 $pet->setOwnerCode($ownerCode);
             } else {
-                $error .= " Error at ownerCode ";
+                $error .= "Su usuario no esta activado. Comuniquese con soporte";
             }
 
 
             //Checking sizes
             if ($size != Size::BIG && $size != Size::MEDIUM && $size != Size::SMALL) {
-                $error .= " Not size allowed ";
+                $error .= " Tamaño no valido ";
             } else {
                 $pet->setSize($size);
             }
@@ -191,10 +191,14 @@ class PetService
                 $content = file_get_contents("DAOJson\catBreeds.json");
                 $decodedContent = json_decode($content, true);
 
-                if (in_array($breed, $decodedContent)) {
-                    $pet->setBreed($breed);
-                } else {
-                    $error .= " Not valid breed ";
+                foreach ($decodedContent as $breedArray) {
+
+                    if ($breedArray["name"] === $breed) {
+                        $pet->setBreed($breed);
+                    }
+                }
+                if ($pet->getBreed() == null) {
+                    $error = " Raza no valida ";
                 }
             } else if ($typePet == "dog") {
                 $content = file_get_contents("DAOJson\dogBreeds.json");
@@ -202,17 +206,15 @@ class PetService
 
                 foreach ($decodedContent as $breedArray) {
 
-                    if (
-                        $breedArray["name"] === $breed
-                    ) {
+                    if ($breedArray["name"] === $breed) {
                         $pet->setBreed($breed);
                     }
                 }
                 if ($pet->getBreed() == null) {
-                    $error = " Error in breed ";
+                    $error = " Raza no valida ";
                 }
             } else {
-                $error .=  " Error in breed ";
+                $error .=  " Raza no valida ";
             }
 
             //Setting age -validate if it's a number
@@ -220,7 +222,7 @@ class PetService
             {
                 $pet->setAge($age);
             }else{
-                $error .=  " Not valid age ";
+                $error .=  " Edad invalida. Digitos unicamente ";
             }
             
 
@@ -228,7 +230,7 @@ class PetService
                 $pet->setPetCode($this->generateCode());
                 $resultInsert = $this->petDAO->Add($pet);
             } else {
-                $error .= " <br> We cant't add your pet.Check again!";
+                $error .= " <br> No se pudo agregar a su mascota. Intente nuevamente";
             }
 
             if ($resultInsert != null && $resultInsert != " ") {
@@ -244,7 +246,7 @@ class PetService
 
                     $arrayPaths = $this->getImgsPetRegister("video", $video, $typePet);
                     if ($arrayPaths["file"] == null) {
-                        $error =  "Not video uploaded.Update later!";
+                        $error .=  "Mascota agregada. Video no subido. Actualicelo en el perfil de su mascota";
                     } else {
                         $this->petDAO->updateVideo($resultInsert, $arrayPaths["pathToDB"]);
                         move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
@@ -261,9 +263,9 @@ class PetService
             }
         } catch (Exception $ex) {
             $error =  $ex->getMessage();
-            $petAdded = $this->petDAO->getPet($resultInsert);
+            $petAdded = $this->petDAO->searchByCode($resultInsert);
             if ($petAdded->getPfp() == null || $petAdded->getVaccPlan() == null) {
-                $error = "Your pet was added.But upload as soon as you can the VaccPlan/Profile picture";
+                $error = "Cargue las imagenes correspondientes a su mascota. Mascota añadida";
             }
         }
 
@@ -337,7 +339,7 @@ class PetService
     {
         try {
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
-                throw new Exception("This pet doesn't belong to you.Contact support for more information.");
+                throw new Exception("Error con la carga de su plan. Intente nuevamente");
             } else {
                 return $this->petDAO->updateVacc($petCode, $vaccPlan);
             }
@@ -350,7 +352,7 @@ class PetService
     {
         try {
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
-                throw new Exception("This pet doesn't belong to you.Contact support for more information.");
+                throw new Exception("Error con la carga de su foto. Intente nuevamente");
             } else {
                 return $this->petDAO->updatePfp($petCode, $pfp);
             }
@@ -363,7 +365,7 @@ class PetService
     {
         try {
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
-                throw new Exception("This pet doesn't belong to you.Contact support for more information.");
+                throw new Exception("Error actualizando la edad. Intente nuevamente");
             } else {
                 return $this->petDAO->updateAge($petCode, $age);
             }
@@ -376,7 +378,7 @@ class PetService
     {
         try {
             if ($this->srv_validatePetOwner($petCode, $ownerCode) == null) {
-                throw new Exception("This pet doesn't belong to you.Contact support for more information.");
+                throw new Exception("Error actualizando el video. Intente nuevamente");
             } else {
                 return $this->petDAO->updateVideo($petCode, $video);
             }
@@ -405,7 +407,7 @@ class PetService
     {
         try {
 
-            $petSearched = $this->petDAO->getPet($petCode);
+            $petSearched = $this->petDAO->searchByCode($petCode);
             $error = 1;
             $typePet = $petSearched->getTypePet();
             $pfpToDelete = $petSearched->getPfp();
@@ -424,10 +426,10 @@ class PetService
                     if ($result == 1) {
                         move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
                         if (unlink(IMG_PATH . $pfpToDelete)) {
-                            $error = "Pfp deleted";
+                            $error = "Foto de perfil eliminada";
                         }
                     } else {
-                        $error .= "Error at updating PFP";
+                        $error .= "Error actualizando foto de perfil";
                     }
                 }
 
@@ -436,17 +438,17 @@ class PetService
 
                     $arrayPathsVideo = $this->getImgsPetRegister("video", $video, $typePet);
                     if ($arrayPathsVideo["file"] == null) {
-                        $error =  "Not video uploaded.Update later!";
+                        $error =  "Video sin subir. Puede agregarlo más tarde";
                     } else {
                         $resultVideo = $this->petDAO->updateVideo($petCode, $arrayPathsVideo["pathToDB"]);
                         if ($resultVideo == 1) {
                             move_uploaded_file($arrayPathsVideo["file"], $arrayPathsVideo["pathToSave"]);
 
                             if (unlink(ROOT . $videoToDelete)) {
-                                $error = "Video deleted";
+                                $error = "Video eliminado";
                             }
                         } else {
-                            $error .= "Error at updating Video";
+                            $error .= "Error en la carga del video. Intente nuevamente";
                         }
                     }
                 }
@@ -457,10 +459,10 @@ class PetService
                     if ($result == 1) {
                         move_uploaded_file($arrayPaths["file"], $arrayPaths["pathToSave"]);
                         if (unlink(IMG_PATH . $vaccPlanToDelete)) {
-                            $error = "Vaccplan deleted";
+                            $error = "Plan de vacunación actualizado";
                         }
                     } else {
-                        $error .= "Error at updating Vaccplan";
+                        $error .= "Error actualizando su plan. Intente nuevamente";
                     }
                 }
             }
@@ -487,7 +489,7 @@ class PetService
     public function srv_getPet($petCode)
     {
         try {
-            $pet = $this->petDAO->getPet($petCode);
+            $pet = $this->petDAO->searchByCode($petCode);
         } catch (Exception $ex) {
             $pet = $ex->getMessage();
         }
@@ -501,16 +503,16 @@ class PetService
                 if ($this->srv_checkOwnerPet($petCode, $ownerCode) == 1) {
                     if($this->petDAO->checkPetBookings($petCode) == 0)
                     {
-                        $resp = $this->petDAO->deletePet($petCode);
+                        $resp = $this->petDAO->delete($petCode);
                     }else{
-                        $resp = "Impossible to delete.This pet still attached to a booking in progress!";
+                        $resp = "No se puede eliminar. Tiene una reserva en curso";
                     }
                     
                 } else {
-                    $resp = "This pet doesn't belong to this owner!";
+                    $resp = "Esta mascota no pertenece a este usuario. Redireccionado";
                 }
             } else {
-                $resp = "Failed related with the owner code.Contact support";
+                $resp = "Error en la sesión. Redireccionado";
             }
         } catch (Exception $ex) {
             $resp = $ex->getMessage();
@@ -521,7 +523,7 @@ class PetService
     public function srv_getProfilePet($petCode)
     {
         try {
-            $pet = $this->petDAO->getPet($petCode);
+            $pet = $this->petDAO->searchByCode($petCode);
         } catch (Exception $ex) {
             $pet = $ex->getMessage();
         }
@@ -558,7 +560,7 @@ class PetService
 			{
 				$petList = $this->petDAO->getFilteredPetsAdm($code);
 			}else {
-				$petList = "Not matching results.Remember to use BOOK,OWN,PET or KEP";
+				$petList = "No hubo coincidencias recuerde usar los valores OWN,PET,KEP,BOOK";
 				}
         }catch(Exception $ex)
 		{
@@ -566,4 +568,69 @@ class PetService
 		}
 		return $petList;
 	}
+
+    public function srv_editName($petCode,$name){
+        try{
+			$regexName = "/[a-zA-ZÀ-ÿ\s'-]/";
+			if (preg_match($regexName, $name)) {
+
+                    $name = trim($name);
+					$resp = $this->petDAO->updateName($petCode,$name);
+			}else{
+				$resp = "Nombre de mascota no respeta los requisitos. Unicamente apostrofes y guiones permitidos.";
+			}
+		}catch(Exception $ex)
+		{
+			$resp = $ex->getMessage();
+		}
+		return $resp;
+    }
+
+    public function srv_editBreed($petCode, $typePet, $breed)
+    {
+        try {
+            $dataJson = file_get_contents("DAOJson/$typePet"."Breeds.json");
+            
+            $decodedJson = json_decode($dataJson, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $resp = "Error en la obtencion de razas. Intente más tarde";
+            } else {
+                
+                $resp = $this->petDAO->updateBreed($petCode, $breed);
+            }
+        } catch (Exception $ex) {
+            $resp = "Error en la actualizacion de raza. Contactar a soporte";
+        }
+        return $resp;
+    }
+
+    public function srv_editSize($petCode,$size){
+        try{
+			if($size != Size::BIG && $size != Size::MEDIUM && $size != Size::SMALL)
+            {
+                $resp = "Tamaño no valido, utilice los valores de la lista.";
+            }else{
+                $resp = $this->petDAO->updateSize($petCode,$size);
+            }
+		}catch(Exception $ex)
+		{
+			$resp = "Error en la actualizacion de tamaño. Contactar a soporte";
+		}
+		return $resp;
+    }
+
+    public function srv_editAge($petCode,$age){
+        try{
+			if(ctype_digit($age))
+            {
+                $this->petDAO->updateAge($petCode,$age);
+            }else{
+                $resp = "Edad no valida.";
+            }
+		}catch(Exception $ex)
+		{
+			$resp = "Error en la actualizacion de edad. Contactar a soporte";
+		}
+		return $resp;
+    }
 }

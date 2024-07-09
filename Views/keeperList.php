@@ -4,7 +4,7 @@ include_once("formKeepersList.php");
 ?>
 <div class="container">
 
-  <h2>Keepers</h2>
+  <h2>CUIDADORES</h2>
   <form action="  " method="">
 
     <?php
@@ -37,11 +37,11 @@ include_once("formKeepersList.php");
             <img class="w-25 h-25" src="<?php echo FRONT_ROOT . 'Images/SysImages/icons8-cat-64 (1).png' ?>" alt="catIcon">
           <?php         } ?>
 
-          <p>Name :<?php echo $value->getName(); ?></p>
-          <p>Lastname :<?php echo $value->getLastname(); ?></p>
-          <p>Type care :<?php echo $value->getTypeCare(); ?></p>
-          <p>Type pet :<?php echo $value->getTypePet(); ?></p>
-          <p>Price :<?php echo $value->getPrice(); ?></p>
+          <p>Nooombre :<?php echo $value->getName(); ?></p>
+          <p>Apellido :<?php echo $value->getLastname(); ?></p>
+          <p>Tamaño :<?php echo $value->getTypeCare(); ?></p>
+          <p>Tipo :<?php echo $value->getTypePet(); ?></p>
+          <p>Precio :<?php echo $value->getPrice(); ?></p>
           <a style="border: 1px solid black; padding:2px;" href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $value->getKeeperCode() ?>">
             <?php echo $value->getEmail(); ?>
           </a>
@@ -56,8 +56,8 @@ include_once("formKeepersList.php");
 
       <?php } ?>
       <div class="d-flex-row my-2" style="background-color: red;">
-        <a class="d-flex btn btn-danger flex-grow-1 mx-2 text-truncate" style="color:white;" href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $value->getKeeperCode() ?>"><span style="color:white;">Make booking</span></a>
-        <button class="d-flex btn btn-success btn-availability flex-grow-1 mx-2 text-truncate" style="color:white;" href="" data-codekeeper="<?php echo $value->getKeeperCode() ?>"><span style="color:white;">See availability</span></button>
+        <a class="d-flex btn btn-danger flex-grow-1 mx-2 text-truncate" style="color:white;" href="<?php echo FRONT_ROOT . 'Keeper/showProfileKeeper/' . $value->getKeeperCode() ?>"><span style="color:white;">Hacer reserva</span></a>
+        <button class="d-flex btn btn-success btn-availability flex-grow-1 mx-2 text-truncate" style="color:white;" href="" data-codekeeper="<?php echo $value->getKeeperCode() ?>"><span style="color:white;">Disponibilidad</span></button>
       </div>
 
 

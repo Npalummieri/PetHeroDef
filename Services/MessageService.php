@@ -90,6 +90,7 @@ class MessageService
             } else if ($checkCodes["ownerCode"] == $codeSender) {
                 $receiverCode = $checkCodes["keeperCode"];
             }
+            
             $arrayMsges = $this->messageDAO->receiveMessage($codeSender, $receiverCode, $chatCode);
 
             return $arrayMsges;

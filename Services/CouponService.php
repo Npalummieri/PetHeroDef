@@ -43,11 +43,11 @@ class CouponService
     {
         try {
             //Recheck status booking recently confirmed (passed by parameter)
-            $booking = $this->bookingDAO->GetByCode($bookCode);
+            $booking = $this->bookingDAO->searchByCode($bookCode);
 
             if ($booking != null) {
 
-                if (($this->couponDAO->getCoupCodeByBook($bookCode)) == " " || ($this->couponDAO->getCoupCodeByBook($bookCode)) == null ) {
+                if (($this->couponDAO->getCoupCodeByBookCode($bookCode)) == " " || ($this->couponDAO->getCoupCodeByBookCode($bookCode)) == null ) {
                     $coupon = new Coupon();
 
                     $coupon->setPrice($booking->getTotalPrice());
@@ -56,7 +56,7 @@ class CouponService
 
                     $resultInsert = $this->couponDAO->Add($coupon);
                 } else {
-                    $resultInsert = "This booking already has a coupon associated";
+                    $resultInsert = "Esta reserva ya tiene un cupon asociado";
                 }
             }
         } catch (Exception $ex) {
@@ -79,7 +79,7 @@ class CouponService
     public function srv_getInfoFullCoup($coupCode)
     {
         try {
-            $coup = $this->couponDAO->getCouponByCode($coupCode);
+            $coup = $this->couponDAO->searchByCode($coupCode);
             $result = $this->couponDAO->getFullInfoCoupon($coup->getCouponCode(), $coup->getBookCode());
         } catch (Exception $ex) {
             $result = $ex->getMessage();
@@ -148,31 +148,31 @@ class CouponService
 
             $checkCc = $this->validateCardNumber($ccnum);
             if ($checkCc == false) {
-                throw new Exception("Not validate credit number!");
+                throw new Exception("Numero de tarjeta no valido");
             }
 
             $checkCh = $this->validateCardHolder($cardholder);
             if ($checkCh == false) {
-                throw new Exception("Not validate card holder!");
+                throw new Exception("Titular no valido.");
             }
             if ($month < 1 && $month > 12 && $month <= $today->format('m')) {
-                throw new Exception("Impossible this month");
+                throw new Exception("Mes no valido");
             } else if ("20" . $year < $today->format('Y')) {
-                throw new Exception("Impossible this year");
+                throw new Exception("Año no valido");
             }
 
             $ccvStr = sprintf('%03d', $ccv); //3 digits 
 
             $ccvLimitLen = substr($ccvStr, 0, 3);
 
-            $coupon = $this->couponDAO->getCouponByCode($couponCode);
-            $bookingToCheck = $this->bookingDAO->GetByCode($coupon->getBookCode());
+            $coupon = $this->couponDAO->searchByCode($couponCode);
+            $bookingToCheck = $this->bookingDAO->searchByCode($coupon->getBookCode());
 
             if(Dates::currentCheck($bookingToCheck->getInitDate()) == null)
             {
                 $this->bookingDAO->cancelBooking($coupon->getBookCode());
-                $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),Status::CANCELLED);
-                throw new Exception("Too late to pay this booking,is already cancelled");
+                $this->couponDAO->updateStatus($coupon->getCouponCode(),Status::CANCELLED);
+                throw new Exception("Tarde para pagar esta reserva. Estado cancelado.");
             }
             if ($checkCc && $checkCh && $ccvLimitLen) {
                 //Return 1,1 row modified to paidup
@@ -185,21 +185,21 @@ class CouponService
 
 
                     //Sending email
-
+                    //placeholder de mi email
                     $sended = $this->mailer->sendingEmail("nicoop910@gmail.com", $fullCoup, VIEWS_PATH . "couponMail.php");
 
 
                     //Update the booking to paidup
-                    $this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"], Status::PAIDUP);
+                    $this->bookingDAO->updateStatus($fullCoup["bookCode"], Status::PAIDUP);
 
 
-                    $bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
+                    $bookingPaidup = $this->bookingDAO->searchByCode($fullCoup["bookCode"]);
 
 
                     //get the idConver between keeper/owner or generate a new one from both 'parts'
                     $idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(), $bookingPaidup->getOwnerCode());
                 } else {
-                    throw new Exception("We couldn't validate your pay!");
+                    throw new Exception("No se ha podido proceder con el pago. Verifique sus datos");
                 }
             }
         } catch (Exception $ex) {
@@ -214,29 +214,30 @@ class CouponService
     public function srv_declineCoupon($couponCode)
     {
         try {
-            $coupon = $this->couponDAO->getCouponByCode($couponCode);
+            $coupon = $this->couponDAO->searchByCode($couponCode);
             $datesBooking = $this->bookingDAO->getDatesByCode($coupon->getBookCode());
-            $booking = $this->bookingDAO->GetByCode($coupon->getBookCode());
+            $booking = $this->bookingDAO->searchByCode($coupon->getBookCode());
             $initDateFormat = DateTime::createFromFormat("Y-m-d", $datesBooking["initDate"]);
             $currentDateTime = new DateTime();
             if ($initDateFormat > $currentDateTime) {
 
                 $result = $this->couponDAO->declineCoupon($couponCode);
-                $this->notificationDAO->generateNoti("Your account will be suspended for 48hs.Your active bookings/coupon will stay but cannot generate new ones",$booking->getOwnerCode());
+                $this->notificationDAO->generateNoti("Tu cuenta queda suspendida por 24 horas. Sus reservas y cupones seguirán activos pero no podrá hacer nuevas.",$booking->getOwnerCode(),$booking->getOwnerCode());
+                $this->notificationDAO->generateNoti("La reserva {$booking->getBookCode()} ha sido cancelada por el dueño. Queda liberado para otra reserva.",$booking->getKeeperCode(),$booking->getKeeperCode());
             } else {
-                $result = "Not possible cancel.Too late (minimum 24hs)";
+                $result = "No es posible cancelar con esta anticipación. (Minimo 24hs)";
             }
         } catch (Exception $ex) {
-            $result = $ex->getMessage();
+            $result = 'Error en la consulta: ' . $ex->getMessage() . ' en ' . $ex->getFile() . ':' . $ex->getLine();
         }
-        return $result;
+        // return $result;
     }
 
     public function srv_getCoupCodeByBook($bookCode)
     {
         try {
 
-            $couponCode = $this->couponDAO->getCoupCodeByBook($bookCode);
+            $couponCode = $this->couponDAO->getCoupCodeByBookCode($bookCode);
         } catch (Exception $ex) {
            $couponCode = $ex->getMessage();
         }
@@ -248,7 +249,7 @@ class CouponService
         try {
             $result = $this->couponDAO->checkCouponOwner($couponCode, $ownerCodeLogged);
             if ($result != 1) {
-                $result = "The owner doesn't has coincidence with the owner of coupon!";
+                $result = "Owner no coincide con la info del cupon.";
             }
         } catch (Exception $ex) {
             $result = $ex->getMessage();
@@ -270,7 +271,7 @@ class CouponService
 	  public function srv_getCoupByCode($coupCode)
     {
         try {
-            $couponCode = $this->couponDAO->getCouponByCode($coupCode);
+            $couponCode = $this->couponDAO->searchByCode($coupCode);
         } catch (Exception $ex) {
            $couponCode = $ex->getMessage();
         }
@@ -281,7 +282,7 @@ class CouponService
 	{
 		try{
 			
-			$resp = $this->couponDAO->modifyPrice($coupCode,$price);
+			$resp = $this->couponDAO->updatePrice($coupCode,$price);
 			
 		}catch(Exception $ex)
 		{
@@ -296,7 +297,7 @@ class CouponService
 		$resp = null;
 		try{
 			$coupon = $this->srv_getCoupByCode($coupCode);
-			$booking = $this->bookingDAO->GetByCode($coupon->getBookCode());
+			$booking = $this->bookingDAO->searchByCode($coupon->getBookCode());
 			if($coupon != null && $booking != null)
 			{
 			
@@ -311,9 +312,9 @@ class CouponService
 						{
 							if($resultFirstBreed == 1)
 							{
-								$resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(),Status::PAIDUP);
+								$resp = $this->bookingDAO->updateStatus($booking->getBookCode(),Status::PAIDUP);
 								$this->srv_GenerateCouponToOwner($booking->getBookCode());
-								$resp = $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),$status);
+								$resp = $this->couponDAO->updateStatus($coupon->getCouponCode(),$status);
 								
 								$fullCoup = $this->couponDAO->getFullInfoCoupon($coupon->getCouponCode());
 								//Sending email
@@ -322,31 +323,31 @@ class CouponService
 
 
 								//Update the booking to paidup
-								$this->bookingDAO->modifyBookingStatus($fullCoup["bookCode"], Status::PAIDUP);
+								$this->bookingDAO->updateStatus($fullCoup["bookCode"], Status::PAIDUP);
 
 
-								$bookingPaidup = $this->bookingDAO->GetByCode($fullCoup["bookCode"]);
+								$bookingPaidup = $this->bookingDAO->searchByCode($fullCoup["bookCode"]);
 
 
 								//get the idConver between keeper/owner or generate a new one from both 'parts'
 								$idConver = $this->conversationDAO->generateConver($bookingPaidup->getKeeperCode(), $bookingPaidup->getOwnerCode());
 							}else
 							{
-								$resp = "The pet doesn't match the breed of the first record!";
+								$resp = "La mascota no coincide con la raza de la primera reserva del dia";
 							}
 						}else{
-						$resp = "Not possible to update status to confirm.Overbooking problem";
+						$resp = "No es posible actualizar estado. Superposicion de reservas";
 						}
 					}else{
-						$resp = "Not possible to update status to confirm.Invalid dates";
+						$resp = "No es posible actualizar estado. Fechas invalidas";
 					}
 					
 				}else if($status == Status::PENDING) {
-				$resp = $this->bookingDAO->modifyBookingStatus($booking->getBookCode(),Status::CONFIRMED);
+				$resp = $this->bookingDAO->updateStatus($booking->getBookCode(),Status::CONFIRMED);
 				$this->srv_GenerateCouponToOwner($booking->getBookCode());
-				$resp = $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),$status);
+				$resp = $this->couponDAO->updateStatus($coupon->getCouponCode(),$status);
 				}else{
-					$resp = $this->couponDAO->updateStatusCoup($coupon->getCouponCode(),$status);
+					$resp = $this->couponDAO->updateStatus($coupon->getCouponCode(),$status);
 				}
 			}
 		}catch(Exception $ex)

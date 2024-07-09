@@ -11,16 +11,17 @@ class NotificationDAO {
     private $tableName = "notification";
     private $connection;
 
-    public function generateNoti($message,$receiver)
+    public function generateNoti($message,$receiver,$codeRelated)
     {
         try{
 
-            $query = "INSERT INTO ".$this->tableName." (message,receiver) VALUES (:message,:receiver);";
+            $query = "INSERT INTO ".$this->tableName." (message,receiver,codeRelated) VALUES (:message,:receiver,:codeRelated);";
 
             $this->connection = Connection::GetInstance();
 
             $parameters["message"] = $message;
             $parameters["receiver"] = $receiver;
+            $parameters["codeRelated"] = $codeRelated;
 
             $result = $this->connection->ExecuteNonQuery($query,$parameters);
 
@@ -53,6 +54,7 @@ class NotificationDAO {
                 $noti["id"] = $row["id"];
                 $noti["message"] = $row["message"];
                 $noti["receiver"] = $row["receiver"];
+                $noti["codeRelated"] = $row["codeRelated"];
                 $noti["timestamp"] = $row["timestamp"];
                 $noti["seen"] = $row["seen"];
 

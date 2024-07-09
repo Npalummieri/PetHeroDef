@@ -59,6 +59,7 @@ class BookingDAO
             AND initDate >= :initDate
             AND endDate <= :endDate 
             AND keeperCode = :keeperCode;";
+            
             $this->connection = Connection::GetInstance();
 
             $parameters["ownerCode"] = $ownerCode;
@@ -75,7 +76,7 @@ class BookingDAO
         }
     }
 
-    public function GetByCode($bookCode)
+    public function searchByCode($bookCode)
     {
         try {
             $query = "SELECT * FROM " . $this->tableName . "
@@ -342,7 +343,7 @@ class BookingDAO
         }
     }
 
-    public function getBookingByCodeLogged($userCode, $codeBook)
+    public function getBookingsByCodeLogged($userCode, $codeBook)
     {
         try {
 
@@ -401,10 +402,10 @@ class BookingDAO
     }
 
 
-    public function modifyBookingStatus($codeBook, $status)
+    public function updateStatus($codeBook, $status)
     {
         try {
-			echo "STATUS DAO".$status;
+			
             $query = "UPDATE " . $this->tableName . " 
             SET status = :status
             WHERE bookCode = :codeBook;";

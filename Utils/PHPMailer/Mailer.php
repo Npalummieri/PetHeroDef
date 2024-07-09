@@ -52,20 +52,20 @@ class Mailer{
 
             //Content
             $this->mail->isHTML(true);                                  //Set email format to HTML
-            $this->mail->Subject = 'Password recovery';
+            $this->mail->Subject = 'Recuperación de contraseña';
             //$this->mail->Body    = 'We attached your coupon information related to your booking! Thanks you!</b>';
-            $this->mail->AltBody = "This will be your new password,keep it safe! ".$newPass." DONT SHARE TO ANYONE";
+            $this->mail->AltBody = "Esta es su nueva contraseña guardela y mantengala en un lugar seguro".$newPass." NO COMPARTA CON NADIE";
  
              // Agregar un mensaje al principio del contenido HTML
              $htmlContent = "<body>
              <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
-                 <h2>Password Recovery</h2>
-                 <p>Hello ".$recipient."</p>
-                 <p>We send your new password.Do not share.</p>
+                 <h2>Recuperación de contraseña</h2>
+                 <p>Hola ".$recipient."</p>
+                 <p>Esta es su contraseña a partir de ahora. NO LA COMPARTA</p>
                  <p><strong>".$newPass."</strong></p>
-                 <p>This change will expire in 24hs</p>
-                 <p>Thanks!</p>
-                 <p>Pet Hero Team</p>
+                 <p>Expirará en 24hs</p>
+                 <p>Gracias!</p>
+                 <p>Equipo PH</p>
              </div>
          </body>";
   
@@ -73,7 +73,7 @@ class Mailer{
              $this->mail->msgHTML($htmlContent);
 
              $this->mail->send();
-             echo 'Message has been sent';
+            //  echo 'Mensaje ha sido enviado';
              $sended = true;
 
 
@@ -107,9 +107,9 @@ class Mailer{
         
             //Content
             $this->mail->isHTML(true);                                  //Set email format to HTML
-            $this->mail->Subject = 'Paid up confirmation!';
+            $this->mail->Subject = 'Confirmacion de pago';
             //$this->mail->Body    = 'We attached your coupon information related to your booking! Thanks you!</b>';
-            $this->mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+            $this->mail->AltBody = '';
 
             // Generar HTML desde un archivo PHP
             ob_start();
@@ -117,7 +117,7 @@ class Mailer{
             $htmlContent = ob_get_clean();
 
             // Agregar un mensaje al principio del contenido HTML
-            $htmlContent = '<p>This is your coupon <strong> '.$fullCoup["ownerName"].' </strong> with all the reservation info. DO NOT SHARE </p>' . $htmlContent;
+            $htmlContent = '<p>Este es su cupon <strong> '.$fullCoup["ownerName"].' </strong> con toda la información de la reserva incluída. No comparta </p>' . $htmlContent;
  
             //base64= encodeo y el application/pdf es para aclararle al cliente que tipo de archivo recibira (MiME -id-)
             $this->mail->msgHTML($htmlContent);
@@ -133,18 +133,18 @@ class Mailer{
             $pdfString = $this->dompdf->output();
             $this->mail->addStringAttachment($pdfString, 'coupon.pdf', 'base64', 'application/pdf');
             $this->mail->send();
-            echo 'Message has been sent';
+            
             $sended = true;
         }else{
-            throw new Exception("Something's wrong with the coupon.Contact support");
+            throw new Exception("Algo ha salido mal. Contacte con soporte");
             $sended = false;
         }
         } catch (Exception $e) {
 
             $sended = false;
             throw $e;
-            echo $e->getMessage();
-            echo "Message could not be sent. Mailer Error: {$this->mail->ErrorInfo}";
+            // echo $e->getMessage();
+            // echo "Error en el enviado : {$this->mail->ErrorInfo}";
         }
         return $sended;
     }

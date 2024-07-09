@@ -77,9 +77,9 @@ class HomeController
     {
         if (Session::IsLogged()) {
             $result = $this->userService->srv_updateBio($bio, $userCode);
-			Session::SetOkMessage("Bio updated!");
+			Session::SetOkMessage("Bio actualizada");
         } else {
-			Session::SetBadMessage("Non authorized");
+			Session::SetBadMessage("Sin autorización");
             header("location: " . FRONT_ROOT . "Home/Index");
         }
     }
@@ -108,6 +108,8 @@ class HomeController
                 Session::DeleteSession();
                 header("location: ".FRONT_ROOT."Home/showLoginView");
             }
+        }else{
+            $notisencoded = null;
         }
 
         echo $notisencoded;
@@ -142,7 +144,7 @@ class HomeController
 			
 			if($checkAdmin != null)
 			{
-				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				if(is_a($checkAdmin,"Models\Admin"))
 				{
 					require_once(VIEWS_PATH."dashboard.php");
 				}else{
@@ -158,5 +160,28 @@ class HomeController
 				header("location: ".FRONT_ROOT."Home/showLoginView");
 			}
 	}
+
+    public function showAdminRegister()
+    {
+        $userLogged = Session::GetLoggedUser();
+        if(is_a($userLogged,"Models\Admin"))
+        {
+            require_once(VIEWS_PATH."registerAdmin.php");
+        }else{
+            header("location: ".FRONT_ROOT."Home/showLoginView");
+        }
+    }
+
+    public function addAdmin($email,$password,$dni)
+    {
+        $userLogged = Session::GetLoggedUser();
+        if(is_a($userLogged,"Models\Admin"))
+        {
+            $this->userService->validateAdminRegister($email,$password,$dni);
+            header("location: ".FRONT_ROOT."Home/showDashboard");
+        }else{
+            header("location: ".FRONT_ROOT."Home/showLoginView");
+        }
+    }
 		
 }

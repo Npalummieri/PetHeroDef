@@ -28,7 +28,7 @@ class PetController
                 $loggedUser = Session::GetLoggedUser();
                 $msge = $this->petService->validatePet($name, $typePet, $loggedUser->getOwnerCode(), $size, $breed, $files["vaccPlan"], $files["video"], $files["pfp"], $age);
                 if ($msge == null) {
-                    Session::SetOkMessage("Pet successfully added");
+                    Session::SetOkMessage("Mascota agregada");
                 } else {
                     Session::SetBadMessage($msge);
                 }
@@ -76,15 +76,15 @@ class PetController
 
                     require_once(VIEWS_PATH . "editPet.php");
                 } else {
-                    Session::SetBadMessage("Not permitted editing");
+                    Session::SetBadMessage("Edición no permitida");
                     header("location: " . FRONT_ROOT . "Home/showLoginView");
                 }
             } else {
-                Session::SetBadMessage("You are not an owner");
+                Session::SetBadMessage("No puede realizar esta accion,unicamente dueño.");
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
         } else {
-            Session::SetBadMessage("Log in please :)");
+            Session::SetBadMessage("Acceda con sus credenciales. Gracias");
             header("location: " . FRONT_ROOT . "Home/showLoginView");
         }
     }
@@ -99,10 +99,10 @@ class PetController
                 $result = $this->petService->srv_updatePetInfo($petCode, $loggedOwner->getOwnerCode(), $size, $files["vaccPlan"], $files["video"], $files["pfp"], $age);
 
                 if ($result == 1) {
-                    Session::SetOkMessage("Updated pet!");
+                    Session::SetOkMessage("Mascota actualizada");
                     header("location: " . FRONT_ROOT . "Owner/showMyPets");
                 } else {
-                    Session::SetBadMessage("Cannot update your pet correctly! Try again");
+                    Session::SetBadMessage("Error en la actualización. Revise e intente nuevamente");
                     $this->showEditPet($petCode);
                 }
             }
@@ -116,14 +116,14 @@ class PetController
                 $ownerLogged = Session::GetLoggedUser();
                 $result = $this->petService->srv_deletePet($ownerLogged->getOwnerCode(), $petCode);
                 if ($result == 1) {
-                    Session::SetOkMessage("Pet deleted!");
+                    Session::SetOkMessage("Mascota eliminada");
                     header("location: " . FRONT_ROOT . "Owner/showMyPets");
                 } else {
                     Session::SetBadMessage($result);
                     header("location: " . FRONT_ROOT . "Owner/showMyPets");
                 }
             } else {
-                Session::SetBadMessage("U shouldn't be here!");
+                Session::SetBadMessage("No tiene acceso");
                 header("location: " . FRONT_ROOT . "Home/showLoginView");
             }
         } else {
@@ -148,9 +148,11 @@ class PetController
 			
 			if($checkAdmin != null)
 			{
-				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 				{
 					$listPets = $this->petService->srv_getAllPets();
+                    $total = count($listPets);
+
 					require_once(VIEWS_PATH."listPets.php");
 				}else{
 					Session::DeleteSession();
@@ -168,40 +170,47 @@ class PetController
 	
 	public function showAdminEditPet($petCode)
 	{
-		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 		{
 			$pet = $this->petService->srv_getPet($petCode);
 			require_once(VIEWS_PATH."adminEditPet.php");
 		}
 	}
 	
-	public function adminEditPet($petCode,$name = "",$breed = "",$age = "")
+	public function adminEditPet($petCode,$name = "",$breed = "",$size = "",$age = "",$typePet = "")
 	{
 		$edits = array(
 			"name" => $name,
 			"breed" => $breed,
+            "size" => $size,
 			"age" => $age
 		);
-
+        $resultFinal = null;
+        $resultOkFinal = null;
 		foreach ($edits as $field => $value) {
 			if (!empty($value)) {
 				$methodName = "srv_edit" . ucfirst($field);
-				$result = $this->petService->$methodName($petCode, $value);
+                if($field == "breed")
+                {
+                    $result = $this->petService->$methodName($petCode,$typePet,$value);
+                }else{
+
+                    $result = $this->petService->$methodName($petCode, $value);
+                }
 				if($result == 1){
-                    $resultOkFinal = "";
-					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					$resultOkFinal .= " || ".ucfirst($field)." modificado con exito!";
 					Session::SetOkMessage($resultOkFinal);
-				}
-				if($result != 1)
-				{
-                    $resultFinal = "";
-					$resultFinal .= " || ".$result;
-					Session::SetBadMessage($resultFinal);
-					
-				}
+				}else if($result == 0)
+                {
+                    Session::SetBadMessage("");
+                }else{
+                    $resultFinal .= $result." - ".ucfirst($field)." no se pudo modificar <br>";
+                    Session::SetBadMessage($resultFinal);
+                }
+				
 			}
 		}
-		header("location: " . FRONT_ROOT . "Pet/showListPet");
+		header("location: " . FRONT_ROOT . "Pet/showListPets");
 	}
 	
 	public function listPetsFiltered($code ="")
@@ -212,6 +221,7 @@ class PetController
 			header("location: " . FRONT_ROOT . "Pet/showListPets");
 		}
 		$listPets = $this->petService->listPetFiltered($code);
+        $total = count($listPets);
 		if(is_array($listPets)){
 			require_once(VIEWS_PATH."listPets.php");
 		}else if($code != ""){
@@ -226,7 +236,7 @@ class PetController
 		$result = $this->petService->srv_deletePet($pet->getOwnerCode(), $pet->getPetCode());
 		if($result == 1)
 		{
-			Session::SetOkMessage("Successfully deleted");
+			Session::SetOkMessage("Eliminado exitosamente");
 			header("location: " . FRONT_ROOT . "Pet/showListPets");
 		}else{
 			Session::SetBadMessage($result);

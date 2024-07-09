@@ -38,15 +38,15 @@ class KeeperController
         } else if (is_array($userInfo)) {
             $user = $this->keeperService->validateKeeperFields($userInfo, $typePet, $typeCare, $initDate, $endDate, $price, $visitPerDay);
             if (!($user instanceof Keeper)) {
-                Session::SetBadMessage($user . "Try register again!");
+                Session::SetBadMessage($user . "Error en el registro. Intente nuevamente");
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
 
             if ($userInfo["user"] !== null && $user instanceof Keeper) {
-                Session::SetOkMessage("Successfully registered!");
+                Session::SetOkMessage("Registrado");
                 header("location: " . FRONT_ROOT . "Home/Index");
             } else {
-                Session::SetBadMessage($user . "Try register again!");
+                Session::SetBadMessage($user . "Error en el registro. Intente nuevamente");
                 header("location: " . FRONT_ROOT . "Home/Index");
             }
         }
@@ -188,7 +188,7 @@ class KeeperController
 			
 			if($checkAdmin != null)
 			{
-				if($checkAdmin->getEmail() == "admin@gmail.com" && $checkAdmin->getDni() == "00004321" && $checkAdmin->getPassword() == "Admin123" && $checkAdmin->getUsername() == "Admin777")
+				if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 				{
 					$listKeeps = $this->keeperService->srv_getAllKeepers();
 					require_once(VIEWS_PATH."listKeepers.php");
@@ -210,7 +210,7 @@ class KeeperController
 	
 	public function showEditKeeper($keeperCode)
 	{
-		if((Session::GetLoggedUser()->getEmail() == "admin@gmail.com" || Session::GetLoggedUser()->getUsername() == "Admin777" ) && Session::GetLoggedUser()->getPassword() == "Admin123" )
+		if((is_a(Session::GetLoggedUser(),"Models\Admin")))
 		{
 			$keeper = $this->keeperService->srv_getKeeperByCode($keeperCode);
 			require_once(VIEWS_PATH."adminEditKeep.php");
@@ -219,6 +219,8 @@ class KeeperController
 	
 	public function adminEditKeeper($keeperCode, $email = "", $username = "", $status = "", $name = "", $lastname = "",$typeCare = "",$typePet = "",$score = "",$price = "")
 	{
+
+        
 		$edits = array(
 			"email" => $email,
 			"username" => $username,
@@ -231,26 +233,26 @@ class KeeperController
 			"price" => $price
 			
 		);
+        $resultOkFinal = null;
+        $resultFinal = null;
 
 		foreach ($edits as $field => $value) {
 			if (!empty($value)) {
 				$methodName = "srv_edit" . ucfirst($field);
 				$result = $this->keeperService->$methodName($keeperCode, $value);
 				if($result == 1){
-                    $resultOkFinal = "";
-					$resultOkFinal .= " || ".ucfirst($field)." successfully modified!";
+					$resultOkFinal .= " || ".ucfirst($field)." modificado con exito.";
 					Session::SetOkMessage($resultOkFinal);
-				}
-				if($result != 1)
-				{
-                    $resultFinal = "";
-					$resultFinal .= " || ".$result;
-					Session::SetBadMessage($resultFinal);
-					
-				}
+				}else if($result == 0)
+                {
+                    Session::SetOkMessage("");
+                }else{
+                    $resultFinal .= $result." - ".ucfirst($field)." no se pudo modificar <br>";
+                    Session::SetBadMessage($resultFinal);
+                }
 			}
 		}
-		header("location: " . FRONT_ROOT . "Home/showListKeepers");
+		header("location: " . FRONT_ROOT . "Keeper/showListKeepers");
 	}
 	
 		public function listKeepersFiltered($code ="")
@@ -258,14 +260,14 @@ class KeeperController
 		
 		if($code == "")
 		{
-			header("location: " . FRONT_ROOT . "Home/showListKeepers");
+			header("location: " . FRONT_ROOT . "Keeper/showListKeepers");
 		}
 		$listKeeps = $this->keeperService->listKeeperFiltered($code);
 		if(is_array($listKeeps)){
 			require_once(VIEWS_PATH."listKeepers.php");
 		}else if($code != ""){
 			Session::SetBadMessage($listKeeps);
-			header("location: " . FRONT_ROOT . "Home/showListKeepers");
+			header("location: " . FRONT_ROOT . "Keeper/showListKeepers");
 		}			
 	}
 }

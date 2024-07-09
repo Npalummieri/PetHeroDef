@@ -49,7 +49,7 @@ class MessageDAO
                     $msg["idMsg"] = $msge["idMsg"];
                     $msg["codeSender"] = $msge["codeSender"];
                     $msg["codeReceiver"] = $msge["codeReceiver"];
-                    $msg["msgText"] = $msge["msgText"];
+                    $msg["msgText"] = html_entity_decode($msge["msgText"], ENT_QUOTES, 'UTF-8');
                     $msg["chatCode"] = $msge["chatCode"];
                     $msg["timeStamp"] = $msge["timeStamp"];
                     $msg["seen"] = $msge["seen"];
@@ -142,7 +142,7 @@ class MessageDAO
 
         try {
             //Deberia ver si traigo tambien los k.pfp/o.pfp,tambien ver si de ultima lo hago en query aparte 
-            $query = "SELECT m.idMsg,m.codeSender,m.codeReceiver,m.msgText,m.timestamp,chatCode 
+            $query = "SELECT m.idMsg,m.codeSender,m.codeReceiver,m.msgText as msgText,m.timestamp,chatCode 
             FROM " . $this->tableName . " as m
             WHERE (codeSender = :codeSender AND codeReceiver = :codeReceiver)
             OR (codeSender = :codeReceiver AND codeReceiver = :codeSender)
@@ -170,11 +170,11 @@ class MessageDAO
                 $partialArray["idMsg"] = $row["idMsg"];
                 $partialArray["codeSender"] = $row["codeSender"];
                 $partialArray["codeReceiver"] = $row["codeReceiver"];
-                $partialArray["msgText"] = $row["msgText"];
+                $partialArray["msgText"] = html_entity_decode($row["msgText"], ENT_QUOTES, 'UTF-8');
                 $partialArray["timestamp"] = $row["timestamp"];
                 $partialArray["chatCode"] = $row["chatCode"];
 
-
+                // $partialArray = html_entity_decode($row["msgText"], ENT_QUOTES, 'UTF-8');
                 array_push($arrayToChat, $partialArray);
             }
             return $arrayToChat;
@@ -301,7 +301,7 @@ class MessageDAO
 
 
             foreach ($resultSet as $row) {
-                $infoConver["msgText"] = $row["msgText"];
+                $infoConver["msgText"] = html_entity_decode($row["msgText"], ENT_QUOTES, 'UTF-8');
                 $infoConver["timeStamp"] = $row["timeStamp"];
                 $infoConver["chatCode"] = $row["chatCode"];
                 $infoConver["email"] = $row["email"];

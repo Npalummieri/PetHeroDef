@@ -29,14 +29,14 @@ class ReviewController
                 if ($results["result"] >= 1) {
                     if ($results["resultCountReview"] <= 2) {
                         $this->reviewService->srv_add($loggedUser->getOwnerCode(), $keeperCode, $comment, $score);
-                        Session::SetOkMessage("Review added successfully!");
+                        Session::SetOkMessage("Reseña añadida");
                     } else {
-                        Session::SetBadMessage("Error making the review.Can't review it more than 3 times ");
+                        Session::SetBadMessage("Error al agregar la reseña. Unicamente puede hacerlo 3 veces por usuario");
                     }
                     //Script refresh the page
                     //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 } else {
-                    Session::SetBadMessage("Error making the review.You must have a previous booking with this keeper");
+                    Session::SetBadMessage("Error al agregar la reseña. Debe tener al menos 1 reserva con dicho usuario");
                     //Script refresh the page
                     //header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $keeperCode);
                 }
@@ -57,10 +57,10 @@ class ReviewController
                 $loggedOwner = Session::GetLoggedUser();
                 $result = $this->reviewService->srv_deleteReview($reviewCode, $loggedOwner->getOwnerCode());
                 if ($result["deleted"] == 1) {
-                    Session::SetOkMessage("Review Successfully deleted!");
+                    Session::SetOkMessage("Reseña borrada");
                     header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $result["review"]->getCodeKeeper());
                 } else {
-                    Session::SetBadMessage("We cant delete this review.Try later!");
+                    Session::SetBadMessage("No es posible borrar en estos momentos. Intente más tarde");
                     header("location: " . FRONT_ROOT . "Keeper/showProfileKeeper/" . $result["review"]->getCodeKeeper());
                 }
             }

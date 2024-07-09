@@ -66,7 +66,7 @@ class Owner extends User{
         $this->setDni($user->getDni());
         $this->setPfp($user->getPfp());
 		$this->setBio($user->getBio());
-		$this->setSuspensionDate($user->getSuspensionDate());
+		$this->setSuspensionDate(null);
 		
     }
 }

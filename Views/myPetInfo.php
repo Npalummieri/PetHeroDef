@@ -2,20 +2,20 @@
 include("nav.php") ?>
 <form action="<?php echo FRONT_ROOT . "Pet/UpdatePetInfo" ?>" method="POST" enctype="multipart/form-data">
 
-  <h2>UPDATE YOUR PET INFO</h2>
+  <h2>Actualice a su mascota</h2>
 
   <div class="form-group">
-    <label for="size">Size</label>
+    <label for="size">Tamaño</label>
     <select name="size" id="size">
-      <option value="s">Small</option>
-      <option value="m">Medium</option>
-      <option value="b">Big</option>
+      <option value="s">Pequeño</option>
+      <option value="m">Mediano</option>
+      <option value="b">Grande</option>
     </select>
   </div>
 
 
   <div class="form-group">
-    <label for="vaccPlan">Vaccine Plan</label>
+    <label for="vaccPlan">Plan de vac.</label>
     <img src="<?php echo $value["vaccPlan"]; ?>" alt="vaccPlan">
     <input type="file" name="vaccPlan" placeholder="Vaccine Plan">
   </div>
@@ -27,9 +27,9 @@ include("nav.php") ?>
   </div>
 
   <div class="form-group">
-    <label for="pfp">Profile picture</label>
+    <label for="pfp">Foto de perfil</label>
     <img src="<?php echo $value["pfp"]; ?>" alt="pfp">
-    <input type="file" name="pfp" class="form-control form-control-lg" placeholder="Profile picture">
+    <input type="file" name="pfp" class="form-control form-control-lg" placeholder="Foto de perfil">
   </div>
 
   <div class="form-group">
@@ -38,6 +38,6 @@ include("nav.php") ?>
   </div>
 
 
-  <button type="submit">Update info</button>
+  <button type="submit">Actualizar info</button>
 </form>
 <script src="<?php echo JS_PATH . "formScripts.js" ?>"></script>

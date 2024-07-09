@@ -21,7 +21,7 @@ use Utils\Session as Session;
      <nav class="navbar navbar-expand-lg text-white">
           <a class="navbar-brand" href="#"></a>
           <?php if (!Session::IsLogged()) { ?>
-               <button class="btn btn-warning"><a class="nav-link" href="<?php echo FRONT_ROOT ?>Home/showChooseRegister">REGISTER</a></button>
+               <button class="btn btn-warning"><a class="nav-link" href="<?php echo FRONT_ROOT ?>Home/showChooseRegister">REGISTRO</a></button>
           <?php    } ?>
 
           <button class="navbar-toggler bg-info-subtle" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,69 +29,69 @@ use Utils\Session as Session;
           </button>
 
           <div class="collapse navbar-collapse text-white" id="navbarSupportedContent">
-               <ul class="navbar-nav m-0">
-                    <li class="nav-item active">
-                         <a class="nav-link text-white" href="<?php echo FRONT_ROOT . "Home/showHowWorks" ?>">How it works</a>
+               <ul class="navbar-nav">
+                    <li class="nav-item m-2 active border border-2 rounded-2 ">
+                         <a class="nav-link text-center" href="<?php echo FRONT_ROOT . "Home/showHowWorks" ?>">Sobre nosotros</a>
                     </li>
 
                     <?php if (!isset($_SESSION["loggedUser"])) { ?>
-                         <li class="nav-item active">
-                              <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Home/showLoginView">Login</a>
+                         <li class="nav-item active m-2 border border-2 rounded-2">
+                              <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Home/showLoginView">Acceso</a>
                          </li>
                     <?php } ?>
                     <?php if (Session::isLogged()) {
                     ?>
-                         <li class="nav-item active" id="notis">
+                         <li class="nav-item active m-2 border border-2 rounded-2" id="notis">
                               <div id="baseurl" data-urlcur = "<?php echo FRONT_ROOT ?>" hidden></div>
                               <div class="notification-area" id="areanoti">
-                                   <a class="nav-link" id="notificationDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa-solid fa-bell text-white"></i>
-                                        <span class="badge badge-danger" id="notificationCount"></span>
+                                   <a class="nav-link text-center" id="notificationDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa-solid fa-bell" id="bell"></i>
+                                        <span class="badge badge-danger" id="notificationCount" ></span>
                                    </a>
                                    <div class="dropdown-menu dropdown-menu-right" id="notificationMenu" aria-labelledby="notificationDropdown"></div>
                               </div>
                          </li>
                          <?php if (is_a($_SESSION["loggedUser"], 'Models\Owner')) { ?>
-                              <li class="nav-item active">
-                                   <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Owner/ShowMyProfile">My profile</a>
+                              <li class="nav-item active m-2 border border-2 rounded-2">
+                                   <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Owner/ShowMyProfile">Mi perfil</a>
                               </li>
                          <?php } else if (is_a($_SESSION["loggedUser"], 'Models\Keeper')) { ?>
-                              <li class="nav-item active">
-                                   <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Keeper/showProfileKeeper">My profile</a>
+                              <li class="nav-item active m-2 border border-2 rounded-2">
+                                   <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Keeper/showProfileKeeper">Mi perfil</a>
                               </li>
                     <?php }
                     } ?>
-                    <li class="nav-item active">
-                         <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Home/showKeeperListPag/1">Show All keepers</a>
+                    <li class="nav-item active m-2 border border-2 rounded-2">
+                         <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Home/showKeeperListPag/1">Cuidadores</a>
                     </li>
                     <?php
                     if (isset($_SESSION["loggedUser"])) {
                          if (is_a($_SESSION["loggedUser"], 'Models\Owner')) { ?>
-                              <li class="nav-item active ">
-                                   <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Owner/showAddPet">AddPet</a>
+                              <li class="nav-item active m-2 border border-2 rounded-2">
+                                   <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Owner/showAddPet">Agregar mascota +</a>
                               </li>
 
-                              <li class="nav-item active">
-                                   <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Owner/showMyPets">My Pets</a>
+                              <li class="nav-item active m-2 border border-2 rounded-2">
+                                   <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Owner/showMyPets">Mis mascotas</a>
                               </li>
 
 
 
-                              <li class="nav-item active">
-                                   <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Coupon/showMyCoupons">My Coupons</a>
+                              <li class="nav-item active m-2 border border-2 rounded-2">
+                                   <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Coupon/showMyCoupons">Cupones</a>
                               </li>
                          <?php } ?>
                     <?php
                     }
                     ?>
                     <?php if (Session::IsLogged()) {  ?>
-                         <li class="nav-item active">
-                              <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Booking/showMyBookings">My Bookings</a>
+                         <li class="nav-item active m-2 border border-2 rounded-2">
+                              <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Booking/showMyBookings">Reservas</a>
                          </li>
                     <?php } ?>
                     <?php if (Session::IsLogged()) {
-                    ?><li class="nav-item active">
-                              <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Message/ToInbox">Messages</a>
+                    ?><li class="nav-item active m-2 border border-2 rounded-2">
+                              <a class="nav-link text-center" href="<?php echo FRONT_ROOT ?>Message/ToInbox">Mensajes</a>
                          </li>
                     <?php } ?>
 
@@ -99,8 +99,8 @@ use Utils\Session as Session;
 
                     if (Session::IsLogged()) {
                     ?>
-                         <li class="nav-item active">
-                              <a class="nav-link text-white" href="<?php echo FRONT_ROOT ?>Home/Logout">Logout</a>
+                         <li class="nav-item active m-2 border border-2 rounded-2"  id="deleteSt">
+                              <a class="nav-link text-center"  href="<?php echo FRONT_ROOT ?>Home/Logout">Cerrar sesión</a>
                          </li>
                     <?php } ?>
                </ul>
